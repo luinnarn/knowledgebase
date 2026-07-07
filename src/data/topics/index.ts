@@ -8,4 +8,5 @@ import type { Topic } from '../../types/content'
 export const topicLoaders: Record<string, () => Promise<{ topics: Topic[] }>> = {
   fundamentals: () => import('./fundamentals'),
   oop: () => import('./oop'),
+  generics: () => import('./generics'),
 }

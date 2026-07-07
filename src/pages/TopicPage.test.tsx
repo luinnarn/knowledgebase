@@ -31,9 +31,11 @@ test('sidebar shows domain tree', () => {
   expect(nav).toBeInTheDocument()
 })
 
-test('unauthored topic shows a friendly placeholder', () => {
+test('authored topic loads via its lazy chunk and renders the full view', async () => {
   renderAt('/topics/generics/type-erasure')
-  expect(screen.getByText(/being authored/i)).toBeInTheDocument()
+  expect(await screen.findByRole('heading', { name: /type erasure/i, level: 1 })).toBeInTheDocument()
+  expect(screen.getByTestId('topic-summary')).toHaveTextContent(/compile-time construct/i)
+  expect(screen.getByText('Sources')).toBeInTheDocument()
 })
 
 test('unknown topic shows not found', () => {
