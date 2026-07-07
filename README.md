@@ -1,32 +1,56 @@
-# React + TypeScript + Vite
+# Java::Compendium
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+A personal Java knowledge base distilled from eight foundational books into a fast,
+searchable reference app — 12 domains, 102 topics, 121 curated JDK class references,
+and an interactive knowledge graph tying it all together.
 
-Currently, two official plugins are available:
+Built with React 19 + TypeScript + Vite. Fully static — no backend.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Features
 
-## React Compiler
+- **Topics** — hierarchical browser (domain → topic) with a strong skim-first layout:
+  TL;DR summary → key points → deep-dive blocks with syntax-highlighted code,
+  pitfall/best-practice callouts, and comparison tables. Effective Java items are
+  woven into the topics they belong to.
+- **Knowledge Graph** — force-directed map of every topic (d3-force), colored by
+  domain, with typed edges (part-of / prerequisite / related), pan/zoom, domain
+  filters, and a preview panel that links into the content.
+- **Class Reference** — 121 essential JDK classes with declarations, key method
+  tables, examples, pitfalls, and links to the official Javadoc.
+- **Search** — instant client-side search (MiniSearch) over all topics and classes.
+  Press `⌘K` / `Ctrl-K`.
+- Light/dark theme, responsive from 360 px to ultrawide, all content lazy-loaded
+  per domain.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Source books
 
-## Expanding the Oxlint configuration
+Core Java I & II (Horstmann), Effective Java (Bloch), Java Concurrency in Practice
+(Goetz et al.), Learning Java (Loy/Niemeyer/Leuck), Optimizing Java (Evans/Gough/
+Newland), Optimizing Cloud Native Java (Evans/Gough), and Java Secrets (Harrison).
+The `books/` folder is git-ignored.
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+## Development
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm install
+npm run dev        # dev server
+npm test           # vitest: data-integrity + component suites
+npm run build      # type-check + production build
+npm run preview    # serve the production build
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+The data-integrity suite (`src/data/integrity.test.ts`) enforces that every graph
+edge, topic cross-link (`[[topic-id]]`), book reference, and class relation resolves —
+content errors fail the build.
+
+## Structure
+
+```
+src/data/domains.ts        12 domains and their topic ids
+src/data/graph.ts          knowledge-graph nodes + typed edges
+src/data/topics/<domain>   authored topic content (lazy chunks)
+src/data/classes/<area>    curated JDK class docs (lazy chunks)
+src/components             renderers: TopicView, GraphView, CodeBlock, palette…
+src/pages                  Home, Topics, Graph, Classes
+scripts/verify-visual.mjs  headless-browser screenshot verification (uses Edge)
+```

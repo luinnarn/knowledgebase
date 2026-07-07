@@ -37,10 +37,10 @@ function layout(): { nodes: SimNode[]; links: SimLink[] } {
       'link',
       forceLink<SimNode, SimLink>(links)
         .id((d) => d.id)
-        .distance((l) => (l.type === 'part-of' ? 55 : 110))
-        .strength((l) => (l.type === 'part-of' ? 0.9 : 0.12)),
+        .distance((l) => (l.type === 'part-of' ? 55 : 95))
+        .strength((l) => (l.type === 'part-of' ? 0.9 : 0.25)),
     )
-    .force('charge', forceManyBody().strength(-320))
+    .force('charge', forceManyBody().strength(-260))
     .force('center', forceCenter(0, 0))
     .force('collide', forceCollide<SimNode>().radius((d) => nodeRadius(d) + 14))
     .stop()

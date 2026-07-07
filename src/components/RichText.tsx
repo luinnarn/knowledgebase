@@ -4,14 +4,17 @@ import { domains } from '../data/domains'
 
 const topicDomain = new Map(domains.flatMap((d) => d.topicIds.map((t) => [t, d.id] as const)))
 
-/** Renders mini-markdown: **bold**, `code`, [[topic-id]] and [[topic-id|label]] links. */
+/** Renders mini-markdown: **bold**, *italic*, `code`, [[topic-id]] and [[topic-id|label]] links. */
 export default function RichText({ text }: { text: string }) {
-  const parts = text.split(/(\*\*[^*]+\*\*|`[^`]+`|\[\[[a-z0-9-]+(?:\|[^\]]+)?\]\])/g)
+  const parts = text.split(/(\*\*[^*]+\*\*|\*[^*\s][^*]*\*|`[^`]+`|\[\[[a-z0-9-]+(?:\|[^\]]+)?\]\])/g)
   return (
     <>
       {parts.map((part, i) => {
         if (part.startsWith('**') && part.endsWith('**')) {
           return <strong key={i}>{part.slice(2, -2)}</strong>
+        }
+        if (part.length > 2 && part.startsWith('*') && part.endsWith('*')) {
+          return <em key={i}>{part.slice(1, -1)}</em>
         }
         if (part.startsWith('`') && part.endsWith('`') && part.length > 2) {
           return (

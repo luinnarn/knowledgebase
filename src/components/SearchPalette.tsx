@@ -108,7 +108,7 @@ function ResultRow({ r, active, onSelect }: { r: Result; active: boolean; onSele
       aria-selected={active}
       onClick={() => onSelect(r)}
     >
-      <span className={`palette-badge ${r.type}`}>{r.type === 'topic' ? 'T' : 'C'}</span>
+      <span className={`palette-badge palette-badge--${r.type}`}>{r.type === 'topic' ? 'T' : 'C'}</span>
       <span className="palette-result-title">{r.title}</span>
       <span className="palette-result-sub">{r.subtitle}</span>
     </button>
