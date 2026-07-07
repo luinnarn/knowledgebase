@@ -10,4 +10,5 @@ export const topicLoaders: Record<string, () => Promise<{ topics: Topic[] }>> = 
   oop: () => import('./oop'),
   generics: () => import('./generics'),
   collections: () => import('./collections'),
+  functional: () => import('./functional'),
 }
