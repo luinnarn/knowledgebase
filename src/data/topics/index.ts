@@ -13,4 +13,5 @@ export const topicLoaders: Record<string, () => Promise<{ topics: Topic[] }>> = 
   functional: () => import('./functional'),
   exceptions: () => import('./exceptions'),
   io: () => import('./io'),
+  concurrency: () => import('./concurrency'),
 }
