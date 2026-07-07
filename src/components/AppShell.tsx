@@ -1,5 +1,7 @@
+import { useEffect, useState } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
 import { useTheme } from '../lib/useTheme'
+import SearchPalette from './SearchPalette'
 import './AppShell.css'
 
 function ThemeToggle() {
@@ -20,7 +22,20 @@ function ThemeToggle() {
   )
 }
 
-export default function AppShell({ onOpenSearch }: { onOpenSearch?: () => void }) {
+export default function AppShell() {
+  const [searchOpen, setSearchOpen] = useState(false)
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault()
+        setSearchOpen((o) => !o)
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
+
   return (
     <div className="shell">
       <a href="#main" className="skip-link">
@@ -38,7 +53,7 @@ export default function AppShell({ onOpenSearch }: { onOpenSearch?: () => void }
           <NavLink to="/classes">Classes</NavLink>
         </nav>
         <div className="shell-actions">
-          <button className="search-btn" onClick={onOpenSearch} aria-label="Search">
+          <button className="search-btn" onClick={() => setSearchOpen(true)} aria-label="Search">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
               <circle cx="11" cy="11" r="7" />
               <path d="m20 20-3.5-3.5" />
@@ -52,6 +67,7 @@ export default function AppShell({ onOpenSearch }: { onOpenSearch?: () => void }
       <main id="main" className="shell-main">
         <Outlet />
       </main>
+      <SearchPalette open={searchOpen} onClose={() => setSearchOpen(false)} />
     </div>
   )
 }
