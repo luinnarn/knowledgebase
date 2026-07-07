@@ -1,0 +1,140 @@
+.topic {
+  max-width: var(--content-measure);
+  padding: var(--sp-6) var(--sp-5) var(--sp-8);
+  margin: 0 auto;
+  min-width: 0;
+}
+
+/* Signature: the domain spine. */
+.topic-header {
+  position: relative;
+  padding-left: var(--sp-5);
+  margin-bottom: var(--sp-6);
+}
+
+.topic-header::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.4rem;
+  bottom: 0.2rem;
+  width: 3px;
+  border-radius: 2px;
+  background: var(--domain);
+}
+
+.topic-eyebrow {
+  color: var(--domain);
+  margin-bottom: var(--sp-2);
+}
+
+.topic-title {
+  font-size: var(--fs-hero);
+  margin-bottom: var(--sp-4);
+}
+
+.topic-summary {
+  font-size: var(--fs-md);
+  line-height: 1.6;
+  color: var(--ink);
+  max-width: 60ch;
+}
+
+.topic-keypoints {
+  margin: var(--sp-4) 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.topic-keypoints li {
+  position: relative;
+  padding-left: 1.4rem;
+  font-size: var(--fs-sm);
+  color: var(--ink-2);
+  line-height: 1.55;
+}
+
+.topic-keypoints li::before {
+  content: '›';
+  position: absolute;
+  left: 0.35rem;
+  color: var(--domain);
+  font-weight: 700;
+}
+
+.topic-body {
+  min-width: 0;
+}
+
+.topic-para {
+  margin: var(--sp-4) 0;
+  color: var(--ink-2);
+}
+
+.topic-para strong {
+  color: var(--ink);
+}
+
+.topic-subheading {
+  font-size: var(--fs-lg);
+  margin: var(--sp-7) 0 var(--sp-2);
+}
+
+.topic-subheading::after {
+  content: '';
+  display: block;
+  width: 2rem;
+  height: 2px;
+  margin-top: var(--sp-2);
+  border-radius: 1px;
+  background: var(--domain);
+}
+
+.topic-related {
+  margin-top: var(--sp-7);
+}
+
+.topic-related-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  margin-top: var(--sp-3);
+}
+
+.topic-refs {
+  margin-top: var(--sp-6);
+  padding-top: var(--sp-5);
+  border-top: 1px solid var(--line);
+}
+
+.topic-refs ul {
+  margin: var(--sp-3) 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+}
+
+.topic-refs li {
+  font-size: var(--fs-sm);
+  color: var(--ink-3);
+}
+
+.topic-refs cite {
+  font-style: normal;
+  color: var(--ink-2);
+}
+
+.topic-link {
+  font-weight: 500;
+}
+
+@media (max-width: 640px) {
+  .topic {
+    padding: var(--sp-5) var(--sp-4) var(--sp-7);
+  }
+}

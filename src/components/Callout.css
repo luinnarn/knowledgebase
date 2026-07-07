@@ -1,0 +1,61 @@
+.callout {
+  margin: var(--sp-5) 0;
+  padding: var(--sp-4) var(--sp-5);
+  border-radius: var(--radius);
+  border: 1px solid;
+}
+
+.callout .codeblock {
+  margin: var(--sp-3) 0 0;
+}
+
+.callout-head {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-1);
+}
+
+.callout-icon {
+  font-size: var(--fs-sm);
+}
+
+.callout-title {
+  font-family: var(--font-display);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.callout-body {
+  font-size: var(--fs-sm);
+  line-height: 1.6;
+  color: var(--ink-2);
+}
+
+.callout-pitfall {
+  background: var(--pitfall-bg);
+  border-color: var(--pitfall-line);
+}
+
+.callout-pitfall .callout-head {
+  color: var(--pitfall-ink);
+}
+
+.callout-bestPractice {
+  background: var(--practice-bg);
+  border-color: var(--practice-line);
+}
+
+.callout-bestPractice .callout-head {
+  color: var(--practice-ink);
+}
+
+.callout-note {
+  background: var(--note-bg);
+  border-color: var(--note-line);
+}
+
+.callout-note .callout-head {
+  color: var(--note-ink);
+}
