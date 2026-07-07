@@ -17,4 +17,5 @@ export const topicLoaders: Record<string, () => Promise<{ topics: Topic[] }>> = 
   jvm: () => import('./jvm'),
   performance: () => import('./performance'),
   platform: () => import('./platform'),
+  modern: () => import('./modern'),
 }
