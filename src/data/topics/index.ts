@@ -15,4 +15,5 @@ export const topicLoaders: Record<string, () => Promise<{ topics: Topic[] }>> = 
   io: () => import('./io'),
   concurrency: () => import('./concurrency'),
   jvm: () => import('./jvm'),
+  performance: () => import('./performance'),
 }
