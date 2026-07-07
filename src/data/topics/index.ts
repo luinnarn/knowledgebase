@@ -5,4 +5,6 @@ import type { Topic } from '../../types/content'
  * A domain is registered here once its content is fully authored; the
  * integrity suite then enforces an exact match with Domain.topicIds.
  */
-export const topicLoaders: Record<string, () => Promise<{ topics: Topic[] }>> = {}
+export const topicLoaders: Record<string, () => Promise<{ topics: Topic[] }>> = {
+  fundamentals: () => import('./fundamentals'),
+}
