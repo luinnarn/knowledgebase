@@ -1,0 +1,215 @@
+.graphview {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.graph-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-5);
+  border-bottom: 1px solid var(--line);
+}
+
+.graph-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  flex: 1;
+}
+
+.graph-filter {
+  font-size: var(--fs-xs);
+  padding: 0.1rem 0.6rem;
+}
+
+.graph-filter.is-off {
+  opacity: 0.4;
+}
+
+.graph-filter-clear {
+  font-size: var(--fs-xs);
+  color: var(--accent);
+  border-style: dashed;
+}
+
+.graph-legend {
+  display: flex;
+  gap: var(--sp-4);
+  font-size: var(--fs-xs);
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.legend-line {
+  stroke-width: 2;
+}
+
+.legend-line.part-of {
+  stroke: var(--ink-3);
+  opacity: 0.5;
+}
+
+.legend-line.prerequisite-of {
+  stroke: var(--accent);
+}
+
+.legend-line.related-to {
+  stroke: var(--ink-3);
+  stroke-dasharray: 4 3;
+}
+
+.graph-stage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+
+.graph-svg {
+  width: 100%;
+  height: 100%;
+  min-height: 420px;
+  display: block;
+  cursor: grab;
+  touch-action: none;
+  background:
+    radial-gradient(circle at center, color-mix(in srgb, var(--accent) 4%, transparent), transparent 70%);
+}
+
+.graph-svg:active {
+  cursor: grabbing;
+}
+
+.graph-link {
+  stroke: var(--ink-3);
+  stroke-opacity: 0.35;
+  stroke-width: 1;
+  transition: stroke-opacity var(--dur) var(--ease);
+}
+
+.graph-link.prerequisite-of {
+  stroke: var(--accent);
+  stroke-opacity: 0.5;
+  stroke-width: 1.4;
+}
+
+.graph-link.related-to {
+  stroke-dasharray: 4 3;
+}
+
+.graph-link.is-faded {
+  stroke-opacity: 0.06;
+}
+
+.graph-node {
+  cursor: pointer;
+  transition: opacity var(--dur) var(--ease);
+}
+
+.graph-node.is-faded {
+  opacity: 0.15;
+}
+
+.graph-node circle {
+  transition: transform var(--dur) var(--ease);
+}
+
+.graph-node:hover circle {
+  transform: scale(1.15);
+}
+
+.graph-node.is-selected circle {
+  stroke: var(--ink);
+  stroke-width: 2.5;
+}
+
+.graph-node text {
+  font-family: var(--font-body);
+  font-size: 11px;
+  fill: var(--ink-2);
+  text-anchor: middle;
+  paint-order: stroke;
+  stroke: var(--bg);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
+.graph-node .hub-label {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 13px;
+  fill: var(--ink);
+}
+
+.graph-panel {
+  position: absolute;
+  top: var(--sp-4);
+  right: var(--sp-4);
+  width: min(20rem, calc(100% - 2 * var(--sp-4)));
+  padding: var(--sp-5);
+  background: var(--bg-raised);
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--domain, var(--accent));
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+}
+
+.graph-panel h2 {
+  font-size: var(--fs-lg);
+  margin: var(--sp-1) 0 var(--sp-2);
+}
+
+.graph-panel-summary {
+  font-size: var(--fs-sm);
+  color: var(--ink-2);
+  line-height: 1.55;
+  min-height: 2.5em;
+}
+
+.graph-panel-open {
+  display: inline-block;
+  margin-top: var(--sp-3);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+}
+
+.graph-panel-close {
+  position: absolute;
+  top: var(--sp-2);
+  right: var(--sp-3);
+  font-size: var(--fs-lg);
+  color: var(--ink-3);
+  line-height: 1;
+}
+
+.graph-panel-close:hover {
+  color: var(--ink);
+}
+
+@media (max-width: 640px) {
+  .graph-toolbar {
+    padding: var(--sp-3) var(--sp-4);
+  }
+
+  .graph-legend {
+    display: none;
+  }
+
+  .graph-panel {
+    top: auto;
+    bottom: var(--sp-4);
+    left: var(--sp-4);
+    right: var(--sp-4);
+    width: auto;
+  }
+}

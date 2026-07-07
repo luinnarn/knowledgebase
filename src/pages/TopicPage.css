@@ -1,0 +1,135 @@
+.topics-layout {
+  display: flex;
+  flex: 1;
+  align-items: stretch;
+  min-width: 0;
+}
+
+.topics-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.topic-loading {
+  min-height: 40vh;
+}
+
+/* Index & landing pages */
+.topics-index {
+  max-width: 56rem;
+  margin: 0 auto;
+  padding: var(--sp-7) var(--sp-5) var(--sp-8);
+}
+
+.topics-index h1 {
+  font-size: var(--fs-hero);
+  margin-bottom: var(--sp-3);
+}
+
+.topics-index-lede {
+  color: var(--ink-2);
+  max-width: 55ch;
+  margin-bottom: var(--sp-6);
+}
+
+.topics-index-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: var(--sp-4);
+}
+
+.domain-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding: var(--sp-5);
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--domain);
+  border-radius: var(--radius);
+  background: var(--bg-raised);
+  color: inherit;
+  transition: border-color var(--dur) var(--ease), transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+}
+
+.domain-card:hover {
+  text-decoration: none;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+  border-color: var(--line-strong);
+  border-top-color: var(--domain);
+}
+
+.domain-card h2 {
+  font-size: var(--fs-md);
+}
+
+.domain-card p {
+  font-size: var(--fs-sm);
+  color: var(--ink-2);
+  flex: 1;
+}
+
+.domain-card-count {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--ink-3);
+}
+
+.domain-topic-list {
+  margin: 0;
+  padding: 0 0 0 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.domain-topic-list li::marker {
+  color: var(--domain);
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+}
+
+.domain-topic-list a {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+/* Prev/next */
+.prevnext {
+  max-width: var(--content-measure);
+  margin: 0 auto;
+  padding: 0 var(--sp-5) var(--sp-7);
+  display: flex;
+  justify-content: space-between;
+  gap: var(--sp-4);
+}
+
+.prevnext-link {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--sp-3) var(--sp-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--ink);
+  font-weight: 500;
+  font-size: var(--fs-sm);
+  transition: border-color var(--dur) var(--ease), background var(--dur) var(--ease);
+}
+
+.prevnext-link:hover {
+  text-decoration: none;
+  border-color: var(--line-strong);
+  background: var(--bg-raised);
+}
+
+.prevnext-link.next {
+  text-align: right;
+  margin-left: auto;
+}
+
+@media (max-width: 640px) {
+  .topics-index {
+    padding: var(--sp-6) var(--sp-4) var(--sp-7);
+  }
+}

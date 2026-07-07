@@ -1,0 +1,123 @@
+/* Design tokens — Java::Compendium
+   Light: cool technical white. Dark: IDE blue-black.
+   Domain colors (data/domains.ts) carry the color story; chrome stays quiet. */
+
+:root {
+  /* type */
+  --font-display: 'Space Grotesk Variable', 'Space Grotesk', system-ui, sans-serif;
+  --font-body: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
+
+  --fs-xs: 0.75rem;
+  --fs-sm: 0.8438rem;
+  --fs-base: 0.9375rem;
+  --fs-md: 1.0625rem;
+  --fs-lg: clamp(1.15rem, 1rem + 0.6vw, 1.35rem);
+  --fs-xl: clamp(1.4rem, 1.15rem + 1vw, 1.9rem);
+  --fs-hero: clamp(1.9rem, 1.4rem + 2.2vw, 3.1rem);
+
+  /* space */
+  --sp-1: 0.25rem;
+  --sp-2: 0.5rem;
+  --sp-3: 0.75rem;
+  --sp-4: 1rem;
+  --sp-5: 1.5rem;
+  --sp-6: 2rem;
+  --sp-7: 3rem;
+  --sp-8: 4.5rem;
+
+  --radius-sm: 6px;
+  --radius: 10px;
+  --radius-lg: 16px;
+
+  --header-h: 3.5rem;
+  --sidebar-w: 17rem;
+  --content-measure: 46rem;
+
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur: 180ms;
+}
+
+:root,
+:root[data-theme='light'] {
+  color-scheme: light;
+  --bg: #fafbfc;
+  --bg-raised: #ffffff;
+  --bg-sunken: #f1f4f7;
+  --bg-code: #0f141b;
+  --fg-code: #d6deea;
+  --ink: #18202b;
+  --ink-2: #4a5768;
+  --ink-3: #8794a5;
+  --line: #e2e7ee;
+  --line-strong: #c9d2dd;
+  --accent: #2f6fed;
+  --accent-ink: #ffffff;
+  --pitfall-bg: #fdf1f1;
+  --pitfall-line: #e5b8b8;
+  --pitfall-ink: #a13535;
+  --practice-bg: #eefaf2;
+  --practice-line: #b3dfc2;
+  --practice-ink: #1d7a43;
+  --note-bg: #f0f5fd;
+  --note-line: #bdd3f2;
+  --note-ink: #2f5eb3;
+  --shadow: 0 1px 2px rgb(24 32 43 / 0.05), 0 4px 16px rgb(24 32 43 / 0.06);
+  --shadow-lg: 0 4px 12px rgb(24 32 43 / 0.08), 0 16px 48px rgb(24 32 43 / 0.14);
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #0e1116;
+  --bg-raised: #151a21;
+  --bg-sunken: #0a0d11;
+  --bg-code: #10161f;
+  --fg-code: #d6deea;
+  --ink: #e3e9f1;
+  --ink-2: #9aa7b8;
+  --ink-3: #64707f;
+  --line: #232a34;
+  --line-strong: #333d4a;
+  --accent: #6499ff;
+  --accent-ink: #0b1220;
+  --pitfall-bg: #2a1717;
+  --pitfall-line: #5c2f2f;
+  --pitfall-ink: #ef9a9a;
+  --practice-bg: #12251a;
+  --practice-line: #26543a;
+  --practice-ink: #7fd6a4;
+  --note-bg: #131f31;
+  --note-line: #29426b;
+  --note-ink: #93b8f5;
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 4px 16px rgb(0 0 0 / 0.35);
+  --shadow-lg: 0 4px 12px rgb(0 0 0 / 0.5), 0 16px 48px rgb(0 0 0 / 0.5);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --bg: #0e1116;
+    --bg-raised: #151a21;
+    --bg-sunken: #0a0d11;
+    --bg-code: #10161f;
+    --fg-code: #d6deea;
+    --ink: #e3e9f1;
+    --ink-2: #9aa7b8;
+    --ink-3: #64707f;
+    --line: #232a34;
+    --line-strong: #333d4a;
+    --accent: #6499ff;
+    --accent-ink: #0b1220;
+    --pitfall-bg: #2a1717;
+    --pitfall-line: #5c2f2f;
+    --pitfall-ink: #ef9a9a;
+    --practice-bg: #12251a;
+    --practice-line: #26543a;
+    --practice-ink: #7fd6a4;
+    --note-bg: #131f31;
+    --note-line: #29426b;
+    --note-ink: #93b8f5;
+    --shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 4px 16px rgb(0 0 0 / 0.35);
+    --shadow-lg: 0 4px 12px rgb(0 0 0 / 0.5), 0 16px 48px rgb(0 0 0 / 0.5);
+  }
+}

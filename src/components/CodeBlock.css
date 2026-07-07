@@ -1,0 +1,62 @@
+/* Code blocks keep a fixed dark palette in both themes — like an editor pane. */
+
+.codeblock {
+  margin: var(--sp-5) 0;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: var(--bg-code);
+}
+
+.codeblock-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--sp-2) var(--sp-4);
+  border-bottom: 1px solid rgb(255 255 255 / 0.07);
+}
+
+.codeblock-title {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: #8494ab;
+}
+
+.codeblock-copy {
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  color: #8494ab;
+  padding: 0.15rem 0.6rem;
+  border: 1px solid rgb(255 255 255 / 0.12);
+  border-radius: 5px;
+  transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+
+.codeblock-copy:hover {
+  color: #d6deea;
+  border-color: rgb(255 255 255 / 0.3);
+}
+
+.codeblock pre {
+  margin: 0;
+  padding: var(--sp-4);
+  overflow-x: auto;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  color: var(--fg-code);
+  -webkit-overflow-scrolling: touch;
+}
+
+.codeblock figcaption {
+  padding: var(--sp-2) var(--sp-4);
+  font-size: var(--fs-sm);
+  color: #8494ab;
+  border-top: 1px solid rgb(255 255 255 / 0.07);
+}
+
+.tok-kw { color: #c792ea; }
+.tok-type { color: #7fd6c2; }
+.tok-str { color: #c3e88d; }
+.tok-num { color: #f78c6c; }
+.tok-comment { color: #5c7089; font-style: italic; }
+.tok-ann { color: #ffcb6b; }
