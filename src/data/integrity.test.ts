@@ -109,6 +109,16 @@ describe('graph', () => {
     }
   })
 
+  it('covers every planned topic with a node and every domain with a hub', () => {
+    const ids = new Set(graphNodes.map((n) => n.id))
+    for (const topicId of plannedTopicIds) {
+      expect(ids.has(topicId), `no graph node for topic ${topicId}`).toBe(true)
+    }
+    for (const d of domains) {
+      expect(ids.has(`d-${d.id}`), `no hub node for domain ${d.id}`).toBe(true)
+    }
+  })
+
   it('every edge endpoint exists', () => {
     const ids = new Set(graphNodes.map((n) => n.id))
     for (const e of graphEdges) {
