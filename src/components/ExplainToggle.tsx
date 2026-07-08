@@ -3,7 +3,7 @@ import './ExplainToggle.css'
 export default function ExplainToggle({ expanded, onToggle }: { expanded: boolean; onToggle: () => void }) {
   return (
     <button type="button" className="explain-toggle" onClick={onToggle} aria-expanded={expanded}>
-      {expanded ? 'Show less' : 'Explain more'}
+      <span className="explain-toggle-label">{expanded ? 'Less' : 'More'}</span>
       <svg
         className={`explain-chev ${expanded ? 'is-open' : ''}`}
         width="9"

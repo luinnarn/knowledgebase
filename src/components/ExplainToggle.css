@@ -18,6 +18,12 @@
   border-color: var(--accent);
 }
 
+.explain-toggle-label {
+  display: inline-block;
+  width: 2.6em;
+  text-align: center;
+}
+
 .explain-chev {
   transition: transform var(--dur) var(--ease);
 }

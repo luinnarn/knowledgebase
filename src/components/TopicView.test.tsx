@@ -84,7 +84,7 @@ test('key points and callouts with a detail reveal it on toggle, and stay collap
   const detailText = /compiler only enforces this for the public top-level type/i
   expect(screen.queryByText(detailText)).not.toBeInTheDocument()
   const keyPointLi = screen.getByText('One public class per file').closest('li')!
-  fireEvent.click(within(keyPointLi).getByRole('button', { name: 'Explain more' }))
+  fireEvent.click(within(keyPointLi).getByRole('button', { name: 'More' }))
   expect(screen.getByText(detailText)).toBeInTheDocument()
 
   const pitfallDetail = /graph-based and enforces encapsulation/i
