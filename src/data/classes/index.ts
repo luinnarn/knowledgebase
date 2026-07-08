@@ -73,6 +73,10 @@ const rows: Record<string, Row[]> = {
     ['java.util.EnumSet', 'class', 'Bit-vector set of enum constants — the type-safe flag field (EJ 36)'],
     ['java.util.WeakHashMap', 'class', 'Entries vanish when keys become weakly reachable'],
     ['java.util.Optional', 'class', 'Maybe-value return type: orElse, map, ifPresent — never bare get()'],
+    ['java.util.SortedSet', 'interface', 'Set kept in ascending order — first/last and range views'],
+    ['java.util.NavigableSet', 'interface', 'SortedSet + ceiling/floor navigation and descending views'],
+    ['java.util.SortedMap', 'interface', 'Map with keys in ascending order — endpoint and range views'],
+    ['java.util.NavigableMap', 'interface', 'SortedMap + nearest-key/entry navigation and descending views'],
   ],
   functional: [
     ['java.util.stream.Stream', 'interface', 'Lazy pipeline: map/filter/flatMap + one terminal operation'],
