@@ -276,8 +276,13 @@ export const classes: JavaClass[] = [
     summary: 'A holding collection with head-first removal. Two method families: throwing (add/remove/element) and value-returning (offer/poll/peek) — pick per how exceptional emptiness is.',
     declaration: 'public interface Queue<E> extends Collection<E>',
     methods: [
-      { signature: 'boolean offer(E) / E poll() / E peek()', desc: 'Polite family: false/null at the edges.' },
-      { signature: 'boolean add(E) / E remove() / E element()', desc: 'Throwing family: IllegalStateException / NoSuchElementException.' },
+      { signature: 'boolean offer(E)', desc: 'Insert — for capacity-restricted queues, returns false on failure instead of throwing.' },
+      { signature: 'E poll() / E peek()', desc: 'Remove-and-return / inspect the head — return null if the queue is empty.' },
+      { signature: 'boolean add(E)', desc: 'Insert — throws IllegalStateException if the queue is capacity-restricted and full.' },
+      { signature: 'E remove() / E element()', desc: 'Remove-and-return / inspect the head — throw NoSuchElementException if the queue is empty.' },
+    ],
+    points: [
+      'Two parallel method families cover the same three operations: offer/poll/peek return a special value (false/null) on failure; add/remove/element throw instead — pick the family that matches how exceptional emptiness or fullness is for the call site.',
     ],
     related: ['java.util.ArrayDeque', 'topic:queues-deques', 'java.util.concurrent.BlockingQueue'],
   }),
@@ -289,9 +294,17 @@ export const classes: JavaClass[] = [
     summary: 'Double-ended queue: efficient add/remove at both ends. Serves as both the modern Stack (push/pop) and a plain Queue.',
     declaration: 'public interface Deque<E> extends Queue<E>, SequencedCollection<E>',
     methods: [
-      { signature: 'void addFirst(E) / addLast(E)', desc: 'Both ends.' },
-      { signature: 'E pollFirst() / pollLast()', desc: 'Null-returning removal from both ends.' },
-      { signature: 'void push(E) / E pop()', desc: 'Stack aliases for addFirst/removeFirst.' },
+      { signature: 'void addFirst(E) / addLast(E)', desc: 'Throwing insert at either end — IllegalStateException if capacity-restricted and full.' },
+      { signature: 'boolean offerFirst(E) / offerLast(E)', desc: 'Capacity-safe insert at either end — returns false instead of throwing.' },
+      { signature: 'E removeFirst() / removeLast()', desc: 'Throwing removal from either end — NoSuchElementException if empty.' },
+      { signature: 'E pollFirst() / pollLast()', desc: 'Null-returning removal from either end.' },
+      { signature: 'E getFirst() / getLast()', desc: 'Throwing inspection of either end — NoSuchElementException if empty.' },
+      { signature: 'E peekFirst() / peekLast()', desc: 'Null-returning inspection of either end.' },
+      { signature: 'void push(E) / E pop()', desc: 'Stack aliases: push = addFirst, pop = removeFirst (throws if empty).' },
+      { signature: 'Iterator<E> descendingIterator()', desc: 'Iterate tail-to-head.' },
+    ],
+    points: [
+      'Deque is the modern replacement for the legacy Stack class — push/pop/peek give the same LIFO discipline without Stack\'s synchronization overhead or its ill-advised extension of Vector.',
     ],
     related: ['java.util.ArrayDeque', 'topic:queues-deques'],
   }),
@@ -302,7 +315,18 @@ export const classes: JavaClass[] = [
     since: '1.6',
     summary: 'Circular-array Deque — the right default for both stacks and queues: faster than java.util.Stack (unsynchronized) and than LinkedList (no nodes).',
     declaration: 'public class ArrayDeque<E> extends AbstractCollection<E>\n        implements Deque<E>, Cloneable, Serializable',
-    points: ['Null elements are forbidden (null is the "empty" sentinel for poll)'],
+    methods: [
+      { signature: 'ArrayDeque()', desc: 'Default capacity, backed by a resizable circular array.' },
+      { signature: 'ArrayDeque(int numElements)', desc: 'Presize to skip regrowth copies.' },
+    ],
+    points: [
+      'Null elements are forbidden (null is the "empty" sentinel for poll)',
+      'Not thread-safe — synchronize externally or use a concurrent Deque implementation across threads.',
+    ],
+    example: {
+      code: 'Deque<Integer> stack = new ArrayDeque<>();\nstack.push(1);\nstack.push(2);\nstack.push(3);\nstack.pop(); // 3 — LIFO\n\nDeque<Integer> queue = new ArrayDeque<>();\nqueue.offer(1);\nqueue.offer(2);\nqueue.offer(3);\nqueue.poll(); // 1 — FIFO',
+      caption: 'Same class, two disciplines: push/pop for LIFO, offer/poll for FIFO — pick the pair that matches intent.',
+    },
     related: ['java.util.Deque', 'topic:queues-deques'],
   }),
   jc({
@@ -313,11 +337,15 @@ export const classes: JavaClass[] = [
     summary: 'Binary-heap queue: poll() always yields the smallest element per natural order or a Comparator. Iteration order is heap order, NOT sorted order.',
     declaration: 'public class PriorityQueue<E> extends AbstractQueue<E>\n        implements Serializable',
     methods: [
+      { signature: 'PriorityQueue()', desc: 'Natural ordering — elements must implement Comparable.' },
       { signature: 'PriorityQueue(Comparator<? super E> cmp)', desc: 'Custom priority.' },
-      { signature: 'E poll()', desc: 'Remove the minimum — O(log n).' },
-      { signature: 'E peek()', desc: 'Inspect the minimum — O(1).' },
+      { signature: 'boolean offer(E)', desc: 'Insert — O(log n); the queue is unbounded so this never returns false.' },
+      { signature: 'E poll()', desc: 'Remove the minimum — O(log n), null if empty.' },
+      { signature: 'E peek()', desc: 'Inspect the minimum — O(1), null if empty.' },
     ],
-    pitfalls: ['for-each over a PriorityQueue is not sorted — drain with poll() for priority order.'],
+    pitfalls: [
+      'Iteration (for-each, iterator()) and toArray() reflect internal heap order, not sorted order — only successive poll() calls return elements in priority order.',
+    ],
     related: ['topic:queues-deques', 'java.util.Comparator'],
   }),
   jc({
@@ -453,11 +481,17 @@ export const classes: JavaClass[] = [
     declaration: 'public final class Optional<T>',
     methods: [
       { signature: 'static <T> Optional<T> of(T) / ofNullable(T) / empty()', desc: 'Creation (of(null) throws).' },
+      { signature: 'boolean isPresent() / boolean isEmpty()', desc: 'Presence checks — prefer ifPresent/map/orElse over branching on these when possible.' },
       { signature: 'T orElse(T other) / T orElseGet(Supplier<T>)', desc: 'Defaults — orElse\'s argument is ALWAYS evaluated.' },
       { signature: 'T orElseThrow(Supplier<X>)', desc: 'Fail with a meaningful exception.' },
+      { signature: 'Optional<T> filter(Predicate<? super T>)', desc: 'Keep the value only if it matches the predicate; otherwise becomes empty.' },
       { signature: 'Optional<U> map(Function) / flatMap(Function)', desc: 'Transform if present.' },
+      { signature: 'Optional<T> or(Supplier<? extends Optional<? extends T>>)', desc: 'Lazy fallback Optional — the supplier runs only when this Optional is empty.' },
       { signature: 'void ifPresent(Consumer) / ifPresentOrElse(…)', desc: 'Conditional actions.' },
       { signature: 'Stream<T> stream()', desc: '0-or-1 element stream — flatMap-friendly.' },
+    ],
+    pitfalls: [
+      'orElse(x) evaluates x eagerly, every time — even when the Optional is present and x is discarded. For an expensive computation or a side-effecting call, use orElseGet(supplier) instead, which only runs the supplier when the value is actually absent.',
     ],
     related: ['topic:optional', 'java.util.stream.Stream'],
   }),
