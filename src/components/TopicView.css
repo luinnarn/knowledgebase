@@ -133,6 +133,14 @@
   font-weight: 500;
 }
 
+.diagram-loading {
+  margin: var(--sp-5) 0;
+  min-height: 8rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--bg-raised);
+}
+
 @media (max-width: 640px) {
   .topic {
     padding: var(--sp-5) var(--sp-4) var(--sp-7);

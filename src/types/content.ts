@@ -8,6 +8,7 @@ export type ContentBlock =
   | { kind: 'bestPractice'; title: string; text: string; code?: string }
   | { kind: 'note'; title?: string; text: string }
   | { kind: 'table'; caption?: string; headers: string[]; rows: string[][] }
+  | { kind: 'diagram'; title?: string; code: string; caption?: string } // Mermaid syntax
 
 export interface BookRef {
   /** Short book key, e.g. 'core-java-1', 'effective-java'. */

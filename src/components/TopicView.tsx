@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { lazy, Suspense, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import type { Topic, ContentBlock, Domain } from '../types/content'
 import { useCompendium } from '../lib/useCompendium'
@@ -7,6 +7,9 @@ import CodeBlock from './CodeBlock'
 import Callout from './Callout'
 import CompareTable from './CompareTable'
 import './TopicView.css'
+
+// Mermaid is a heavy dependency (~100KB+ gzipped) — load it only on topics that use one.
+const Diagram = lazy(() => import('./Diagram'))
 
 function Block({ block }: { block: ContentBlock }) {
   switch (block.kind) {
@@ -28,6 +31,12 @@ function Block({ block }: { block: ContentBlock }) {
       return <Callout variant="note" title={block.title} text={block.text} />
     case 'table':
       return <CompareTable caption={block.caption} headers={block.headers} rows={block.rows} />
+    case 'diagram':
+      return (
+        <Suspense fallback={<div className="diagram-loading" aria-busy="true" />}>
+          <Diagram code={block.code} title={block.title} caption={block.caption} />
+        </Suspense>
+      )
   }
 }
 

@@ -27,6 +27,14 @@ export const compendiums: CompendiumMeta[] = [
       'Algorithms and data structures, design patterns, software architecture, refactoring, and the craft of building software — organized into domains and topics, cross-linked into one knowledge graph.',
     hasClasses: false,
   },
+  {
+    id: 'system-design',
+    label: 'SysDesign',
+    heroTitle: 'Systems, at scale.',
+    heroLede:
+      'Scalability fundamentals, caching, databases, messaging, distributed systems theory, reliability, and the architecture decisions behind systems that hold up under load — organized into domains and topics, cross-linked into one knowledge graph.',
+    hasClasses: false,
+  },
 ]
 
 export const compendiumById = new Map(compendiums.map((c) => [c.id, c]))

@@ -11,6 +11,11 @@ import { topicLoaders as csTopicLoaders } from './cs/topics/index'
 import { graphNodes as csGraphNodes, graphEdges as csGraphEdges } from './cs/graph'
 import { books as csBooks, bookByKey as csBookByKey } from './cs/books'
 
+import { domains as sdDomains, domainById as sdDomainById } from './system-design/domains'
+import { topicLoaders as sdTopicLoaders } from './system-design/topics/index'
+import { graphNodes as sdGraphNodes, graphEdges as sdGraphEdges } from './system-design/graph'
+import { books as sdBooks, bookByKey as sdBookByKey } from './system-design/books'
+
 export interface CompendiumData {
   domains: Domain[]
   domainById: Map<string, Domain>
@@ -52,6 +57,18 @@ export const compendiumRegistry: Record<string, CompendiumData> = {
     graphEdges: csGraphEdges,
     books: csBooks,
     bookByKey: csBookByKey,
+    classLoaders: {},
+    classSummaries: [],
+    areaTitles: {},
+  },
+  'system-design': {
+    domains: sdDomains,
+    domainById: sdDomainById,
+    topicLoaders: sdTopicLoaders,
+    graphNodes: sdGraphNodes,
+    graphEdges: sdGraphEdges,
+    books: sdBooks,
+    bookByKey: sdBookByKey,
     classLoaders: {},
     classSummaries: [],
     areaTitles: {},
