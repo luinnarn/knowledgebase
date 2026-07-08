@@ -260,7 +260,7 @@ export const classes: JavaClass[] = [
       { signature: 'K lowerKey(K) / higherKey(K)', desc: 'Nearest strictly < / > key, or null.' },
       { signature: 'Map.Entry<K,V> floorEntry(K) / ceilingEntry(K)', desc: 'Nearest ≤ / ≥ entries.' },
       { signature: 'Map.Entry<K,V> pollFirstEntry() / pollLastEntry()', desc: 'Retrieve-and-remove the extreme entries.' },
-      { signature: 'SortedMap<K,V> headMap/tailMap/subMap(…)', desc: 'Range views over the sort order, live and write-through; boolean flags control endpoint inclusion.' },
+      { signature: 'NavigableMap<K,V> headMap/tailMap/subMap(…)', desc: 'Range views over the sort order, live and write-through; boolean flags control endpoint inclusion.' },
       { signature: 'NavigableMap<K,V> descendingMap()', desc: 'Reverse-order view backed by the same tree.' },
     ],
     pitfalls: [

@@ -543,6 +543,6 @@ export const topics: Topic[] = [
       { book: 'optimizing-java', chapter: 'Ch. 11 — Java Language Performance Techniques' },
       { book: 'java-secrets', chapter: 'Performance chapters' },
     ],
-    related: ['collections-overview', 'lists', 'sets', 'maps', 'sorted-collections', 'concurrent-collections', 'enums'],
+    related: ['collections-overview', 'lists', 'sets', 'maps', 'sorted-collections', 'concurrent-collections', 'enums', 'queues-deques'],
   },
 ]
