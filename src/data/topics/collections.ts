@@ -70,7 +70,8 @@ export const topics: Topic[] = [
       'Middle insertion/removal in `ArrayList` is O(n) — elements shift',
       '`LinkedList` is O(n) to *reach* any position; each node is a separate allocation',
       'Presize with `new ArrayList<>(expectedSize)` when the size is known',
-      '`List.copyOf(c)` for defensive immutable copies; `subList` for range views',
+      '`List.copyOf(c)` for defensive immutable copies; `subList(a, b)` returns a live range **view**, not a copy',
+      '`List.of(...)` is truly immutable — null-hostile, throws `UnsupportedOperationException` on any mutation attempt',
     ],
     blocks: [
       {
@@ -89,6 +90,16 @@ export const topics: Topic[] = [
       {
         kind: 'paragraph',
         text: 'The performance books are blunt here: on modern hardware, memory locality dominates ([[hardware-memory]]). An `ArrayList` traversal streams through cache lines; a `LinkedList` traversal takes a potential cache miss per element. Even for insert-heavy workloads, `ArrayList` or `ArrayDeque` usually measures faster. Choose `LinkedList` only for genuine cursor-based editing via `ListIterator`.',
+      },
+      {
+        kind: 'code',
+        title: 'ListIterator: the one job LinkedList still wins',
+        code: 'ListIterator<String> it = names.listIterator();\nwhile (it.hasNext()) {\n    String name = it.next();\n    if (name.isBlank()) {\n        it.remove();                // O(1) at the cursor on a LinkedList\n    } else if (name.equals("TBD")) {\n        it.set("Unknown");          // replace in place, no second lookup\n    }\n}\nwhile (it.hasPrevious()) {\n    it.previous();                  // bidirectional — plain Iterator cannot go back\n}',
+      },
+      {
+        kind: 'note',
+        title: 'What ListIterator adds over Iterator',
+        text: '`ListIterator` extends `Iterator` with backward traversal (`hasPrevious`/`previous`), in-place replacement (`set`), and positional insertion (`add`) — all relative to the cursor, with no index arithmetic. On an `ArrayList` those calls still shift the backing array; on a `LinkedList` each is O(1), which is the one scenario where the node-per-element design actually pays for itself.',
       },
       {
         kind: 'code',
@@ -126,8 +137,14 @@ export const topics: Topic[] = [
       '`TreeSet`: red-black tree, sorted iteration, `NavigableSet` range queries',
       'Elements must have consistent `equals`/`hashCode` — and stay **unmutated** while inside',
       '`EnumSet` for enum elements: bit-vector speed with Set semantics',
+      'Iteration order: `HashSet` arbitrary, `LinkedHashSet` insertion order, `TreeSet` sorted order',
+      '`Set.of(...)` rejects duplicate arguments at construction — throws `IllegalArgumentException`, not a silent dedup',
     ],
     blocks: [
+      {
+        kind: 'paragraph',
+        text: 'A `Set` is best understood as a `Map` with no values: `HashSet` *is* a `HashMap<E, Object>` sharing one dummy value, and `TreeSet` wraps a `TreeMap`. Everything that governs a map — how `equals`/`hashCode` decide identity, iteration order, load factor ([[hashing-internals]]) — governs the matching set verbatim. Pick a set the same way you\'d pick its [[maps|map]]: `HashSet` for O(1) membership and don\'t-care order, `LinkedHashSet` to remember insertion order, `TreeSet` when you need sorted iteration or range queries.',
+      },
       {
         kind: 'code',
         title: 'Deduplication and membership',
@@ -150,6 +167,16 @@ export const topics: Topic[] = [
         kind: 'note',
         title: 'Iteration order stability',
         text: 'Never depend on `HashSet` order — it varies with capacity, insertion history, and JDK version. Tests that assert on it are flaky by construction. Want determinism? `LinkedHashSet` or `TreeSet`.',
+      },
+      {
+        kind: 'note',
+        title: 'When add() returns false',
+        text: '`set.add(x)` returns `false` when an equal element is already present — a one-call "have I seen this?" test with no second lookup, which is exactly what powers the dedup idiom above. It is only as correct as the element\'s `equals`/`hashCode` ([[object-contracts]]); a class that overrides one but not the other silently duplicates members it should have rejected, or rejects ones it should have kept.',
+      },
+      {
+        kind: 'code',
+        title: 'Dedup a stream, then navigate a sorted set',
+        code: 'record LogEntry(String host, Instant at) {}\n\nSet<String> distinctHosts = entries.stream()\n        .map(LogEntry::host)\n        .collect(Collectors.toCollection(HashSet::new));   // membership only, order irrelevant\n\nNavigableSet<Integer> ports = new TreeSet<>(Set.of(22, 80, 443, 8080));\nports.ceiling(100);     // 443  — smallest element >= 100\nports.headSet(443);     // [22, 80]  — everything below 443\nports.descendingSet();  // 8080, 443, 80, 22\n// ports.contains(443) is O(log n) here; a HashSet would answer the same question in O(1)\n// — pay for navigation only when you actually use floor/ceiling/range queries',
       },
     ],
     refs: [
@@ -179,8 +206,9 @@ export const topics: Topic[] = [
         code: 'Deque<Task> queue = new ArrayDeque<>();\nqueue.offer(task);            // enqueue at tail\nTask next = queue.poll();     // dequeue from head (null if empty)\n\nDeque<Frame> stack = new ArrayDeque<>();\nstack.push(frame);            // addFirst\nFrame top = stack.pop();      // removeFirst (throws if empty)',
       },
       {
-        kind: 'paragraph',
-        text: 'The dual method families matter at edges: on an empty queue `remove()` throws `NoSuchElementException` while `poll()` returns `null`; on a bounded queue `add` throws while `offer` returns `false`. Pick the family that matches how exceptional emptiness actually is in your logic.',
+        kind: 'note',
+        title: 'Two method families, one contract each',
+        text: 'Every `Queue` operation comes in a throwing form (`add`, `remove`, `element`) and a special-value form (`offer`, `poll`, `peek`). The families matter at the edges: on an empty queue `remove()`/`element()` throw `NoSuchElementException` while `poll()`/`peek()` return `null`; on a bounded queue `add` throws `IllegalStateException` while `offer` returns `false`. Reach for the throwing family when emptiness or fullness is a bug worth surfacing immediately; reach for the special-value family when it is routine control flow — draining a queue is a `while ((var t = queue.poll()) != null)` loop, not a `try/catch` ladder. See [[choosing-collections]] for picking the structure in the first place.',
       },
       {
         kind: 'code',
