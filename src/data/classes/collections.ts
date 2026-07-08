@@ -671,7 +671,7 @@ export const classes: JavaClass[] = [
         { signature: 'K getKey() / V getValue()', desc: 'The pair components.' },
         { signature: 'V setValue(V value)', desc: 'Write through to the backing map (entrySet entries only).' },
         { signature: 'static <K,V> Comparator<Map.Entry<K,V>> comparingByKey() / comparingByValue()', desc: 'Comparators for sorting entry streams.' },
-        { signature: 'static <K,V> Map.Entry<K,V> entry(K, V)', desc: 'Immutable standalone entry (Map.entry factory).' },
+        { signature: 'static <K,V> Map.Entry<K,V> Map.entry(K, V)', desc: 'Immutable standalone entry — factory declared on Map (not Map.Entry).' },
       ],
       related: ['java.util.Map', 'java.util.NavigableMap', 'topic:maps'],
     }),
