@@ -246,7 +246,7 @@ export const topics: Topic[] = [
       'Keys must be stable: mutating a key in place breaks the map',
       '`LinkedHashMap` + `removeEldestEntry` = instant LRU cache',
       'Views: `keySet()`, `values()`, `entrySet()` write through to the map',
-      '`null` keys/values: `HashMap` allows one null key; `TreeMap`/`ConcurrentHashMap` reject nulls',
+      '`null` keys/values: `HashMap` allows one null key and null values; `TreeMap` rejects null keys but allows null values; `ConcurrentHashMap` rejects both',
     ],
     blocks: [
       {
@@ -271,7 +271,7 @@ export const topics: Topic[] = [
       {
         kind: 'pitfall',
         title: 'Mutating a map during forEach',
-        text: 'Adding or removing keys from inside `map.forEach((k, v) -> …)` throws `ConcurrentModificationException`, same as mutating during a for-each loop — `forEach` is still iterating the backing structure. `replaceAll` is the safe in-place update for values only (it cannot add/remove keys). To delete conditionally, use `map.entrySet().removeIf(e -> …)` or `Map.values().removeIf(...)`; to insert derived keys, collect them first and `putAll` after.',
+        text: 'Adding or removing keys from inside `map.forEach((k, v) -> …)` throws `ConcurrentModificationException`, same as mutating during a for-each loop — `forEach` is still iterating the backing structure. `replaceAll` is the safe in-place update for values only (it cannot add/remove keys). To delete conditionally, use `map.entrySet().removeIf(e -> …)` or `map.values().removeIf(...)`; to insert derived keys, collect them first and `putAll` after.',
       },
       {
         kind: 'code',
