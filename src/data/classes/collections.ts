@@ -51,7 +51,7 @@ export const classes: JavaClass[] = [
     ],
     points: [
       'List.of(...) has fixed-arity overloads for 0–10 elements plus a varargs form, avoiding an extra array allocation for common literal sizes',
-      'addFirst/addLast/getFirst/getLast (SequencedCollection) are convenience defaults — on ArrayList, the "first" operations are still O(n) shifts',
+      'addFirst/addLast/getFirst/getLast (SequencedCollection, Java 21) are convenience defaults — on ArrayList only addFirst is an O(n) shift; addLast is amortized O(1) and getFirst/getLast are O(1)',
     ],
     pitfalls: ['remove(int) vs remove(Object) overload ambush on List<Integer>.'],
     related: ['java.util.ArrayList', 'topic:lists', 'java.util.Collections'],
