@@ -9,7 +9,7 @@ export const topics: Topic[] = [
       'One interface hierarchy — `Collection` branching into `List`, `Set`, and `Queue`, with `Map` alongside — and interchangeable implementations behind it. Program to the interface; choose the implementation for its performance shape.',
     keyPoints: [
       'Core interfaces: `Collection`, `List`, `Set`, `SortedSet`/`NavigableSet`, `Queue`, `Deque`, `Map`',
-      'Declare variables as the interface type: `List<String> l = new ArrayList<>()` (EJ 64)',
+      'Declare variables as the interface type: `List<String> l = new ArrayList<>()` (EJ 64) — swap the implementation later without touching a single caller',
       '`Iterable` powers for-each; `Iterator.remove` is the only safe removal during iteration',
       'Factory methods `List.of` / `Set.of` / `Map.of` create compact **immutable** collections',
       'Optional operations: immutable views throw `UnsupportedOperationException` on mutation',
@@ -44,6 +44,11 @@ export const topics: Topic[] = [
       {
         kind: 'paragraph',
         text: '`List.of`/`Map.of` collections reject `null` and are **truly immutable** — unlike `Arrays.asList` (fixed-size but write-through, [[arrays]]) and unlike `Collections.unmodifiableList` (a read-only *view* of a possibly-changing list, [[views-algorithms]]).',
+      },
+      {
+        kind: 'note',
+        title: 'Three "unmodifiable" flavors — don\'t conflate them',
+        text: '① `List.of(...)`/`Map.of(...)`/`Set.of(...)`: truly immutable — no backing array to mutate, null-hostile, fixed forever. ② `Arrays.asList(a)`: fixed-**size** but write-through — `set` mutates the backing array, `add`/`remove` throw ([[arrays]]). ③ `Collections.unmodifiableList(l)` and friends: a read-only *view* over `l` — the wrapper itself throws on mutation, but if code elsewhere still holds `l`, changes there are visible through the wrapper. Only ① is safe to hand out as a permanent guarantee; ② and ③ are both still tied to mutable state behind the scenes — see [[views-algorithms]] for the full picture.',
       },
       {
         kind: 'bestPractice',
@@ -427,7 +432,7 @@ export const topics: Topic[] = [
       'A view shares storage with its source — changes propagate (in whichever directions are allowed)',
       '`Collections.unmodifiable*` = read-only **window**; the underlying collection can still change',
       '`List.copyOf` / `Set.copyOf` / `Map.copyOf` = true independent immutable copies',
-      'Algorithms: `sort`, `binarySearch`, `shuffle`, `reverse`, `rotate`, `swap`, `frequency`, `disjoint`',
+      'Algorithms: `sort`, `binarySearch`, `shuffle`, `reverse`, `rotate`, `swap`, `min`/`max`, `frequency`, `disjoint`',
       '`nCopies`, `emptyList` — memory-free "virtual" collections',
     ],
     blocks: [
@@ -450,9 +455,19 @@ export const topics: Topic[] = [
         text: 'If code elsewhere holds the original reference, your "unmodifiable" list still changes under your feet. For a defensive copy in an immutable class, use `List.copyOf` ([[immutability-class-design]]); wrappers are for *sharing* a live collection read-only.',
       },
       {
+        kind: 'pitfall',
+        title: 'Views are live — writes flow through, both ways',
+        text: '`subList`, `Map.keySet()`/`values()`/`entrySet()`, `Arrays.asList`, and the `Collections.unmodifiable*`/`synchronized*` wrappers are not copies — they are windows onto the same backing storage, in both directions. Remove through `keySet()` and the entry disappears from the map; structurally change the backing collection while a derived view is in scope and the view throws `ConcurrentModificationException` on its next use. Try to grow a fixed-size `Arrays.asList`, or write through an unmodifiable wrapper, and you get `UnsupportedOperationException` instead. Neither exception means the JDK is broken — they are the view telling you exactly which contract it enforces: *live and mutable* (CME on structural surprises) or *live and read-only* (UOE on any write attempt).',
+      },
+      {
+        kind: 'code',
+        title: 'keySet() is not a snapshot — it edits the map',
+        code: 'Map<String, Integer> scores = new HashMap<>(Map.of("a", 1, "b", 2, "c", 3));\nscores.keySet().removeIf(k -> k.equals("b"));   // removes "b" from scores itself\n// scores is now {a=1, c=3} — the returned Set IS the map\'s keys, not a copy\n\nList<Integer> nums = new ArrayList<>(List.of(1, 2, 3, 4, 5));\nnums.subList(1, 3).clear();                     // removes indices 1..2 from nums too\n// nums is now [1, 4, 5]',
+      },
+      {
         kind: 'code',
         title: 'The algorithms toolbox',
-        code: 'Collections.sort(cards);                      // or cards.sort(null)\nCollections.shuffle(cards);                   // Fisher–Yates\nint pos = Collections.binarySearch(sorted, key);   // requires sorted input\nCollections.rotate(list, 2);                  // cycle elements\nint dups = Collections.frequency(words, "the");\nList<String> blanks = Collections.nCopies(100, ""); // O(1) memory',
+        code: 'Collections.sort(cards);                      // or cards.sort(null)\nCollections.shuffle(cards);                   // Fisher–Yates\nint pos = Collections.binarySearch(sorted, key);   // requires sorted input\nCollections.reverse(cards);                   // in place\nCollections.rotate(list, 2);                  // cycle elements\nString top = Collections.max(names);          // natural order, or pass a Comparator\nint dups = Collections.frequency(words, "the");\nboolean none = Collections.disjoint(setA, setB); // true if no common elements\nList<String> blanks = Collections.nCopies(100, ""); // O(1) memory',
       },
       {
         kind: 'paragraph',
@@ -490,15 +505,16 @@ export const topics: Topic[] = [
         caption: 'Decision table',
         headers: ['You need…', 'Reach for', 'Why'],
         rows: [
-          ['A sequence, index access', '`ArrayList`', 'contiguous, cache-friendly, O(1) get'],
-          ['Stack or FIFO queue', '`ArrayDeque`', 'circular array; beats Stack & LinkedList'],
-          ['Dedup / membership tests', '`HashSet`', 'O(1) contains'],
-          ['Key → value lookup', '`HashMap`', 'O(1) get/put'],
-          ['Sorted iteration, range/nearest queries', '`TreeMap` / `TreeSet`', 'red-black tree, NavigableXxx API'],
-          ['Deterministic iteration order', '`LinkedHashMap` / `LinkedHashSet`', 'linked entries preserve insertion order'],
-          ['LRU cache', '`LinkedHashMap(accessOrder=true)`', 'removeEldestEntry hook'],
-          ['Always-process-min', '`PriorityQueue`', 'binary heap'],
-          ['Enum keys / elements', '`EnumMap` / `EnumSet`', 'array/bit-vector speed (EJ 36–37)'],
+          ['Indexed access, a sequence', '`ArrayList`', 'contiguous, cache-friendly, O(1) get — see [[lists]]'],
+          ['Stack or FIFO queue', '`ArrayDeque`', 'circular array; beats Stack & LinkedList — [[queues-deques]]'],
+          ['Dedup, don\'t care about order', '`HashSet`', 'O(1) contains — see [[sets]]'],
+          ['Dedup, keep insertion order', '`LinkedHashSet`', 'hash speed + stable iteration order'],
+          ['Key → value lookup', '`HashMap`', 'O(1) get/put — see [[maps]]'],
+          ['Sorted iteration, range/nearest-key queries', '`TreeMap` / `TreeSet`', 'red-black tree, NavigableXxx API — [[sorted-collections]]'],
+          ['Deterministic iteration order, no sorting needed', '`LinkedHashMap` / `LinkedHashSet`', 'linked entries preserve insertion order'],
+          ['LRU cache', '`LinkedHashMap` in access-order mode + `removeEldestEntry`', 'access reorders to most-recent; the hook evicts the eldest past capacity'],
+          ['Priority / always-process-min', '`PriorityQueue`', 'binary heap, `poll` is O(log n)'],
+          ['Enum keys / elements', '`EnumMap` / `EnumSet`', 'array/bit-vector speed (EJ 36–37) — [[enums]]'],
           ['Shared across threads', '`ConcurrentHashMap`, `CopyOnWriteArrayList`, blocking queues', 'see [[concurrent-collections]]'],
         ],
       },
@@ -527,6 +543,6 @@ export const topics: Topic[] = [
       { book: 'optimizing-java', chapter: 'Ch. 11 — Java Language Performance Techniques' },
       { book: 'java-secrets', chapter: 'Performance chapters' },
     ],
-    related: ['collections-overview', 'concurrent-collections', 'language-performance', 'enums'],
+    related: ['collections-overview', 'lists', 'sets', 'maps', 'sorted-collections', 'concurrent-collections', 'enums'],
   },
 ]
