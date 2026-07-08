@@ -99,7 +99,7 @@ export const topics: Topic[] = [
       {
         kind: 'note',
         title: 'What ListIterator adds over Iterator',
-        text: '`ListIterator` extends `Iterator` with backward traversal (`hasPrevious`/`previous`), in-place replacement (`set`), and positional insertion (`add`) — all relative to the cursor, with no index arithmetic. On an `ArrayList` those calls still shift the backing array; on a `LinkedList` each is O(1), which is the one scenario where the node-per-element design actually pays for itself.',
+        text: '`ListIterator` extends `Iterator` with backward traversal (`hasPrevious`/`previous`), in-place replacement (`set`), and positional insertion/removal (`add`/`remove`) — all relative to the cursor, with no index arithmetic. Traversal and `set` are O(1) even on an `ArrayList`; only `add`/`remove` shift the backing array. On a `LinkedList` those cursor-local structural edits are O(1) too — the one scenario where the node-per-element design actually pays for itself.',
       },
       {
         kind: 'code',
@@ -208,7 +208,7 @@ export const topics: Topic[] = [
       {
         kind: 'note',
         title: 'Two method families, one contract each',
-        text: 'Every `Queue` operation comes in a throwing form (`add`, `remove`, `element`) and a special-value form (`offer`, `poll`, `peek`). The families matter at the edges: on an empty queue `remove()`/`element()` throw `NoSuchElementException` while `poll()`/`peek()` return `null`; on a bounded queue `add` throws `IllegalStateException` while `offer` returns `false`. Reach for the throwing family when emptiness or fullness is a bug worth surfacing immediately; reach for the special-value family when it is routine control flow — draining a queue is a `while ((var t = queue.poll()) != null)` loop, not a `try/catch` ladder. See [[choosing-collections]] for picking the structure in the first place.',
+        text: 'Every `Queue` operation comes in a throwing form (`add`, `remove`, `element`) and a special-value form (`offer`, `poll`, `peek`). The families matter at the edges: on an empty queue `remove()`/`element()` throw `NoSuchElementException` while `poll()`/`peek()` return `null`; on a bounded queue `add` throws `IllegalStateException` while `offer` returns `false`. Reach for the throwing family when emptiness or fullness is a bug worth surfacing immediately; reach for the special-value family when it is routine control flow — draining a queue is a `E e; while ((e = queue.poll()) != null) { … }` loop, not a `try/catch` ladder. See [[choosing-collections]] for picking the structure in the first place.',
       },
       {
         kind: 'code',
