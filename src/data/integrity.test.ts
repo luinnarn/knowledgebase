@@ -17,9 +17,16 @@ function textLinks(topic: Topic): string[] {
     for (const m of s.matchAll(LINK_RE)) out.push(m[1])
   }
   scan(topic.summary)
-  topic.keyPoints.forEach(scan)
+  for (const kp of topic.keyPoints) {
+    if (typeof kp === 'string') scan(kp)
+    else {
+      scan(kp.text)
+      scan(kp.detail)
+    }
+  }
   for (const b of topic.blocks) {
     if ('text' in b && b.text) scan(b.text)
+    if ('detail' in b && b.detail) scan(b.detail)
     if (b.kind === 'table') b.rows.flat().forEach(scan)
   }
   return out

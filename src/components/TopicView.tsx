@@ -1,11 +1,12 @@
-import { lazy, Suspense, useMemo } from 'react'
+import { lazy, Suspense, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import type { Topic, ContentBlock, Domain } from '../types/content'
+import type { Topic, ContentBlock, KeyPoint, Domain } from '../types/content'
 import { useCompendium } from '../lib/useCompendium'
 import RichText from './RichText'
 import CodeBlock from './CodeBlock'
 import Callout from './Callout'
 import CompareTable from './CompareTable'
+import ExplainToggle from './ExplainToggle'
 import './TopicView.css'
 
 // Mermaid is a heavy dependency (~100KB+ gzipped) — load it only on topics that use one.
@@ -24,11 +25,11 @@ function Block({ block }: { block: ContentBlock }) {
     case 'code':
       return <CodeBlock code={block.code} title={block.title} caption={block.caption} />
     case 'pitfall':
-      return <Callout variant="pitfall" title={block.title} text={block.text} code={block.code} />
+      return <Callout variant="pitfall" title={block.title} text={block.text} code={block.code} detail={block.detail} />
     case 'bestPractice':
-      return <Callout variant="bestPractice" title={block.title} text={block.text} code={block.code} />
+      return <Callout variant="bestPractice" title={block.title} text={block.text} code={block.code} detail={block.detail} />
     case 'note':
-      return <Callout variant="note" title={block.title} text={block.text} />
+      return <Callout variant="note" title={block.title} text={block.text} detail={block.detail} />
     case 'table':
       return <CompareTable caption={block.caption} headers={block.headers} rows={block.rows} />
     case 'diagram':
@@ -38,6 +39,27 @@ function Block({ block }: { block: ContentBlock }) {
         </Suspense>
       )
   }
+}
+
+function KeyPointItem({ point }: { point: KeyPoint }) {
+  const [open, setOpen] = useState(false)
+  const text = typeof point === 'string' ? point : point.text
+  const detail = typeof point === 'string' ? undefined : point.detail
+  return (
+    <li>
+      <div className="keypoint-row">
+        <span className="keypoint-text">
+          <RichText text={text} />
+        </span>
+        {detail && <ExplainToggle expanded={open} onToggle={() => setOpen((o) => !o)} />}
+      </div>
+      {detail && open && (
+        <div className="keypoint-detail">
+          <RichText text={detail} />
+        </div>
+      )}
+    </li>
+  )
 }
 
 export default function TopicView({ topic }: { topic: Topic }) {
@@ -59,9 +81,7 @@ export default function TopicView({ topic }: { topic: Topic }) {
         </div>
         <ul className="topic-keypoints">
           {topic.keyPoints.map((kp, i) => (
-            <li key={i}>
-              <RichText text={kp} />
-            </li>
+            <KeyPointItem key={i} point={kp} />
           ))}
         </ul>
       </header>

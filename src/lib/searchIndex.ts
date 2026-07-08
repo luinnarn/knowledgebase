@@ -24,7 +24,10 @@ async function build(data: CompendiumData): Promise<MiniSearch<SearchDoc>> {
         type: 'topic',
         title: t.title,
         subtitle: domain?.title ?? domainId,
-        text: `${t.summary} ${t.keyPoints.join(' ')}`.replace(/\*\*|`|\[\[|\]\]/g, ''),
+        text: `${t.summary} ${t.keyPoints.map((kp) => (typeof kp === 'string' ? kp : kp.text)).join(' ')}`.replace(
+          /\*\*|`|\[\[|\]\]/g,
+          '',
+        ),
         route: `/topics/${domainId}/${t.id}`,
       })
     }

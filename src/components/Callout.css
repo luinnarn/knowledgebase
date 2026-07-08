@@ -21,6 +21,7 @@
 }
 
 .callout-title {
+  flex: 1;
   font-family: var(--font-display);
   font-size: var(--fs-sm);
   font-weight: 600;
@@ -28,6 +29,15 @@
 }
 
 .callout-body {
+  font-size: var(--fs-sm);
+  line-height: 1.6;
+  color: var(--ink-2);
+}
+
+.callout-detail {
+  margin-top: var(--sp-2);
+  padding-top: var(--sp-2);
+  border-top: 1px dashed var(--line-strong);
   font-size: var(--fs-sm);
   line-height: 1.6;
   color: var(--ink-2);

@@ -65,6 +65,27 @@
   font-weight: 700;
 }
 
+.keypoint-row {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+
+.keypoint-text {
+  flex: 1 1 auto;
+  min-width: 60%;
+}
+
+.keypoint-detail {
+  margin-top: var(--sp-1);
+  padding: var(--sp-2) var(--sp-3);
+  border-left: 2px solid var(--domain);
+  background: var(--bg-sunken);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  color: var(--ink-2);
+}
+
 .topic-body {
   min-width: 0;
 }
