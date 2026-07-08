@@ -9,7 +9,7 @@ export const topics: Topic[] = [
       'One interface hierarchy — `Collection` branching into `List`, `Set`, and `Queue`, with `Map` alongside — and interchangeable implementations behind it. Program to the interface; choose the implementation for its performance shape.',
     keyPoints: [
       'Core interfaces: `Collection`, `List`, `Set`, `SortedSet`/`NavigableSet`, `Queue`, `Deque`, `Map`',
-      'Declare variables as the interface type: `List<String> l = new ArrayList<>()` (EJ 64)',
+      'Declare variables as the interface type: `List<String> l = new ArrayList<>()` (EJ 64) — swap the implementation later without touching a single caller',
       '`Iterable` powers for-each; `Iterator.remove` is the only safe removal during iteration',
       'Factory methods `List.of` / `Set.of` / `Map.of` create compact **immutable** collections',
       'Optional operations: immutable views throw `UnsupportedOperationException` on mutation',
@@ -46,6 +46,11 @@ export const topics: Topic[] = [
         text: '`List.of`/`Map.of` collections reject `null` and are **truly immutable** — unlike `Arrays.asList` (fixed-size but write-through, [[arrays]]) and unlike `Collections.unmodifiableList` (a read-only *view* of a possibly-changing list, [[views-algorithms]]).',
       },
       {
+        kind: 'note',
+        title: 'Three "unmodifiable" flavors — don\'t conflate them',
+        text: '① `List.of(...)`/`Map.of(...)`/`Set.of(...)`: truly immutable — no backing array to mutate, null-hostile, fixed forever. ② `Arrays.asList(a)`: fixed-**size** but write-through — `set` mutates the backing array, `add`/`remove` throw ([[arrays]]). ③ `Collections.unmodifiableList(l)` and friends: a read-only *view* over `l` — the wrapper itself throws on mutation, but if code elsewhere still holds `l`, changes there are visible through the wrapper. Only ① is safe to hand out as a permanent guarantee; ② and ③ are both still tied to mutable state behind the scenes — see [[views-algorithms]] for the full picture.',
+      },
+      {
         kind: 'bestPractice',
         title: 'Return empty collections, not null (EJ Item 54)',
         text: 'Returning `null` where a collection is expected forces every caller into null checks and breaks for-each. Return `List.of()` / `Collections.emptyList()` — they are shared immutable singletons, so there is no allocation cost.',
@@ -70,7 +75,8 @@ export const topics: Topic[] = [
       'Middle insertion/removal in `ArrayList` is O(n) — elements shift',
       '`LinkedList` is O(n) to *reach* any position; each node is a separate allocation',
       'Presize with `new ArrayList<>(expectedSize)` when the size is known',
-      '`List.copyOf(c)` for defensive immutable copies; `subList` for range views',
+      '`List.copyOf(c)` for defensive immutable copies; `subList(a, b)` returns a live range **view**, not a copy',
+      '`List.of(...)` is truly immutable — null-hostile, throws `UnsupportedOperationException` on any mutation attempt',
     ],
     blocks: [
       {
@@ -89,6 +95,16 @@ export const topics: Topic[] = [
       {
         kind: 'paragraph',
         text: 'The performance books are blunt here: on modern hardware, memory locality dominates ([[hardware-memory]]). An `ArrayList` traversal streams through cache lines; a `LinkedList` traversal takes a potential cache miss per element. Even for insert-heavy workloads, `ArrayList` or `ArrayDeque` usually measures faster. Choose `LinkedList` only for genuine cursor-based editing via `ListIterator`.',
+      },
+      {
+        kind: 'code',
+        title: 'ListIterator: the one job LinkedList still wins',
+        code: 'ListIterator<String> it = names.listIterator();\nwhile (it.hasNext()) {\n    String name = it.next();\n    if (name.isBlank()) {\n        it.remove();                // O(1) at the cursor on a LinkedList\n    } else if (name.equals("TBD")) {\n        it.set("Unknown");          // replace in place, no second lookup\n    }\n}\nwhile (it.hasPrevious()) {\n    it.previous();                  // bidirectional — plain Iterator cannot go back\n}',
+      },
+      {
+        kind: 'note',
+        title: 'What ListIterator adds over Iterator',
+        text: '`ListIterator` extends `Iterator` with backward traversal (`hasPrevious`/`previous`), in-place replacement (`set`), and positional insertion/removal (`add`/`remove`) — all relative to the cursor, with no index arithmetic. Traversal and `set` are O(1) even on an `ArrayList`; only `add`/`remove` shift the backing array. On a `LinkedList` those cursor-local structural edits are O(1) too — the one scenario where the node-per-element design actually pays for itself.',
       },
       {
         kind: 'code',
@@ -126,8 +142,14 @@ export const topics: Topic[] = [
       '`TreeSet`: red-black tree, sorted iteration, `NavigableSet` range queries',
       'Elements must have consistent `equals`/`hashCode` — and stay **unmutated** while inside',
       '`EnumSet` for enum elements: bit-vector speed with Set semantics',
+      'Iteration order: `HashSet` arbitrary, `LinkedHashSet` insertion order, `TreeSet` sorted order',
+      '`Set.of(...)` rejects duplicate arguments at construction — throws `IllegalArgumentException`, not a silent dedup',
     ],
     blocks: [
+      {
+        kind: 'paragraph',
+        text: 'A `Set` is best understood as a `Map` with no values: `HashSet` *is* a `HashMap<E, Object>` sharing one dummy value, and `TreeSet` wraps a `TreeMap`. Everything that governs a map — how `equals`/`hashCode` decide identity, iteration order, load factor ([[hashing-internals]]) — governs the matching set verbatim. Pick a set the same way you\'d pick its [[maps|map]]: `HashSet` for O(1) membership and don\'t-care order, `LinkedHashSet` to remember insertion order, `TreeSet` when you need sorted iteration or range queries.',
+      },
       {
         kind: 'code',
         title: 'Deduplication and membership',
@@ -150,6 +172,16 @@ export const topics: Topic[] = [
         kind: 'note',
         title: 'Iteration order stability',
         text: 'Never depend on `HashSet` order — it varies with capacity, insertion history, and JDK version. Tests that assert on it are flaky by construction. Want determinism? `LinkedHashSet` or `TreeSet`.',
+      },
+      {
+        kind: 'note',
+        title: 'When add() returns false',
+        text: '`set.add(x)` returns `false` when an equal element is already present — a one-call "have I seen this?" test with no second lookup, which is exactly what powers the dedup idiom above. It is only as correct as the element\'s `equals`/`hashCode` ([[object-contracts]]); a class that overrides one but not the other silently duplicates members it should have rejected, or rejects ones it should have kept.',
+      },
+      {
+        kind: 'code',
+        title: 'Dedup a stream, then navigate a sorted set',
+        code: 'record LogEntry(String host, Instant at) {}\n\nSet<String> distinctHosts = entries.stream()\n        .map(LogEntry::host)\n        .collect(Collectors.toCollection(HashSet::new));   // membership only, order irrelevant\n\nNavigableSet<Integer> ports = new TreeSet<>(Set.of(22, 80, 443, 8080));\nports.ceiling(100);     // 443  — smallest element >= 100\nports.headSet(443);     // [22, 80]  — everything below 443\nports.descendingSet();  // 8080, 443, 80, 22\n// ports.contains(443) is O(log n) here; a HashSet would answer the same question in O(1)\n// — pay for navigation only when you actually use floor/ceiling/range queries',
       },
     ],
     refs: [
@@ -179,8 +211,9 @@ export const topics: Topic[] = [
         code: 'Deque<Task> queue = new ArrayDeque<>();\nqueue.offer(task);            // enqueue at tail\nTask next = queue.poll();     // dequeue from head (null if empty)\n\nDeque<Frame> stack = new ArrayDeque<>();\nstack.push(frame);            // addFirst\nFrame top = stack.pop();      // removeFirst (throws if empty)',
       },
       {
-        kind: 'paragraph',
-        text: 'The dual method families matter at edges: on an empty queue `remove()` throws `NoSuchElementException` while `poll()` returns `null`; on a bounded queue `add` throws while `offer` returns `false`. Pick the family that matches how exceptional emptiness actually is in your logic.',
+        kind: 'note',
+        title: 'Two method families, one contract each',
+        text: 'Every `Queue` operation comes in a throwing form (`add`, `remove`, `element`) and a special-value form (`offer`, `poll`, `peek`). The families matter at the edges: on an empty queue `remove()`/`element()` throw `NoSuchElementException` while `poll()`/`peek()` return `null`; on a bounded queue `add` throws `IllegalStateException` while `offer` returns `false`. Reach for the throwing family when emptiness or fullness is a bug worth surfacing immediately; reach for the special-value family when it is routine control flow — draining a queue is a `E e; while ((e = queue.poll()) != null) { … }` loop, not a `try/catch` ladder. See [[choosing-collections]] for picking the structure in the first place.',
       },
       {
         kind: 'code',
@@ -218,6 +251,7 @@ export const topics: Topic[] = [
       'Keys must be stable: mutating a key in place breaks the map',
       '`LinkedHashMap` + `removeEldestEntry` = instant LRU cache',
       'Views: `keySet()`, `values()`, `entrySet()` write through to the map',
+      '`null` keys/values: `HashMap` allows one null key and null values; `TreeMap` rejects null keys but allows null values; `ConcurrentHashMap` rejects both',
     ],
     blocks: [
       {
@@ -228,6 +262,21 @@ export const topics: Topic[] = [
       {
         kind: 'paragraph',
         text: '`computeIfAbsent` returns the existing or newly-computed value, making one-line multimaps and caches. `merge(key, value, remapper)` handles "insert or combine". These also have atomic semantics on [[concurrent-collections|ConcurrentHashMap]], where they replace lock-protected check-then-act sequences.',
+      },
+      {
+        kind: 'code',
+        title: 'getOrDefault, computeIfAbsent, and merge — what each replaces',
+        code: '// getOrDefault: replaces `map.containsKey(k) ? map.get(k) : fallback`\nint priority = priorities.getOrDefault(task, DEFAULT_PRIORITY);\n\n// computeIfAbsent: replaces "check null, create, put, then use" for lazy init / multimaps\nList<Order> orders = byCustomer.computeIfAbsent(customer, k -> new ArrayList<>());\norders.add(order);\n\n// merge: replaces "get, null-check, put-or-combine" for counters and accumulators\nwordCounts.merge(word, 1, Integer::sum);              // insert 1, or add 1 to existing\ntotals.merge(department, invoice.amount(), BigDecimal::add);',
+      },
+      {
+        kind: 'pitfall',
+        title: 'computeIfAbsent returns the value, not null',
+        text: '`computeIfAbsent` never returns null on success — it hands back the *existing* value if the key is present, or the *freshly computed* one if it just inserted. Code that treats its return as "did I just insert?" is wrong; check `containsKey` before the call if that distinction matters. (It genuinely can return null: if the mapping function itself returns null, no entry is added and `computeIfAbsent` returns null — a legitimate way to signal "skip".)',
+      },
+      {
+        kind: 'pitfall',
+        title: 'Mutating a map during forEach',
+        text: 'Adding or removing keys from inside `map.forEach((k, v) -> …)` throws `ConcurrentModificationException`, same as mutating during a for-each loop — `forEach` is still iterating the backing structure. `replaceAll` is the safe in-place update for values only (it cannot add/remove keys). To delete conditionally, use `map.entrySet().removeIf(e -> …)` or `map.values().removeIf(...)`; to insert derived keys, collect them first and `putAll` after.',
       },
       {
         kind: 'code',
@@ -272,6 +321,10 @@ export const topics: Topic[] = [
       'Presize: `HashMap.newHashMap(expected)` (Java 19+) or capacity = expected / 0.75 + 1',
     ],
     blocks: [
+      {
+        kind: 'paragraph',
+        text: 'Picture the table first: a `HashMap` is, at bottom, an array (`table`) of "buckets." A key\'s `hashCode()` is reduced to an index into that array — that reduction is what "spreading" and `(n-1) & hash` compute. Put a key in and it lands in the bucket its index names; ask for it back and the map recomputes the same index and looks there. Two keys can reduce to the *same* index — they "collide" — so each bucket actually holds a small chain (or, once it grows large enough, a tree) of every entry that ever landed there, and a lookup walks that chain comparing hashes then `equals`. Load factor and resizing exist to keep those chains short: shrink the array-to-entries ratio, and the ④-step "walk the bucket" degrades.',
+      },
       {
         kind: 'paragraph',
         text: 'A `get(key)`: ① compute `key.hashCode()`, ② spread it (`h ^ (h >>> 16)` — mixes high bits into the low bits that pick the bucket), ③ index the table, ④ walk the bucket comparing first hash values, then `equals`. With a good hash function buckets hold 0–2 entries and the whole operation is a handful of cache accesses.',
@@ -332,14 +385,29 @@ export const topics: Topic[] = [
         text: 'These queries are the reason to choose a tree: schedules, price ladders, version lookups ("newest release ≤ requested"), leaderboards. A `HashMap` can only answer exact-key questions; a `TreeMap` answers *nearest-key* and *range* questions at the same O(log n).',
       },
       {
+        kind: 'note',
+        title: 'Comparable vs Comparator',
+        text: '`Comparable` ([[object-contracts]]) is the type\'s own **natural order** — `compareTo` lives on the class itself, so there is exactly one, and it is what a plain `new TreeSet<>()` uses. `Comparator` is an **external, standalone** ordering passed in at construction (or to `sort`/`sorted`) — a type can have any number of them (`by salary`, `by hire date`, `reversed`), and none of them need to agree with `compareTo`. Reach for `Comparable` when there is one obvious default order for every instance of a type; reach for `Comparator` for every other order, and always for types you don\'t own.',
+      },
+      {
         kind: 'pitfall',
         title: 'compareTo-equals inconsistency',
         text: '`TreeSet` deems elements duplicate when `compareTo` returns 0 — `equals` is never consulted. A `TreeSet<BigDecimal>` collapses `2.0` and `2.00` into one element, while `HashSet` keeps both. A comparator that only compares one field silently swallows "different" entries that tie on it — a nasty production bug. Break ties explicitly: `comparing(...).thenComparing(...)`.',
       },
       {
+        kind: 'pitfall',
+        title: 'TreeMap/TreeSet judge equality by compareTo, not equals',
+        text: 'The same rule governs `TreeMap`: `put`ting a key that compares equal (`compareTo`/`comparator` returns 0) to an existing key **overwrites** that entry rather than adding a second one — even if `equals` says the two keys are different objects. If an ordering is inconsistent with `equals` (EJ Item 14), the map silently drops entries a caller expected to keep, with no exception and no log line. Keep `compareTo` consistent with `equals`, or document loudly when you intentionally deviate ([[object-contracts]]).',
+      },
+      {
         kind: 'code',
         title: 'Custom order at construction',
         code: 'SortedSet<Employee> byPay = new TreeSet<>(\n        Comparator.comparingDouble(Employee::salary).reversed()\n                  .thenComparing(Employee::id));      // tie-breaker keeps distinct elements\nbyPay.addAll(staff);',
+      },
+      {
+        kind: 'code',
+        title: 'NavigableMap range views: subMap, headMap, tailMap',
+        code: 'NavigableMap<Integer, String> gradeBands = new TreeMap<>(Map.of(\n        90, "A", 80, "B", 70, "C", 60, "D"));\n\n// subMap(from, fromInclusive, to, toInclusive) — an arbitrary range, live view\nSortedMap<Integer, String> passing = gradeBands.subMap(60, true, 100, false);\n\n// headMap(toKey) — everything strictly below toKey; headMap(toKey, true) includes it\nSortedMap<Integer, String> belowB = gradeBands.headMap(80);          // {60=D, 70=C}\n\n// tailMap(fromKey) — everything from fromKey up; inclusive by default\nSortedMap<Integer, String> bAndUp = gradeBands.tailMap(80);          // {80=B, 90=A}\n\n// all three are VIEWS: writes through to gradeBands, and vice versa\npassing.remove(70);          // also removes 70 from gradeBands',
       },
       {
         kind: 'note',
@@ -364,7 +432,7 @@ export const topics: Topic[] = [
       'A view shares storage with its source — changes propagate (in whichever directions are allowed)',
       '`Collections.unmodifiable*` = read-only **window**; the underlying collection can still change',
       '`List.copyOf` / `Set.copyOf` / `Map.copyOf` = true independent immutable copies',
-      'Algorithms: `sort`, `binarySearch`, `shuffle`, `reverse`, `rotate`, `swap`, `frequency`, `disjoint`',
+      'Algorithms: `sort`, `binarySearch`, `shuffle`, `reverse`, `rotate`, `swap`, `min`/`max`, `frequency`, `disjoint`',
       '`nCopies`, `emptyList` — memory-free "virtual" collections',
     ],
     blocks: [
@@ -387,9 +455,19 @@ export const topics: Topic[] = [
         text: 'If code elsewhere holds the original reference, your "unmodifiable" list still changes under your feet. For a defensive copy in an immutable class, use `List.copyOf` ([[immutability-class-design]]); wrappers are for *sharing* a live collection read-only.',
       },
       {
+        kind: 'pitfall',
+        title: 'Views are live — writes flow through, both ways',
+        text: '`subList`, `Map.keySet()`/`values()`/`entrySet()`, `Arrays.asList`, and the `Collections.unmodifiable*`/`synchronized*` wrappers are not copies — they are windows onto the same backing storage, in both directions. Remove through `keySet()` and the entry disappears from the map; structurally change the backing collection while a derived view is in scope and the view throws `ConcurrentModificationException` on its next use. Try to grow a fixed-size `Arrays.asList`, or write through an unmodifiable wrapper, and you get `UnsupportedOperationException` instead. Neither exception means the JDK is broken — they are the view telling you exactly which contract it enforces: *live and mutable* (CME on structural surprises) or *live and read-only* (UOE on any write attempt).',
+      },
+      {
+        kind: 'code',
+        title: 'keySet() is not a snapshot — it edits the map',
+        code: 'Map<String, Integer> scores = new HashMap<>(Map.of("a", 1, "b", 2, "c", 3));\nscores.keySet().removeIf(k -> k.equals("b"));   // removes "b" from scores itself\n// scores is now {a=1, c=3} — the returned Set IS the map\'s keys, not a copy\n\nList<Integer> nums = new ArrayList<>(List.of(1, 2, 3, 4, 5));\nnums.subList(1, 3).clear();                     // removes indices 1..2 from nums too\n// nums is now [1, 4, 5]',
+      },
+      {
         kind: 'code',
         title: 'The algorithms toolbox',
-        code: 'Collections.sort(cards);                      // or cards.sort(null)\nCollections.shuffle(cards);                   // Fisher–Yates\nint pos = Collections.binarySearch(sorted, key);   // requires sorted input\nCollections.rotate(list, 2);                  // cycle elements\nint dups = Collections.frequency(words, "the");\nList<String> blanks = Collections.nCopies(100, ""); // O(1) memory',
+        code: 'Collections.sort(cards);                      // or cards.sort(null)\nCollections.shuffle(cards);                   // Fisher–Yates\nint pos = Collections.binarySearch(sorted, key);   // requires sorted input\nCollections.reverse(cards);                   // in place\nCollections.rotate(list, 2);                  // cycle elements\nString top = Collections.max(names);          // natural order, or pass a Comparator\nint dups = Collections.frequency(words, "the");\nboolean none = Collections.disjoint(setA, setB); // true if no common elements\nList<String> blanks = Collections.nCopies(100, ""); // O(1) memory',
       },
       {
         kind: 'paragraph',
@@ -427,15 +505,16 @@ export const topics: Topic[] = [
         caption: 'Decision table',
         headers: ['You need…', 'Reach for', 'Why'],
         rows: [
-          ['A sequence, index access', '`ArrayList`', 'contiguous, cache-friendly, O(1) get'],
-          ['Stack or FIFO queue', '`ArrayDeque`', 'circular array; beats Stack & LinkedList'],
-          ['Dedup / membership tests', '`HashSet`', 'O(1) contains'],
-          ['Key → value lookup', '`HashMap`', 'O(1) get/put'],
-          ['Sorted iteration, range/nearest queries', '`TreeMap` / `TreeSet`', 'red-black tree, NavigableXxx API'],
-          ['Deterministic iteration order', '`LinkedHashMap` / `LinkedHashSet`', 'linked entries preserve insertion order'],
-          ['LRU cache', '`LinkedHashMap(accessOrder=true)`', 'removeEldestEntry hook'],
-          ['Always-process-min', '`PriorityQueue`', 'binary heap'],
-          ['Enum keys / elements', '`EnumMap` / `EnumSet`', 'array/bit-vector speed (EJ 36–37)'],
+          ['Indexed access, a sequence', '`ArrayList`', 'contiguous, cache-friendly, O(1) get — see [[lists]]'],
+          ['Stack or FIFO queue', '`ArrayDeque`', 'circular array; beats Stack & LinkedList — [[queues-deques]]'],
+          ['Dedup, don\'t care about order', '`HashSet`', 'O(1) contains — see [[sets]]'],
+          ['Dedup, keep insertion order', '`LinkedHashSet`', 'hash speed + stable iteration order'],
+          ['Key → value lookup', '`HashMap`', 'O(1) get/put — see [[maps]]'],
+          ['Sorted iteration, range/nearest-key queries', '`TreeMap` / `TreeSet`', 'red-black tree, NavigableXxx API — [[sorted-collections]]'],
+          ['Deterministic iteration order, no sorting needed', '`LinkedHashMap` / `LinkedHashSet`', 'linked entries preserve insertion order'],
+          ['LRU cache', '`LinkedHashMap` in access-order mode + `removeEldestEntry`', 'access reorders to most-recent; the hook evicts the eldest past capacity'],
+          ['Priority / always-process-min', '`PriorityQueue`', 'binary heap, `poll` is O(log n)'],
+          ['Enum keys / elements', '`EnumMap` / `EnumSet`', 'array/bit-vector speed (EJ 36–37) — [[enums]]'],
           ['Shared across threads', '`ConcurrentHashMap`, `CopyOnWriteArrayList`, blocking queues', 'see [[concurrent-collections]]'],
         ],
       },
@@ -464,6 +543,6 @@ export const topics: Topic[] = [
       { book: 'optimizing-java', chapter: 'Ch. 11 — Java Language Performance Techniques' },
       { book: 'java-secrets', chapter: 'Performance chapters' },
     ],
-    related: ['collections-overview', 'concurrent-collections', 'language-performance', 'enums'],
+    related: ['collections-overview', 'lists', 'sets', 'maps', 'sorted-collections', 'concurrent-collections', 'enums', 'queues-deques'],
   },
 ]
