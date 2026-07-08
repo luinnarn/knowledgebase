@@ -246,6 +246,7 @@ export const topics: Topic[] = [
       'Keys must be stable: mutating a key in place breaks the map',
       '`LinkedHashMap` + `removeEldestEntry` = instant LRU cache',
       'Views: `keySet()`, `values()`, `entrySet()` write through to the map',
+      '`null` keys/values: `HashMap` allows one null key; `TreeMap`/`ConcurrentHashMap` reject nulls',
     ],
     blocks: [
       {
@@ -256,6 +257,21 @@ export const topics: Topic[] = [
       {
         kind: 'paragraph',
         text: '`computeIfAbsent` returns the existing or newly-computed value, making one-line multimaps and caches. `merge(key, value, remapper)` handles "insert or combine". These also have atomic semantics on [[concurrent-collections|ConcurrentHashMap]], where they replace lock-protected check-then-act sequences.',
+      },
+      {
+        kind: 'code',
+        title: 'getOrDefault, computeIfAbsent, and merge — what each replaces',
+        code: '// getOrDefault: replaces `map.containsKey(k) ? map.get(k) : fallback`\nint priority = priorities.getOrDefault(task, DEFAULT_PRIORITY);\n\n// computeIfAbsent: replaces "check null, create, put, then use" for lazy init / multimaps\nList<Order> orders = byCustomer.computeIfAbsent(customer, k -> new ArrayList<>());\norders.add(order);\n\n// merge: replaces "get, null-check, put-or-combine" for counters and accumulators\nwordCounts.merge(word, 1, Integer::sum);              // insert 1, or add 1 to existing\ntotals.merge(department, invoice.amount(), BigDecimal::add);',
+      },
+      {
+        kind: 'pitfall',
+        title: 'computeIfAbsent returns the value, not null',
+        text: '`computeIfAbsent` never returns null on success — it hands back the *existing* value if the key is present, or the *freshly computed* one if it just inserted. Code that treats its return as "did I just insert?" is wrong; check `containsKey` before the call if that distinction matters. (It genuinely can return null: if the mapping function itself returns null, no entry is added and `computeIfAbsent` returns null — a legitimate way to signal "skip".)',
+      },
+      {
+        kind: 'pitfall',
+        title: 'Mutating a map during forEach',
+        text: 'Adding or removing keys from inside `map.forEach((k, v) -> …)` throws `ConcurrentModificationException`, same as mutating during a for-each loop — `forEach` is still iterating the backing structure. `replaceAll` is the safe in-place update for values only (it cannot add/remove keys). To delete conditionally, use `map.entrySet().removeIf(e -> …)` or `Map.values().removeIf(...)`; to insert derived keys, collect them first and `putAll` after.',
       },
       {
         kind: 'code',
@@ -300,6 +316,10 @@ export const topics: Topic[] = [
       'Presize: `HashMap.newHashMap(expected)` (Java 19+) or capacity = expected / 0.75 + 1',
     ],
     blocks: [
+      {
+        kind: 'paragraph',
+        text: 'Picture the table first: a `HashMap` is, at bottom, an array (`table`) of "buckets." A key\'s `hashCode()` is reduced to an index into that array — that reduction is what "spreading" and `(n-1) & hash` compute. Put a key in and it lands in the bucket its index names; ask for it back and the map recomputes the same index and looks there. Two keys can reduce to the *same* index — they "collide" — so each bucket actually holds a small chain (or, once it grows large enough, a tree) of every entry that ever landed there, and a lookup walks that chain comparing hashes then `equals`. Load factor and resizing exist to keep those chains short: shrink the array-to-entries ratio, and the ④-step "walk the bucket" degrades.',
+      },
       {
         kind: 'paragraph',
         text: 'A `get(key)`: ① compute `key.hashCode()`, ② spread it (`h ^ (h >>> 16)` — mixes high bits into the low bits that pick the bucket), ③ index the table, ④ walk the bucket comparing first hash values, then `equals`. With a good hash function buckets hold 0–2 entries and the whole operation is a handful of cache accesses.',
@@ -360,14 +380,29 @@ export const topics: Topic[] = [
         text: 'These queries are the reason to choose a tree: schedules, price ladders, version lookups ("newest release ≤ requested"), leaderboards. A `HashMap` can only answer exact-key questions; a `TreeMap` answers *nearest-key* and *range* questions at the same O(log n).',
       },
       {
+        kind: 'note',
+        title: 'Comparable vs Comparator',
+        text: '`Comparable` ([[object-contracts]]) is the type\'s own **natural order** — `compareTo` lives on the class itself, so there is exactly one, and it is what a plain `new TreeSet<>()` uses. `Comparator` is an **external, standalone** ordering passed in at construction (or to `sort`/`sorted`) — a type can have any number of them (`by salary`, `by hire date`, `reversed`), and none of them need to agree with `compareTo`. Reach for `Comparable` when there is one obvious default order for every instance of a type; reach for `Comparator` for every other order, and always for types you don\'t own.',
+      },
+      {
         kind: 'pitfall',
         title: 'compareTo-equals inconsistency',
         text: '`TreeSet` deems elements duplicate when `compareTo` returns 0 — `equals` is never consulted. A `TreeSet<BigDecimal>` collapses `2.0` and `2.00` into one element, while `HashSet` keeps both. A comparator that only compares one field silently swallows "different" entries that tie on it — a nasty production bug. Break ties explicitly: `comparing(...).thenComparing(...)`.',
       },
       {
+        kind: 'pitfall',
+        title: 'TreeMap/TreeSet judge equality by compareTo, not equals',
+        text: 'The same rule governs `TreeMap`: `put`ting a key that compares equal (`compareTo`/`comparator` returns 0) to an existing key **overwrites** that entry rather than adding a second one — even if `equals` says the two keys are different objects. If an ordering is inconsistent with `equals` (EJ Item 14), the map silently drops entries a caller expected to keep, with no exception and no log line. Keep `compareTo` consistent with `equals`, or document loudly when you intentionally deviate ([[object-contracts]]).',
+      },
+      {
         kind: 'code',
         title: 'Custom order at construction',
         code: 'SortedSet<Employee> byPay = new TreeSet<>(\n        Comparator.comparingDouble(Employee::salary).reversed()\n                  .thenComparing(Employee::id));      // tie-breaker keeps distinct elements\nbyPay.addAll(staff);',
+      },
+      {
+        kind: 'code',
+        title: 'NavigableMap range views: subMap, headMap, tailMap',
+        code: 'NavigableMap<Integer, String> gradeBands = new TreeMap<>(Map.of(\n        90, "A", 80, "B", 70, "C", 60, "D"));\n\n// subMap(from, fromInclusive, to, toInclusive) — an arbitrary range, live view\nSortedMap<Integer, String> passing = gradeBands.subMap(60, true, 100, false);\n\n// headMap(toKey) — everything strictly below toKey; headMap(toKey, true) includes it\nSortedMap<Integer, String> belowB = gradeBands.headMap(80);          // {60=D, 70=C}\n\n// tailMap(fromKey) — everything from fromKey up; inclusive by default\nSortedMap<Integer, String> bAndUp = gradeBands.tailMap(80);          // {80=B, 90=A}\n\n// all three are VIEWS: writes through to gradeBands, and vice versa\npassing.remove(70);          // also removes 70 from gradeBands',
       },
       {
         kind: 'note',
