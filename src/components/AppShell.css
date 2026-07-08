@@ -34,17 +34,32 @@
   border-bottom: 1px solid var(--line);
 }
 
+.compendium-switcher {
+  position: relative;
+}
+
 .brand {
+  display: flex;
+  align-items: center;
+  gap: 0.35em;
   font-family: var(--font-mono);
   font-size: var(--fs-md);
   font-weight: 600;
   color: var(--ink);
   letter-spacing: -0.02em;
   white-space: nowrap;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: var(--sp-1) var(--sp-2);
+  margin: 0 calc(var(--sp-2) * -1);
+  border-radius: var(--radius-sm);
+  transition: background var(--dur) var(--ease);
 }
 
 .brand:hover {
   text-decoration: none;
+  background: var(--bg-sunken);
 }
 
 .brand-sep {
@@ -54,6 +69,62 @@
 
 .brand-name {
   color: var(--ink-2);
+}
+
+.brand-chev {
+  color: var(--ink-3);
+  transition: transform var(--dur) var(--ease);
+}
+
+.brand-chev.is-open {
+  transform: rotate(180deg);
+}
+
+.compendium-menu {
+  position: absolute;
+  top: calc(100% + var(--sp-2));
+  left: calc(var(--sp-2) * -1);
+  z-index: 60;
+  min-width: 13rem;
+  list-style: none;
+  margin: 0;
+  padding: var(--sp-2);
+  background: var(--bg-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+}
+
+.compendium-option {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  width: 100%;
+  padding: var(--sp-2) var(--sp-3);
+  border-radius: var(--radius-sm);
+  text-align: left;
+  transition: background var(--dur) var(--ease);
+}
+
+.compendium-option:hover {
+  background: var(--bg-sunken);
+}
+
+.compendium-option.is-active .compendium-option-label {
+  color: var(--accent);
+}
+
+.compendium-option-label {
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.compendium-option-hero {
+  font-size: var(--fs-xs);
+  color: var(--ink-3);
 }
 
 .shell-nav {

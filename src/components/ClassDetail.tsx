@@ -1,37 +1,40 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import type { JavaClass } from '../types/content'
-import { classLoaders, classSummaries } from '../data/classes/index'
-import { domains } from '../data/domains'
+import { useCompendium } from '../lib/useCompendium'
 import CodeBlock from './CodeBlock'
 import Callout from './Callout'
 import './ClassDetail.css'
 
-const topicDomain = new Map(domains.flatMap((d) => d.topicIds.map((t) => [t, d.id] as const)))
-const summaryByFqcn = new Map(classSummaries.map((s) => [s.fqcn, s]))
-
 const cache = new Map<string, JavaClass[]>()
 
 export default function ClassDetail({ fqcn }: { fqcn: string }) {
+  const { id: compendiumId, domains, classLoaders, classSummaries } = useCompendium()
+  const topicDomain = useMemo(
+    () => new Map(domains.flatMap((d) => d.topicIds.map((t) => [t, d.id] as const))),
+    [domains],
+  )
+  const summaryByFqcn = useMemo(() => new Map(classSummaries.map((s) => [s.fqcn, s])), [classSummaries])
   const meta = summaryByFqcn.get(fqcn)
-  const [cls, setCls] = useState<JavaClass | null>(() => cache.get(meta?.area ?? '')?.find((c) => c.fqcn === fqcn) ?? null)
+  const cacheKey = meta ? `${compendiumId}:${meta.area}` : ''
+  const [cls, setCls] = useState<JavaClass | null>(() => cache.get(cacheKey)?.find((c) => c.fqcn === fqcn) ?? null)
 
   useEffect(() => {
     if (!meta) return
     let cancelled = false
-    const hit = cache.get(meta.area)
+    const hit = cache.get(cacheKey)
     if (hit) {
       setCls(hit.find((c) => c.fqcn === fqcn) ?? null)
       return
     }
     classLoaders[meta.area]?.().then(({ classes }) => {
-      cache.set(meta.area, classes)
+      cache.set(cacheKey, classes)
       if (!cancelled) setCls(classes.find((c) => c.fqcn === fqcn) ?? null)
     })
     return () => {
       cancelled = true
     }
-  }, [fqcn, meta])
+  }, [fqcn, meta, cacheKey, classLoaders])
 
   if (!meta) {
     return (

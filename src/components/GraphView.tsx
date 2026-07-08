@@ -9,10 +9,8 @@ import {
   type SimulationNodeDatum,
   type SimulationLinkDatum,
 } from 'd3-force'
-import { graphNodes, graphEdges } from '../data/graph'
-import { topicLoaders } from '../data/topics/index'
-import { domains, domainById } from '../data/domains'
-import type { GraphNode } from '../types/content'
+import { useCompendium } from '../lib/useCompendium'
+import type { GraphNode, GraphEdge, Topic } from '../types/content'
 import './GraphView.css'
 
 interface SimNode extends SimulationNodeDatum, GraphNode {}
@@ -28,7 +26,7 @@ function nodeRadius(n: GraphNode): number {
 }
 
 /** Runs the simulation to completion synchronously and returns positioned nodes/links. */
-function layout(): { nodes: SimNode[]; links: SimLink[] } {
+function layout(graphNodes: GraphNode[], graphEdges: GraphEdge[]): { nodes: SimNode[]; links: SimLink[] } {
   const nodes: SimNode[] = graphNodes.map((n) => ({ ...n }))
   const links: SimLink[] = graphEdges.map((e) => ({ source: e.source, target: e.target, type: e.type }))
 
@@ -57,7 +55,8 @@ interface Transform {
 }
 
 export default function GraphView() {
-  const { nodes, links } = useMemo(layout, [])
+  const { meta, domains, domainById, graphNodes, graphEdges, topicLoaders } = useCompendium()
+  const { nodes, links } = useMemo(() => layout(graphNodes, graphEdges), [graphNodes, graphEdges])
   const [selected, setSelected] = useState<SimNode | null>(null)
   const [activeDomains, setActiveDomains] = useState<Set<string>>(new Set())
   const [transform, setTransform] = useState<Transform>({ x: 0, y: 0, k: 1 })
@@ -192,7 +191,7 @@ export default function GraphView() {
           className="graph-svg"
           viewBox={`${bounds.minX} ${bounds.minY} ${bounds.w} ${bounds.h}`}
           role="img"
-          aria-label="Knowledge graph of Java topics"
+          aria-label={`Knowledge graph of ${meta.label} topics`}
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
@@ -265,7 +264,7 @@ export default function GraphView() {
             <h2>{selected.label}</h2>
             {selected.kind === 'topic' ? (
               <>
-                <GraphPanelSummary topicId={selected.id} domainId={selected.domainId} />
+                <GraphPanelSummary topicId={selected.id} domainId={selected.domainId} topicLoaders={topicLoaders} />
                 <Link className="graph-panel-open" to={`/topics/${selected.domainId}/${selected.id}`}>
                   Open topic →
                 </Link>
@@ -285,7 +284,15 @@ export default function GraphView() {
   )
 }
 
-function GraphPanelSummary({ topicId, domainId }: { topicId: string; domainId: string }) {
+function GraphPanelSummary({
+  topicId,
+  domainId,
+  topicLoaders,
+}: {
+  topicId: string
+  domainId: string
+  topicLoaders: Record<string, () => Promise<{ topics: Topic[] }>>
+}) {
   const [summary, setSummary] = useState<string>('')
   useEffect(() => {
     let cancelled = false

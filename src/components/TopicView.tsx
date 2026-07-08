@@ -1,14 +1,12 @@
+import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import type { Topic, ContentBlock, Domain } from '../types/content'
-import { domainById, domains } from '../data/domains'
-import { bookByKey } from '../data/books'
+import { useCompendium } from '../lib/useCompendium'
 import RichText from './RichText'
 import CodeBlock from './CodeBlock'
 import Callout from './Callout'
 import CompareTable from './CompareTable'
 import './TopicView.css'
-
-const topicDomain = new Map(domains.flatMap((d) => d.topicIds.map((t) => [t, d] as const)))
 
 function Block({ block }: { block: ContentBlock }) {
   switch (block.kind) {
@@ -34,8 +32,13 @@ function Block({ block }: { block: ContentBlock }) {
 }
 
 export default function TopicView({ topic }: { topic: Topic }) {
+  const { domainById, domains, bookByKey } = useCompendium()
   const domain: Domain | undefined = domainById.get(topic.domainId)
   const spine = domain?.color ?? 'var(--accent)'
+  const topicDomain = useMemo(
+    () => new Map(domains.flatMap((d) => d.topicIds.map((t) => [t, d] as const))),
+    [domains],
+  )
 
   return (
     <article className="topic" style={{ '--domain': spine } as React.CSSProperties}>

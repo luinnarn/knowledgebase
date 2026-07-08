@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import type MiniSearch from 'minisearch'
 import { getSearchIndex, type SearchDoc } from '../lib/searchIndex'
+import { useCompendium } from '../lib/useCompendium'
 import './SearchPalette.css'
 
 interface Result {
@@ -19,16 +20,17 @@ export default function SearchPalette({ open, onClose }: { open: boolean; onClos
   const [index, setIndex] = useState<MiniSearch<SearchDoc> | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const navigate = useNavigate()
+  const compendium = useCompendium()
 
   useEffect(() => {
     if (open) {
-      getSearchIndex().then(setIndex)
+      getSearchIndex(compendium.id, compendium).then(setIndex)
       setQuery('')
       setResults([])
       setActive(0)
       requestAnimationFrame(() => inputRef.current?.focus())
     }
-  }, [open])
+  }, [open, compendium])
 
   useEffect(() => {
     if (!index || !query.trim()) {

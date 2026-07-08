@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import TopicView from './TopicView'
+import CompendiumProvider from '../lib/CompendiumProvider'
 import type { Topic } from '../types/content'
 
 const fixture: Topic = {
@@ -25,7 +26,9 @@ const fixture: Topic = {
 function renderTopic() {
   return render(
     <MemoryRouter>
-      <TopicView topic={fixture} />
+      <CompendiumProvider>
+        <TopicView topic={fixture} />
+      </CompendiumProvider>
     </MemoryRouter>,
   )
 }

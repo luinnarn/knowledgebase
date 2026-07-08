@@ -1,7 +1,5 @@
 import MiniSearch from 'minisearch'
-import { domains, domainById } from '../data/domains'
-import { topicLoaders } from '../data/topics/index'
-import { classSummaries } from '../data/classes/index'
+import type { CompendiumData } from '../data/registry'
 
 export interface SearchDoc {
   id: string
@@ -12,16 +10,14 @@ export interface SearchDoc {
   route: string
 }
 
-let indexPromise: Promise<MiniSearch<SearchDoc>> | null = null
-
-async function build(): Promise<MiniSearch<SearchDoc>> {
+async function build(data: CompendiumData): Promise<MiniSearch<SearchDoc>> {
   const docs: SearchDoc[] = []
 
   const loaded = await Promise.all(
-    Object.entries(topicLoaders).map(async ([domainId, load]) => [domainId, (await load()).topics] as const),
+    Object.entries(data.topicLoaders).map(async ([domainId, load]) => [domainId, (await load()).topics] as const),
   )
   for (const [domainId, topics] of loaded) {
-    const domain = domainById.get(domainId)
+    const domain = data.domainById.get(domainId)
     for (const t of topics) {
       docs.push({
         id: `topic:${t.id}`,
@@ -34,7 +30,7 @@ async function build(): Promise<MiniSearch<SearchDoc>> {
     }
   }
 
-  for (const c of classSummaries) {
+  for (const c of data.classSummaries) {
     docs.push({
       id: `class:${c.fqcn}`,
       type: 'class',
@@ -46,7 +42,7 @@ async function build(): Promise<MiniSearch<SearchDoc>> {
   }
 
   // Domains themselves are useful search targets too.
-  for (const d of domains) {
+  for (const d of data.domains) {
     docs.push({
       id: `domain:${d.id}`,
       type: 'topic',
@@ -70,8 +66,14 @@ async function build(): Promise<MiniSearch<SearchDoc>> {
   return mini
 }
 
-/** Lazily builds (once) and returns the search index. */
-export function getSearchIndex(): Promise<MiniSearch<SearchDoc>> {
-  if (!indexPromise) indexPromise = build()
-  return indexPromise
+const indexPromises = new Map<string, Promise<MiniSearch<SearchDoc>>>()
+
+/** Lazily builds (once per compendium) and returns that compendium's search index. */
+export function getSearchIndex(compendiumId: string, data: CompendiumData): Promise<MiniSearch<SearchDoc>> {
+  let promise = indexPromises.get(compendiumId)
+  if (!promise) {
+    promise = build(data)
+    indexPromises.set(compendiumId, promise)
+  }
+  return promise
 }

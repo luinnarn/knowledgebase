@@ -1,25 +1,17 @@
 import { Link } from 'react-router-dom'
-import { domains } from '../data/domains'
-import { graphNodes, graphEdges } from '../data/graph'
-import { classSummaries } from '../data/classes/index'
-import { books } from '../data/books'
+import { useCompendium } from '../lib/useCompendium'
 import './HomePage.css'
 
-const topicCount = domains.reduce((n, d) => n + d.topicIds.length, 0)
-
 export default function HomePage() {
+  const { meta, domains, graphNodes, graphEdges, classSummaries, books } = useCompendium()
+  const topicCount = domains.reduce((n, d) => n + d.topicIds.length, 0)
+
   return (
     <div className="home">
       <section className="home-hero">
         <p className="eyebrow">A knowledge base distilled from {books.length} books</p>
-        <h1 className="home-title">
-          Java, <span className="home-title-accent">indexed.</span>
-        </h1>
-        <p className="home-lede">
-          Everything from language fundamentals to JVM internals, garbage collection, and cloud-scale performance —
-          organized into {domains.length} domains, {topicCount} topics, and {classSummaries.length} curated class
-          references, cross-linked into one knowledge graph.
-        </p>
+        <h1 className="home-title">{meta.heroTitle}</h1>
+        <p className="home-lede">{meta.heroLede}</p>
         <div className="home-actions">
           <Link to="/topics" className="home-cta primary">
             Browse topics
@@ -40,10 +32,12 @@ export default function HomePage() {
             <dt>Topics</dt>
             <dd>{topicCount}</dd>
           </div>
-          <div>
-            <dt>Classes</dt>
-            <dd>{classSummaries.length}</dd>
-          </div>
+          {meta.hasClasses && (
+            <div>
+              <dt>Classes</dt>
+              <dd>{classSummaries.length}</dd>
+            </div>
+          )}
           <div>
             <dt>Graph edges</dt>
             <dd>{graphEdges.length}</dd>

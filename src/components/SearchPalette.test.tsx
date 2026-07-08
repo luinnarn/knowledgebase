@@ -2,9 +2,10 @@ import { render, screen, fireEvent } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import App from '../App'
 import { getSearchIndex } from '../lib/searchIndex'
+import { compendiumRegistry } from '../data/registry'
 
 test('index finds topics and classes for a known query', async () => {
-  const index = await getSearchIndex()
+  const index = await getSearchIndex('java', compendiumRegistry.java)
   const hits = index.search('erasure')
   expect(hits.some((h) => String(h.id) === 'topic:type-erasure')).toBe(true)
   const classHits = index.search('ConcurrentHashMap')

@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { classSummaries, areaTitles } from '../data/classes/index'
+import { useCompendium } from '../lib/useCompendium'
 import ClassDetail from '../components/ClassDetail'
 import './ClassesPage.css'
 
@@ -14,6 +14,7 @@ const KIND_BADGE: Record<string, string> = {
 
 function ClassList() {
   const [query, setQuery] = useState('')
+  const { classSummaries, areaTitles } = useCompendium()
 
   const groups = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -29,7 +30,7 @@ function ClassList() {
       byArea.set(c.area, list)
     }
     return byArea
-  }, [query])
+  }, [query, classSummaries])
 
   return (
     <div className="classes-page">
@@ -77,6 +78,19 @@ function ClassList() {
 
 export default function ClassesPage() {
   const { fqcn } = useParams()
+  const { meta } = useCompendium()
+  if (!meta.hasClasses) {
+    return (
+      <div className="classes-page">
+        <header className="classes-header">
+          <h1>Class Reference</h1>
+          <p className="classes-lede">
+            The {meta.label} compendium has no class reference — browse its <Link to="/topics">topics</Link> instead.
+          </p>
+        </header>
+      </div>
+    )
+  }
   if (fqcn) return <ClassDetail fqcn={fqcn} />
   return <ClassList />
 }

@@ -1,12 +1,15 @@
 import { render, screen, fireEvent, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import GraphView from './GraphView'
+import CompendiumProvider from '../lib/CompendiumProvider'
 import { graphNodes } from '../data/graph'
 
 function renderGraph() {
   return render(
     <MemoryRouter>
-      <GraphView />
+      <CompendiumProvider>
+        <GraphView />
+      </CompendiumProvider>
     </MemoryRouter>,
   )
 }

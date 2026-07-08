@@ -1,11 +1,14 @@
-import { Fragment, type ReactNode } from 'react'
+import { Fragment, useMemo, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
-import { domains } from '../data/domains'
-
-const topicDomain = new Map(domains.flatMap((d) => d.topicIds.map((t) => [t, d.id] as const)))
+import { useCompendium } from '../lib/useCompendium'
 
 /** Renders mini-markdown: **bold**, *italic*, `code`, [[topic-id]] and [[topic-id|label]] links. */
 export default function RichText({ text }: { text: string }) {
+  const { domains } = useCompendium()
+  const topicDomain = useMemo(
+    () => new Map(domains.flatMap((d) => d.topicIds.map((t) => [t, d.id] as const))),
+    [domains],
+  )
   const parts = text.split(/(\*\*[^*]+\*\*|\*[^*\s][^*]*\*|`[^`]+`|\[\[[a-z0-9-]+(?:\|[^\]]+)?\]\])/g)
   return (
     <>

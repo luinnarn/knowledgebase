@@ -1,13 +1,15 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { NavLink, useParams } from 'react-router-dom'
-import { domains } from '../data/domains'
-import { graphNodes } from '../data/graph'
+import { useCompendium } from '../lib/useCompendium'
 import './Sidebar.css'
-
-const labelById = new Map(graphNodes.filter((n) => n.kind === 'topic').map((n) => [n.id, n.label]))
 
 export default function Sidebar() {
   const { domainId } = useParams()
+  const { domains, graphNodes } = useCompendium()
+  const labelById = useMemo(
+    () => new Map(graphNodes.filter((n) => n.kind === 'topic').map((n) => [n.id, n.label])),
+    [graphNodes],
+  )
   const [open, setOpen] = useState<Record<string, boolean>>(() => (domainId ? { [domainId]: true } : {}))
 
   // Keep the active domain expanded when navigating directly.

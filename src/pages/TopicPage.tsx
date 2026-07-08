@@ -1,23 +1,19 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { domains, domainById } from '../data/domains'
-import { graphNodes } from '../data/graph'
+import { useCompendium } from '../lib/useCompendium'
 import { useTopics } from '../lib/useTopics'
 import Sidebar from '../components/Sidebar'
 import TopicView from '../components/TopicView'
 import './TopicPage.css'
 
-const labelById = new Map(graphNodes.filter((n) => n.kind === 'topic').map((n) => [n.id, n.label]))
-
-/** Flat ordered list of [domainId, topicId] across all domains, for prev/next. */
-const flatOrder: Array<[string, string]> = domains.flatMap((d) => d.topicIds.map((t) => [d.id, t] as [string, string]))
-
 function TopicsIndex() {
+  const { domains } = useCompendium()
+  const flatCount = domains.reduce((n, d) => n + d.topicIds.length, 0)
   return (
     <div className="topics-index">
       <h1>Topics</h1>
       <p className="topics-index-lede">
-        Twelve domains, {flatOrder.length} topics — distilled from eight books. Pick a domain to start.
+        {domains.length} domains, {flatCount} topics — distilled from curated books. Pick a domain to start.
       </p>
       <div className="topics-index-grid">
         {domains.map((d) => (
@@ -33,6 +29,11 @@ function TopicsIndex() {
 }
 
 function DomainLanding({ domainId }: { domainId: string }) {
+  const { domainById, graphNodes } = useCompendium()
+  const labelById = useMemo(
+    () => new Map(graphNodes.filter((n) => n.kind === 'topic').map((n) => [n.id, n.label])),
+    [graphNodes],
+  )
   const domain = domainById.get(domainId)
   if (!domain) return <NotFound />
   return (
@@ -65,6 +66,15 @@ function NotFound() {
 }
 
 function PrevNext({ domainId, topicId }: { domainId: string; topicId: string }) {
+  const { domains, graphNodes } = useCompendium()
+  const labelById = useMemo(
+    () => new Map(graphNodes.filter((n) => n.kind === 'topic').map((n) => [n.id, n.label])),
+    [graphNodes],
+  )
+  const flatOrder = useMemo<Array<[string, string]>>(
+    () => domains.flatMap((d) => d.topicIds.map((t) => [d.id, t] as [string, string])),
+    [domains],
+  )
   const idx = flatOrder.findIndex(([d, t]) => d === domainId && t === topicId)
   const prev = idx > 0 ? flatOrder[idx - 1] : undefined
   const next = idx >= 0 && idx < flatOrder.length - 1 ? flatOrder[idx + 1] : undefined
@@ -91,7 +101,8 @@ function PrevNext({ domainId, topicId }: { domainId: string; topicId: string }) 
 }
 
 function TopicContent({ domainId, topicId }: { domainId: string; topicId: string }) {
-  const state = useTopics(domainId)
+  const { id: compendiumId, domainById, topicLoaders, graphNodes } = useCompendium()
+  const state = useTopics(compendiumId, topicLoaders, domainId)
   const domain = domainById.get(domainId)
   if (!domain || !domain.topicIds.includes(topicId)) return <NotFound />
 
@@ -99,12 +110,13 @@ function TopicContent({ domainId, topicId }: { domainId: string; topicId: string
     return <div className="topic-loading" aria-busy="true" />
   }
   if (state.status === 'unavailable') {
+    const label = graphNodes.find((n) => n.id === topicId)?.label ?? topicId
     return (
       <div className="topics-index">
         <p className="eyebrow" style={{ color: domain.color }}>
           {domain.title}
         </p>
-        <h1>{labelById.get(topicId)}</h1>
+        <h1>{label}</h1>
         <p className="topics-index-lede">This topic's content is being authored — check back shortly.</p>
       </div>
     )
