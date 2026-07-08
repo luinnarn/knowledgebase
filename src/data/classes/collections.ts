@@ -438,8 +438,8 @@ export const classes: JavaClass[] = [
     methods: [
       { signature: 'static void sort(int[] a) / sort(int[] a, int from, int to)', desc: 'Dual-pivot quicksort for primitives; ranged variant sorts a slice.' },
       { signature: 'static <T> void sort(T[] a, Comparator<? super T> c)', desc: 'Stable TimSort for objects; null comparator = natural order.' },
-      { signature: 'static void parallelSort(...)', desc: 'Fork/join parallel sort — wins on large arrays, same result.' },
-      { signature: 'static int binarySearch(int[] a, int key)', desc: 'Sorted arrays only; negative return = -(insertion point) - 1.' },
+      { signature: 'static void parallelSort(int[] a) / parallelSort(a, from, to) / parallelSort(T[], Comparator)', desc: 'Fork/join parallel sort — wins on large arrays, same result.' },
+      { signature: 'static int binarySearch(int[] a, int key) / binarySearch(a, from, to, key)', desc: 'Sorted arrays only; negative return = -(insertion point) - 1.' },
       { signature: 'static <T> T[] copyOf(T[] a, int newLength)', desc: 'Grow/shrink via copy; padded with null/0/false.' },
       { signature: 'static <T> T[] copyOfRange(T[] a, int from, int to)', desc: 'Copy a slice into a fresh array.' },
       { signature: 'static void fill(long[] a, long v) / fill(a, from, to, v)', desc: 'Bulk assignment, whole array or slice.' },
@@ -447,12 +447,12 @@ export const classes: JavaClass[] = [
       { signature: 'static boolean equals(int[] a, int[] b) / deepEquals(Object[], Object[])', desc: 'Content comparison (== on arrays is identity!); deep recurses nested arrays.' },
       { signature: 'static int hashCode(int[] a) / deepHashCode(Object[] a)', desc: 'Content-based hash — arrays do not override hashCode themselves.' },
       { signature: 'static String toString(int[] a) / deepToString(Object[] a)', desc: 'Readable printing; deep recurses nested arrays.' },
-      { signature: 'static int compare(int[] a, int[] b) / mismatch(int[] a, int[] b)', desc: 'Lexicographic order; mismatch returns first differing index or -1.' },
+      { signature: 'static int compare(int[] a, int[] b) / mismatch(int[] a, int[] b)', desc: 'Lexicographic compare/mismatch: mismatch returns the first differing index, or the length of the shorter array if one is a proper prefix of the other, or -1 if fully equal.' },
       { signature: 'static <T> List<T> asList(T... a)', desc: 'Fixed-size, write-through List view — add/remove throw.' },
       { signature: 'static IntStream stream(int[] a) / stream(a, from, to)', desc: 'Array-to-stream bridge, whole array or slice.' },
     ],
     example: {
-      code: 'int[] a = { 5, 2, 8, 1 };\nArrays.sort(a);                       // [1, 2, 5, 8]\nint i = Arrays.binarySearch(a, 5);    // 2\nint[] b = Arrays.copyOfRange(a, 0, 2); // [1, 2]\nString s = Arrays.toString(a);        // "[1, 2, 5, 8]"\nint firstDiff = Arrays.mismatch(a, b); // 2  (first index where they differ)',
+      code: 'int[] a = { 5, 2, 8, 1 };\nArrays.sort(a);                       // [1, 2, 5, 8]\nint i = Arrays.binarySearch(a, 5);    // 2\nint[] b = Arrays.copyOfRange(a, 0, 2); // [1, 2]\nString s = Arrays.toString(a);        // "[1, 2, 5, 8]"\nint firstDiff = Arrays.mismatch(a, b); // 2  (b is a proper prefix of a → length of the shorter array)',
       caption: 'The everyday array toolkit — sort, search, slice, compare.',
     },
     pitfalls: [
