@@ -19,6 +19,13 @@ export const compendiums: CompendiumMeta[] = [
       'Everything from language fundamentals to JVM internals, garbage collection, and cloud-scale performance — organized into domains, topics, and curated class references, cross-linked into one knowledge graph.',
     hasClasses: true,
   },
+  { 
+    id: 'js-ts', 
+    label: 'JS/TS', 
+    heroTitle: 'JavaScript & TypeScript, clarified.', 
+    heroLede: 'JavaScript runtime behavior, asynchronous programming, TypeScript’s type system, modules, tooling, testing, and the patterns behind reliable web applications.', 
+    hasClasses: false 
+  },
   {
     id: 'cs',
     label: 'CS',

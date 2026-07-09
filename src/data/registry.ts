@@ -21,6 +21,11 @@ import { topicLoaders as aiMlTopicLoaders } from './ai-ml/topics/index'
 import { graphNodes as aiMlGraphNodes, graphEdges as aiMlGraphEdges } from './ai-ml/graph'
 import { books as aiMlBooks, bookByKey as aiMlBookByKey } from './ai-ml/books'
 
+import { domains as jsTsDomains, domainById as jsTsDomainById } from './js-ts/domains'
+import { topicLoaders as jsTsTopicLoaders } from './js-ts/topics/index'
+import { graphNodes as jsTsGraphNodes, graphEdges as jsTsGraphEdges } from './js-ts/graph'
+import { books as jsTsBooks, bookByKey as jsTsBookByKey } from './js-ts/books'
+
 export interface CompendiumData {
   domains: Domain[]
   domainById: Map<string, Domain>
@@ -46,6 +51,18 @@ export const compendiumRegistry: Record<string, CompendiumData> = {
     classLoaders: javaClassLoaders,
     classSummaries: javaClassSummaries,
     areaTitles: javaAreaTitles,
+  },
+  'js-ts': { 
+    domains: jsTsDomains, 
+    domainById: jsTsDomainById, 
+    topicLoaders: jsTsTopicLoaders, 
+    graphNodes: jsTsGraphNodes, 
+    graphEdges: jsTsGraphEdges, 
+    books: jsTsBooks, 
+    bookByKey: jsTsBookByKey, 
+    classLoaders: {}, 
+    classSummaries: [], 
+    areaTitles: {} 
   },
   cs: {
     domains: csDomains,
