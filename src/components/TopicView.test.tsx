@@ -58,9 +58,9 @@ test('renders every block kind', () => {
 test('[[topic-id]] links resolve to routed links, with optional label', () => {
   renderTopic()
   const summaryLink = screen.getByRole('link', { name: 'Arrays' })
-  expect(summaryLink).toHaveAttribute('href', '/topics/fundamentals/arrays')
+  expect(summaryLink).toHaveAttribute('href', '/java/topics/fundamentals/arrays')
   const labeled = screen.getByRole('link', { name: 'the strings topic' })
-  expect(labeled).toHaveAttribute('href', '/topics/fundamentals/strings-text')
+  expect(labeled).toHaveAttribute('href', '/java/topics/fundamentals/strings-text')
 })
 
 test('renders related chips and source references', () => {

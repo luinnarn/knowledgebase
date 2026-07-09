@@ -4,7 +4,7 @@ import { useCompendium } from '../lib/useCompendium'
 
 /** Renders mini-markdown: **bold**, *italic*, `code`, [[topic-id]] and [[topic-id|label]] links. */
 export default function RichText({ text }: { text: string }) {
-  const { domains } = useCompendium()
+  const { id: compendiumId, domains } = useCompendium()
   const topicDomain = useMemo(
     () => new Map(domains.flatMap((d) => d.topicIds.map((t) => [t, d.id] as const))),
     [domains],
@@ -33,7 +33,7 @@ export default function RichText({ text }: { text: string }) {
           const display = label ?? titleFromId(id)
           if (!domainId) return <Fragment key={i}>{display}</Fragment>
           return (
-            <Link key={i} to={`/topics/${domainId}/${id}`} className="topic-link">
+            <Link key={i} to={`/${compendiumId}/topics/${domainId}/${id}`} className="topic-link">
               {display}
             </Link>
           )

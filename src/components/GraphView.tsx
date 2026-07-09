@@ -55,7 +55,7 @@ interface Transform {
 }
 
 export default function GraphView() {
-  const { meta, domains, domainById, graphNodes, graphEdges, topicLoaders } = useCompendium()
+  const { id, meta, domains, domainById, graphNodes, graphEdges, topicLoaders } = useCompendium()
   const { nodes, links } = useMemo(() => layout(graphNodes, graphEdges), [graphNodes, graphEdges])
   const [selected, setSelected] = useState<SimNode | null>(null)
   const [activeDomains, setActiveDomains] = useState<Set<string>>(new Set())
@@ -265,14 +265,14 @@ export default function GraphView() {
             {selected.kind === 'topic' ? (
               <>
                 <GraphPanelSummary topicId={selected.id} domainId={selected.domainId} topicLoaders={topicLoaders} />
-                <Link className="graph-panel-open" to={`/topics/${selected.domainId}/${selected.id}`}>
+                <Link className="graph-panel-open" to={`/${id}/topics/${selected.domainId}/${selected.id}`}>
                   Open topic →
                 </Link>
               </>
             ) : (
               <>
                 <p className="graph-panel-summary">{selectedDomain?.blurb}</p>
-                <Link className="graph-panel-open" to={`/topics/${selected.domainId}`}>
+                <Link className="graph-panel-open" to={`/${id}/topics/${selected.domainId}`}>
                   Open domain →
                 </Link>
               </>

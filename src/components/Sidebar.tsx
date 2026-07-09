@@ -5,7 +5,7 @@ import './Sidebar.css'
 
 export default function Sidebar() {
   const { domainId } = useParams()
-  const { domains, graphNodes } = useCompendium()
+  const { id, domains, graphNodes } = useCompendium()
   const labelById = useMemo(
     () => new Map(graphNodes.filter((n) => n.kind === 'topic').map((n) => [n.id, n.label])),
     [graphNodes],
@@ -50,7 +50,7 @@ export default function Sidebar() {
                 <ul className="sidebar-topics" style={{ '--domain': d.color } as React.CSSProperties}>
                   {d.topicIds.map((tid) => (
                     <li key={tid}>
-                      <NavLink to={`/topics/${d.id}/${tid}`}>{labelById.get(tid) ?? tid}</NavLink>
+                      <NavLink to={`/${id}/topics/${d.id}/${tid}`}>{labelById.get(tid) ?? tid}</NavLink>
                     </li>
                   ))}
                 </ul>

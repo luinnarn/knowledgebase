@@ -8,7 +8,7 @@ import NotFound from '../components/NotFound'
 import './TopicPage.css'
 
 function TopicsIndex() {
-  const { domains } = useCompendium()
+  const { id, domains } = useCompendium()
   const flatCount = domains.reduce((n, d) => n + d.topicIds.length, 0)
   return (
     <div className="topics-index">
@@ -18,7 +18,7 @@ function TopicsIndex() {
       </p>
       <div className="topics-index-grid">
         {domains.map((d) => (
-          <Link key={d.id} to={`/topics/${d.id}`} className="domain-card" style={{ '--domain': d.color } as React.CSSProperties}>
+          <Link key={d.id} to={`/${id}/topics/${d.id}`} className="domain-card" style={{ '--domain': d.color } as React.CSSProperties}>
             <h2>{d.title}</h2>
             <p>{d.blurb}</p>
             <span className="domain-card-count">{d.topicIds.length} topics</span>
@@ -30,13 +30,13 @@ function TopicsIndex() {
 }
 
 function DomainLanding({ domainId }: { domainId: string }) {
-  const { domainById, graphNodes } = useCompendium()
+  const { id, domainById, graphNodes } = useCompendium()
   const labelById = useMemo(
     () => new Map(graphNodes.filter((n) => n.kind === 'topic').map((n) => [n.id, n.label])),
     [graphNodes],
   )
   const domain = domainById.get(domainId)
-  if (!domain) return <NotFound homeHref="/topics" homeLabel="topic index" />
+  if (!domain) return <NotFound homeHref={`/${id}/topics`} homeLabel="topic index" />
   return (
     <div className="topics-index">
       <p className="eyebrow" style={{ color: domain.color }}>
@@ -47,7 +47,7 @@ function DomainLanding({ domainId }: { domainId: string }) {
       <ol className="domain-topic-list" style={{ '--domain': domain.color } as React.CSSProperties}>
         {domain.topicIds.map((tid) => (
           <li key={tid}>
-            <Link to={`/topics/${domainId}/${tid}`}>{labelById.get(tid) ?? tid}</Link>
+            <Link to={`/${id}/topics/${domainId}/${tid}`}>{labelById.get(tid) ?? tid}</Link>
           </li>
         ))}
       </ol>
@@ -56,7 +56,7 @@ function DomainLanding({ domainId }: { domainId: string }) {
 }
 
 function PrevNext({ domainId, topicId }: { domainId: string; topicId: string }) {
-  const { domains, graphNodes } = useCompendium()
+  const { id, domains, graphNodes } = useCompendium()
   const labelById = useMemo(
     () => new Map(graphNodes.filter((n) => n.kind === 'topic').map((n) => [n.id, n.label])),
     [graphNodes],
@@ -71,7 +71,7 @@ function PrevNext({ domainId, topicId }: { domainId: string; topicId: string }) 
   return (
     <nav className="prevnext" aria-label="Topic pagination">
       {prev ? (
-        <Link to={`/topics/${prev[0]}/${prev[1]}`} className="prevnext-link prev">
+        <Link to={`/${id}/topics/${prev[0]}/${prev[1]}`} className="prevnext-link prev">
           <span className="eyebrow">‹ Previous</span>
           <span>{labelById.get(prev[1])}</span>
         </Link>
@@ -79,7 +79,7 @@ function PrevNext({ domainId, topicId }: { domainId: string; topicId: string }) 
         <span />
       )}
       {next ? (
-        <Link to={`/topics/${next[0]}/${next[1]}`} className="prevnext-link next">
+        <Link to={`/${id}/topics/${next[0]}/${next[1]}`} className="prevnext-link next">
           <span className="eyebrow">Next ›</span>
           <span>{labelById.get(next[1])}</span>
         </Link>
@@ -94,7 +94,7 @@ function TopicContent({ domainId, topicId }: { domainId: string; topicId: string
   const { id: compendiumId, domainById, topicLoaders, graphNodes } = useCompendium()
   const state = useTopics(compendiumId, topicLoaders, domainId)
   const domain = domainById.get(domainId)
-  if (!domain || !domain.topicIds.includes(topicId)) return <NotFound homeHref="/topics" homeLabel="topic index" />
+  if (!domain || !domain.topicIds.includes(topicId)) return <NotFound homeHref={`/${compendiumId}/topics`} homeLabel="topic index" />
 
   if (state.status === 'loading') {
     return <div className="topic-loading" aria-busy="true" />
@@ -112,7 +112,7 @@ function TopicContent({ domainId, topicId }: { domainId: string; topicId: string
     )
   }
   const topic = state.topics.find((t) => t.id === topicId)
-  if (!topic) return <NotFound homeHref="/topics" homeLabel="topic index" />
+  if (!topic) return <NotFound homeHref={`/${compendiumId}/topics`} homeLabel="topic index" />
   return (
     <>
       <TopicView topic={topic} />

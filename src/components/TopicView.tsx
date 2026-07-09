@@ -63,7 +63,7 @@ function KeyPointItem({ point }: { point: KeyPoint }) {
 }
 
 export default function TopicView({ topic }: { topic: Topic }) {
-  const { domainById, domains, bookByKey } = useCompendium()
+  const { id: compendiumId, domainById, domains, bookByKey } = useCompendium()
   const domain: Domain | undefined = domainById.get(topic.domainId)
   const spine = domain?.color ?? 'var(--accent)'
   const topicDomain = useMemo(
@@ -100,7 +100,7 @@ export default function TopicView({ topic }: { topic: Topic }) {
               const d = topicDomain.get(id)
               if (!d) return null
               return (
-                <Link key={id} to={`/topics/${d.id}/${id}`} className="chip">
+                <Link key={id} to={`/${compendiumId}/topics/${d.id}/${id}`} className="chip">
                   <span className="dot" style={{ background: d.color }} />
                   {titleFromId(id)}
                 </Link>

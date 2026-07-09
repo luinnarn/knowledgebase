@@ -14,7 +14,7 @@ const KIND_BADGE: Record<string, string> = {
 
 function ClassList() {
   const [query, setQuery] = useState('')
-  const { classSummaries, areaTitles } = useCompendium()
+  const { id, classSummaries, areaTitles } = useCompendium()
 
   const groups = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -56,7 +56,7 @@ function ClassList() {
           <ul className="classes-grid">
             {classes.map((c) => (
               <li key={c.fqcn}>
-                <Link to={`/classes/${c.fqcn}`} className="class-card">
+                <Link to={`/${id}/classes/${c.fqcn}`} className="class-card">
                   <span className={`kind-badge kind-${c.kind}`} aria-label={c.kind}>
                     {KIND_BADGE[c.kind]}
                   </span>
@@ -78,14 +78,14 @@ function ClassList() {
 
 export default function ClassesPage() {
   const { fqcn } = useParams()
-  const { meta } = useCompendium()
+  const { id, meta } = useCompendium()
   if (!meta.hasClasses) {
     return (
       <div className="classes-page">
         <header className="classes-header">
           <h1>Class Reference</h1>
           <p className="classes-lede">
-            The {meta.label} compendium has no class reference — browse its <Link to="/topics">topics</Link> instead.
+            The {meta.label} compendium has no class reference — browse its <Link to={`/${id}/topics`}>topics</Link> instead.
           </p>
         </header>
       </div>

@@ -81,7 +81,7 @@ function CompendiumSwitcher() {
 
 export default function AppShell() {
   const [searchOpen, setSearchOpen] = useState(false)
-  const { meta } = useCompendium()
+  const { id, meta } = useCompendium()
   const { pathname } = useLocation()
 
   // BrowserRouter doesn't reset scroll on navigation (only the browser's own
@@ -116,9 +116,9 @@ export default function AppShell() {
       <header className="shell-header">
         <CompendiumSwitcher />
         <nav className="shell-nav" aria-label="Primary">
-          <NavLink to="/topics">Topics</NavLink>
-          <NavLink to="/graph">Graph</NavLink>
-          {meta.hasClasses && <NavLink to="/classes">Classes</NavLink>}
+          <NavLink to={`/${id}/topics`}>Topics</NavLink>
+          <NavLink to={`/${id}/graph`}>Graph</NavLink>
+          {meta.hasClasses && <NavLink to={`/${id}/classes`}>Classes</NavLink>}
         </nav>
         <div className="shell-actions">
           <button className="search-btn" onClick={() => setSearchOpen(true)} aria-label="Search">

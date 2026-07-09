@@ -3,7 +3,7 @@ import { useCompendium } from '../lib/useCompendium'
 import './HomePage.css'
 
 export default function HomePage() {
-  const { meta, domains, graphNodes, graphEdges, classSummaries, books } = useCompendium()
+  const { id, meta, domains, graphNodes, graphEdges, classSummaries, books } = useCompendium()
   const topicCount = domains.reduce((n, d) => n + d.topicIds.length, 0)
 
   return (
@@ -13,10 +13,10 @@ export default function HomePage() {
         <h1 className="home-title">{meta.heroTitle}</h1>
         <p className="home-lede">{meta.heroLede}</p>
         <div className="home-actions">
-          <Link to="/topics" className="home-cta primary">
+          <Link to={`/${id}/topics`} className="home-cta primary">
             Browse topics
           </Link>
-          <Link to="/graph" className="home-cta">
+          <Link to={`/${id}/graph`} className="home-cta">
             Explore the graph
           </Link>
           <span className="home-hint">
@@ -50,7 +50,7 @@ export default function HomePage() {
           {domains.map((d) => (
             <Link
               key={d.id}
-              to={`/topics/${d.id}`}
+              to={`/${id}/topics/${d.id}`}
               className="home-domain"
               style={{ '--domain': d.color } as React.CSSProperties}
             >

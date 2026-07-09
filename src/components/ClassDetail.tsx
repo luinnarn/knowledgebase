@@ -41,7 +41,7 @@ export default function ClassDetail({ fqcn }: { fqcn: string }) {
       <div className="classdetail">
         <h1>Unknown class</h1>
         <p>
-          No entry for <code className="inline-code">{fqcn}</code>. Browse the <Link to="/classes">class reference</Link>.
+          No entry for <code className="inline-code">{fqcn}</code>. Browse the <Link to={`/${compendiumId}/classes`}>class reference</Link>.
         </p>
       </div>
     )
@@ -109,7 +109,7 @@ export default function ClassDetail({ fqcn }: { fqcn: string }) {
                   const d = topicDomain.get(id)
                   if (!d) return null
                   return (
-                    <Link key={r} to={`/topics/${d}/${id}`} className="chip">
+                    <Link key={r} to={`/${compendiumId}/topics/${d}/${id}`} className="chip">
                       {titleFromId(id)}
                     </Link>
                   )
@@ -117,7 +117,7 @@ export default function ClassDetail({ fqcn }: { fqcn: string }) {
                 const rel = summaryByFqcn.get(r)
                 if (!rel) return null
                 return (
-                  <Link key={r} to={`/classes/${r}`} className="chip">
+                  <Link key={r} to={`/${compendiumId}/classes/${r}`} className="chip">
                     {rel.name}
                   </Link>
                 )

@@ -10,7 +10,7 @@ export interface SearchDoc {
   route: string
 }
 
-async function build(data: CompendiumData): Promise<MiniSearch<SearchDoc>> {
+async function build(compendiumId: string, data: CompendiumData): Promise<MiniSearch<SearchDoc>> {
   const docs: SearchDoc[] = []
 
   const loaded = await Promise.all(
@@ -28,7 +28,7 @@ async function build(data: CompendiumData): Promise<MiniSearch<SearchDoc>> {
           /\*\*|`|\[\[|\]\]/g,
           '',
         ),
-        route: `/topics/${domainId}/${t.id}`,
+        route: `/${compendiumId}/topics/${domainId}/${t.id}`,
       })
     }
   }
@@ -40,7 +40,7 @@ async function build(data: CompendiumData): Promise<MiniSearch<SearchDoc>> {
       title: c.name,
       subtitle: c.pkg,
       text: c.summary,
-      route: `/classes/${c.fqcn}`,
+      route: `/${compendiumId}/classes/${c.fqcn}`,
     })
   }
 
@@ -52,7 +52,7 @@ async function build(data: CompendiumData): Promise<MiniSearch<SearchDoc>> {
       title: d.title,
       subtitle: 'Domain',
       text: d.blurb,
-      route: `/topics/${d.id}`,
+      route: `/${compendiumId}/topics/${d.id}`,
     })
   }
 
@@ -75,7 +75,7 @@ const indexPromises = new Map<string, Promise<MiniSearch<SearchDoc>>>()
 export function getSearchIndex(compendiumId: string, data: CompendiumData): Promise<MiniSearch<SearchDoc>> {
   let promise = indexPromises.get(compendiumId)
   if (!promise) {
-    promise = build(data)
+    promise = build(compendiumId, data)
     indexPromises.set(compendiumId, promise)
   }
   return promise
