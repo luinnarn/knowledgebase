@@ -141,6 +141,7 @@ export const topics: Topic[] = [
         kind: 'note',
         title: 'What ListIterator adds over Iterator',
         text: '`ListIterator` extends `Iterator` with backward traversal (`hasPrevious`/`previous`), in-place replacement (`set`), and positional insertion/removal (`add`/`remove`) — all relative to the cursor, with no index arithmetic. Traversal and `set` are O(1) even on an `ArrayList`; only `add`/`remove` shift the backing array. On a `LinkedList` those cursor-local structural edits are O(1) too — the one scenario where the node-per-element design actually pays for itself.',
+        detail: 'A plain `Iterator` only supports forward traversal and removal — anything else (replacing an element, inserting mid-traversal, going backward) forces falling back to index-based `get`/`set`/`add`, which reintroduces the O(n) cost `ListIterator` was meant to avoid. The cursor-relative operations are what make it genuinely useful for in-place editing during a single pass, not just a richer read-only view.',
       },
       {
         kind: 'code',
@@ -273,7 +274,10 @@ export const topics: Topic[] = [
         text: '`PriorityQueue`: binary heap; `poll` is O(log n); **iteration is not sorted**',
         detail: 'A binary heap only guarantees the smallest (or highest-priority) element sits at the root — the rest of the array satisfies the heap property (a parent ≤ its children) but is not otherwise ordered, so a plain for-each visits entries in whatever array position they happen to occupy.',
       },
-      'Blocking variants (`ArrayBlockingQueue`, `LinkedBlockingQueue`) live in [[concurrent-collections]]',
+      {
+        text: 'Blocking variants (`ArrayBlockingQueue`, `LinkedBlockingQueue`) live in [[concurrent-collections]]',
+        detail: 'Plain `Queue`/`Deque` implementations like `ArrayDeque` are not thread-safe and have no notion of waiting — `offer`/`poll` return immediately whether or not the operation succeeded. The blocking variants add `put`/`take` methods that park the calling thread until space or an element becomes available, which is what makes them the standard building block for producer-consumer pipelines.',
+      },
     ],
     blocks: [
       {
@@ -547,6 +551,7 @@ export const topics: Topic[] = [
         kind: 'note',
         title: 'Concurrent cousin',
         text: '`ConcurrentSkipListMap`/`Set` provide the same sorted/navigable API lock-free for multithreaded use — see [[concurrent-collections]].',
+        detail: '`TreeMap` is not thread-safe — even read-heavy concurrent access needs external synchronization that serializes everyone. A skip list\'s layered-linked-list structure lends itself to fine-grained, largely lock-free concurrent updates in a way a balanced tree\'s rebalancing does not, which is why the concurrent sorted map is a skip list rather than a concurrent `TreeMap`.',
       },
     ],
     refs: [
