@@ -62,7 +62,7 @@ Commit message convention:
 5. Run `npm run build` — expect `tsc -b` to typecheck clean and Vite to build.
 6. If either fails, fix and re-run before proceeding. Never commit a failing state.
 7. If mode is `content-deepening`, add `// content-pass: deepened` directly under the file's imports if not already present.
-8. Commit with the convention above, scoped to the file(s) you touched (`git add <file(s)>`, not `git add -A`).
+8. Commit with the convention above, scoped to the file(s) you touched (`git add <file(s)>`, not `git add -A`). Never commit a file half-retrofitted — "determine what's next" only catches fully-untouched files (zero `detail:`) or files with uncommitted changes; a *committed* partial file would be silently invisible to both checks.
 9. Report back: which file, which mode, test/build result, commit hash.
 
 ## Constraints (both modes)
