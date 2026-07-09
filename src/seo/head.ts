@@ -7,7 +7,17 @@ function escapeHtml(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 }
 
-function breadcrumbJsonLd(route: RouteMeta): object {
+/** Classic Cloudflare Pages hosting 308-redirects a trailing-slash-free URL to its
+ *  trailing-slash form before serving index.html. Every absolute URL we hand to a search
+ *  engine or social crawler (canonical, og:url, JSON-LD) must already be the post-redirect
+ *  form, or we're pointing a canonical at a URL that redirects — an anti-pattern Google
+ *  explicitly warns against. Route paths themselves stay slash-free (see routes.ts); this
+ *  only normalizes the URL strings built for external consumption. */
+function withTrailingSlash(pathname: string): string {
+  return pathname.endsWith('/') ? pathname : `${pathname}/`
+}
+
+function breadcrumbJsonLd(route: RouteMeta, canonical: string): object {
   const items: Array<{ '@type': 'ListItem'; position: number; name: string; item: string }> = []
   let position = 1
   items.push({ '@type': 'ListItem', position: position++, name: 'Compendium', item: `${SITE_ORIGIN}/` })
@@ -17,7 +27,7 @@ function breadcrumbJsonLd(route: RouteMeta): object {
       '@type': 'ListItem',
       position: position++,
       name: `${route.compendiumLabel}::Compendium`,
-      item: `${SITE_ORIGIN}/${route.compendiumId}`,
+      item: `${SITE_ORIGIN}${withTrailingSlash(`/${route.compendiumId}`)}`,
     })
   }
   if (route.domainId && route.domainTitle && route.compendiumId) {
@@ -25,10 +35,10 @@ function breadcrumbJsonLd(route: RouteMeta): object {
       '@type': 'ListItem',
       position: position++,
       name: route.domainTitle,
-      item: `${SITE_ORIGIN}/${route.compendiumId}/topics/${route.domainId}`,
+      item: `${SITE_ORIGIN}${withTrailingSlash(`/${route.compendiumId}/topics/${route.domainId}`)}`,
     })
   }
-  items.push({ '@type': 'ListItem', position: position++, name: route.title, item: `${SITE_ORIGIN}${route.path}` })
+  items.push({ '@type': 'ListItem', position: position++, name: route.title, item: canonical })
 
   return { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: items }
 }
@@ -37,7 +47,7 @@ function breadcrumbJsonLd(route: RouteMeta): object {
  *  route. Returned as a raw HTML string the prerender script splices into the built index.html
  *  template just before </head>. */
 export function buildHead(route: RouteMeta): string {
-  const canonical = `${SITE_ORIGIN}${route.path}`
+  const canonical = `${SITE_ORIGIN}${withTrailingSlash(route.path)}`
   const image = `${SITE_ORIGIN}${resolveOgImagePath(route)}`
   const title = escapeHtml(route.title)
   const description = escapeHtml(route.description)
@@ -64,7 +74,7 @@ export function buildHead(route: RouteMeta): string {
         '@type': 'ListItem',
         position: i + 1,
         name: d.title,
-        url: `${SITE_ORIGIN}/${route.compendiumId}/topics/${d.id}`,
+        url: `${SITE_ORIGIN}${withTrailingSlash(`/${route.compendiumId}/topics/${d.id}`)}`,
       })),
     })
   }
@@ -72,7 +82,7 @@ export function buildHead(route: RouteMeta): string {
   if (route.kind === 'picker') {
     jsonLd.push({ '@context': 'https://schema.org', '@type': 'WebSite', name: 'Compendium', url: `${SITE_ORIGIN}/` })
   } else {
-    jsonLd.push(breadcrumbJsonLd(route))
+    jsonLd.push(breadcrumbJsonLd(route, canonical))
   }
 
   const jsonLdTags = jsonLd.map((obj) => `<script type="application/ld+json">${JSON.stringify(obj)}</script>`).join('\n    ')
