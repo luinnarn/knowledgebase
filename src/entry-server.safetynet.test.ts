@@ -8,8 +8,19 @@ describe('SSR safety net', () => {
     expect(routes.length).toBeGreaterThan(0)
 
     for (const route of routes) {
-      const html = await render(route)
-      expect(typeof html).toBe('string')
+      try {
+        const html = await render(route)
+        expect(typeof html).toBe('string')
+      } catch (error) {
+        const routeInfo = [
+          `path: ${route.path}`,
+          `kind: ${route.kind}`,
+          ...(route.domainId ? [`domainId: ${route.domainId}`] : []),
+          ...(route.fqcn ? [`fqcn: ${route.fqcn}`] : []),
+        ].join(', ')
+        const originalMessage = error instanceof Error ? error.message : String(error)
+        throw new Error(`Failed to render route (${routeInfo}): ${originalMessage}`)
+      }
     }
   }, 60_000)
 })
