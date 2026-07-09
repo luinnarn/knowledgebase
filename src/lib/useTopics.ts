@@ -46,3 +46,19 @@ export function useTopics(
 
   return state
 }
+
+/** Pre-warms the module cache for a compendium+domain so the next render of useTopics for that
+ *  key starts in the 'ready' state synchronously, instead of 'loading' (which only resolves via
+ *  a useEffect — useful for SSR, where effects never run during the single render pass). */
+export async function preloadTopics(
+  compendiumId: string,
+  domainId: string,
+  topicLoaders: Record<string, () => Promise<{ topics: Topic[] }>>,
+): Promise<void> {
+  const key = `${compendiumId}:${domainId}`
+  if (cache.has(key)) return
+  const loader = topicLoaders[domainId]
+  if (!loader) return
+  const { topics } = await loader()
+  cache.set(key, topics)
+}
