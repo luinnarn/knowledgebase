@@ -16,6 +16,11 @@ import { topicLoaders as sdTopicLoaders } from './system-design/topics/index'
 import { graphNodes as sdGraphNodes, graphEdges as sdGraphEdges } from './system-design/graph'
 import { books as sdBooks, bookByKey as sdBookByKey } from './system-design/books'
 
+import { domains as aiMlDomains, domainById as aiMlDomainById } from './ai-ml/domains'
+import { topicLoaders as aiMlTopicLoaders } from './ai-ml/topics/index'
+import { graphNodes as aiMlGraphNodes, graphEdges as aiMlGraphEdges } from './ai-ml/graph'
+import { books as aiMlBooks, bookByKey as aiMlBookByKey } from './ai-ml/books'
+
 export interface CompendiumData {
   domains: Domain[]
   domainById: Map<string, Domain>
@@ -29,13 +34,6 @@ export interface CompendiumData {
   areaTitles: Record<string, string>
 }
 
-/**
- * One entry per compendium id (must match src/data/compendiums.ts). The Java entry binds the
- * original top-level data files; every later compendium lives in its own src/data/<id>/ folder
- * mirroring the same domains.ts / graph.ts / books.ts / topics/index.ts shape (+ classes/index.ts
- * if it has a class reference). Adding a compendium is: author that folder, add one entry here,
- * and add its metadata to compendiums.ts.
- */
 export const compendiumRegistry: Record<string, CompendiumData> = {
   java: {
     domains: javaDomains,
@@ -69,6 +67,18 @@ export const compendiumRegistry: Record<string, CompendiumData> = {
     graphEdges: sdGraphEdges,
     books: sdBooks,
     bookByKey: sdBookByKey,
+    classLoaders: {},
+    classSummaries: [],
+    areaTitles: {},
+  },
+  'ai-ml': {
+    domains: aiMlDomains,
+    domainById: aiMlDomainById,
+    topicLoaders: aiMlTopicLoaders,
+    graphNodes: aiMlGraphNodes,
+    graphEdges: aiMlGraphEdges,
+    books: aiMlBooks,
+    bookByKey: aiMlBookByKey,
     classLoaders: {},
     classSummaries: [],
     areaTitles: {},

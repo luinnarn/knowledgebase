@@ -35,6 +35,14 @@ export const compendiums: CompendiumMeta[] = [
       'Scalability fundamentals, caching, databases, messaging, distributed systems theory, reliability, and the architecture decisions behind systems that hold up under load — organized into domains and topics, cross-linked into one knowledge graph.',
     hasClasses: false,
   },
+  {
+    id: 'ai-ml',
+    label: 'AI/ML',
+    heroTitle: 'AI/ML, from intuition to implementation.',
+    heroLede:
+      'Machine learning foundations, neural networks, transformers, LLMs, RAG, evaluation, production ML, and responsible AI — explained through practical mental models for developers.',
+    hasClasses: false,
+  },
 ]
 
 export const compendiumById = new Map(compendiums.map((c) => [c.id, c]))
