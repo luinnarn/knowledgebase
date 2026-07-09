@@ -133,3 +133,12 @@
     padding: var(--sp-6) var(--sp-4) var(--sp-7);
   }
 }
+
+/* Below this width the floating "Topics" toggle (Sidebar.css) becomes a
+   fixed bottom-right pill — reserve clear space so it never sits on top of
+   the last thing in the page, most often the "Next" link. */
+@media (max-width: 900px) {
+  .topics-content {
+    padding-bottom: 5.5rem;
+  }
+}

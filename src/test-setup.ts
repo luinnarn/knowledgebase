@@ -14,3 +14,9 @@ if (typeof window !== 'undefined' && !window.matchMedia) {
       dispatchEvent: () => false,
     }) as MediaQueryList
 }
+
+// jsdom doesn't implement scrollTo — it logs "Not implemented" instead of
+// silently no-op'ing, which is noisy in any test that mounts AppShell.
+if (typeof window !== 'undefined') {
+  window.scrollTo = () => {}
+}

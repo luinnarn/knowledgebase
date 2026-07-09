@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { NavLink, Outlet } from 'react-router-dom'
+import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useTheme } from '../lib/useTheme'
 import { useCompendium } from '../lib/useCompendium'
 import { compendiums } from '../data/compendiums'
@@ -100,6 +100,14 @@ function CompendiumSwitcher() {
 export default function AppShell() {
   const [searchOpen, setSearchOpen] = useState(false)
   const { meta } = useCompendium()
+  const { pathname } = useLocation()
+
+  // BrowserRouter doesn't reset scroll on navigation (only the browser's own
+  // back/forward restores it) — without this, routing to a new topic keeps
+  // whatever scroll position the previous page was left at.
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [pathname])
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
