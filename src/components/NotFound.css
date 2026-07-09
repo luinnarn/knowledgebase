@@ -1,0 +1,15 @@
+.not-found {
+  max-width: 56rem;
+  margin: 0 auto;
+  padding: var(--sp-7) var(--sp-5) var(--sp-8);
+}
+
+.not-found h1 {
+  font-size: var(--fs-hero);
+  margin-bottom: var(--sp-3);
+}
+
+.not-found-lede {
+  color: var(--ink-2);
+  max-width: 55ch;
+}

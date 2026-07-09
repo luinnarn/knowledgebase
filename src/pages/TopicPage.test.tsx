@@ -42,3 +42,8 @@ test('unknown topic shows not found', () => {
   renderAt('/topics/generics/nope')
   expect(screen.getByRole('heading', { name: /not found/i })).toBeInTheDocument()
 })
+
+test('unknown domain shows not found', () => {
+  renderAt('/topics/bogus-domain')
+  expect(screen.getByRole('heading', { name: /not found/i })).toBeInTheDocument()
+})

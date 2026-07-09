@@ -4,6 +4,7 @@ import { useCompendium } from '../lib/useCompendium'
 import { useTopics } from '../lib/useTopics'
 import Sidebar from '../components/Sidebar'
 import TopicView from '../components/TopicView'
+import NotFound from '../components/NotFound'
 import './TopicPage.css'
 
 function TopicsIndex() {
@@ -35,7 +36,7 @@ function DomainLanding({ domainId }: { domainId: string }) {
     [graphNodes],
   )
   const domain = domainById.get(domainId)
-  if (!domain) return <NotFound />
+  if (!domain) return <NotFound homeHref="/topics" homeLabel="topic index" />
   return (
     <div className="topics-index">
       <p className="eyebrow" style={{ color: domain.color }}>
@@ -50,17 +51,6 @@ function DomainLanding({ domainId }: { domainId: string }) {
           </li>
         ))}
       </ol>
-    </div>
-  )
-}
-
-function NotFound() {
-  return (
-    <div className="topics-index">
-      <h1>Not found</h1>
-      <p className="topics-index-lede">
-        That page doesn't exist. Browse the <Link to="/topics">topic index</Link> instead.
-      </p>
     </div>
   )
 }
@@ -104,7 +94,7 @@ function TopicContent({ domainId, topicId }: { domainId: string; topicId: string
   const { id: compendiumId, domainById, topicLoaders, graphNodes } = useCompendium()
   const state = useTopics(compendiumId, topicLoaders, domainId)
   const domain = domainById.get(domainId)
-  if (!domain || !domain.topicIds.includes(topicId)) return <NotFound />
+  if (!domain || !domain.topicIds.includes(topicId)) return <NotFound homeHref="/topics" homeLabel="topic index" />
 
   if (state.status === 'loading') {
     return <div className="topic-loading" aria-busy="true" />
@@ -122,7 +112,7 @@ function TopicContent({ domainId, topicId }: { domainId: string; topicId: string
     )
   }
   const topic = state.topics.find((t) => t.id === topicId)
-  if (!topic) return <NotFound />
+  if (!topic) return <NotFound homeHref="/topics" homeLabel="topic index" />
   return (
     <>
       <TopicView topic={topic} />
