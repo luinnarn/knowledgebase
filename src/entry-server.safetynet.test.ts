@@ -9,7 +9,7 @@ describe('SSR safety net', () => {
 
     for (const route of routes) {
       try {
-        const html = await render(route)
+        const { html } = await render(route)
         expect(typeof html).toBe('string')
       } catch (error) {
         const routeInfo = [

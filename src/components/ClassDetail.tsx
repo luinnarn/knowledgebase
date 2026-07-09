@@ -148,11 +148,20 @@ export async function preloadClassArea(
   compendiumId: string,
   area: string,
   classLoaders: Record<string, () => Promise<{ classes: JavaClass[] }>>,
-): Promise<void> {
+): Promise<JavaClass[] | undefined> {
   const key = `${compendiumId}:${area}`
-  if (cache.has(key)) return
+  const hit = cache.get(key)
+  if (hit) return hit
   const loader = classLoaders[area]
-  if (!loader) return
+  if (!loader) return undefined
   const { classes } = await loader()
   cache.set(key, classes)
+  return classes
+}
+
+/** Synchronously seeds the cache from already-known data (e.g. a serialized SSR preload payload
+ *  read on the client), skipping the async loader entirely — used to make the client's first
+ *  render match prerendered HTML instead of starting from an empty cache. */
+export function seedClassAreaCache(compendiumId: string, area: string, classes: JavaClass[]): void {
+  cache.set(`${compendiumId}:${area}`, classes)
 }

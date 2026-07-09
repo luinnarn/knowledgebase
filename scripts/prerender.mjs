@@ -15,6 +15,16 @@ function withTrailingSlash(pathname) {
   return pathname.endsWith('/') ? pathname : `${pathname}/`
 }
 
+// Serializes whatever lazy data preload() loaded server-side into the page as inline JSON, so
+// the client can seed its module caches before its first render instead of starting from an
+// empty cache (which would mismatch the prerendered HTML — a hydration mismatch). Escaping `<`
+// prevents a literal `</script>`-like sequence in the JSON from breaking out of the tag.
+function serializePreloadedData(preloadedData) {
+  if (!preloadedData) return ''
+  const json = JSON.stringify(preloadedData).replace(/</g, '\\u003c')
+  return `<script id="__PRELOADED__" type="application/json">${json}</script>`
+}
+
 async function main() {
   const template = await readFile(path.join(DIST, 'index.html'), 'utf-8')
   const routes = await getAllRoutes()
@@ -23,7 +33,7 @@ async function main() {
 
   const sitemapUrls = []
   for (const route of routes) {
-    const html = await render(route)
+    const { html, preloadedData } = await render(route)
     const head = buildHead(route)
 
     const page = template
@@ -31,6 +41,7 @@ async function main() {
       .replace(/<meta name="description"[^>]*>/, '')
       .replace(/<title>.*?<\/title>/s, '')
       .replace('</head>', `  ${head}\n  </head>`)
+      .replace('</body>', `  ${serializePreloadedData(preloadedData)}\n  </body>`)
 
     const outDir = route.path === '/' ? DIST : path.join(DIST, route.path)
     await mkdir(outDir, { recursive: true })
