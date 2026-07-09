@@ -1,18 +1,19 @@
-import { render, screen } from '@testing-library/react'
+import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { MemoryRouter } from 'react-router-dom'
-import App from './App'
+import { renderApp } from './test-utils'
 
-function renderAt(path: string) {
-  return render(
-    <MemoryRouter initialEntries={[path]}>
-      <App />
-    </MemoryRouter>,
-  )
-}
+beforeEach(() => {
+  localStorage.clear()
+})
+
+test('bare root shows the compendium picker', () => {
+  renderApp('/')
+  expect(screen.getByRole('heading', { name: /choose a compendium/i })).toBeInTheDocument()
+  expect(screen.getByRole('link', { name: /^Java/ })).toHaveAttribute('href', '/java')
+})
 
 test('renders the shell with brand and primary nav', () => {
-  renderAt('/')
+  renderApp('/java')
   expect(screen.getByText('Compendium')).toBeInTheDocument()
   const nav = screen.getByRole('navigation', { name: /primary/i })
   expect(nav).toBeInTheDocument()
@@ -23,7 +24,7 @@ test('renders the shell with brand and primary nav', () => {
 
 test('navigates between sections', async () => {
   const user = userEvent.setup()
-  renderAt('/')
+  renderApp('/java')
   await user.click(screen.getByRole('link', { name: 'Graph' }))
   expect(screen.getByRole('heading', { name: /knowledge graph/i })).toBeInTheDocument()
   await user.click(screen.getByRole('link', { name: 'Classes' }))
@@ -32,8 +33,23 @@ test('navigates between sections', async () => {
 
 test('theme toggle flips the document theme', async () => {
   const user = userEvent.setup()
-  renderAt('/')
+  renderApp('/java')
   const initial = document.documentElement.dataset.theme
   await user.click(screen.getByRole('button', { name: /switch to/i }))
   expect(document.documentElement.dataset.theme).not.toBe(initial)
+})
+
+test('invalid compendium segment shows not found', () => {
+  renderApp('/bogus')
+  expect(screen.getByRole('heading', { name: /not found/i })).toBeInTheDocument()
+})
+
+test('unmatched multi-segment path shows not found', () => {
+  renderApp('/foo/bar/baz')
+  expect(screen.getByRole('heading', { name: /not found/i })).toBeInTheDocument()
+})
+
+test('legacy unprefixed link redirects into the default compendium', async () => {
+  renderApp('/topics/generics/type-erasure')
+  expect(await screen.findByRole('heading', { name: /type erasure/i, level: 1 })).toBeInTheDocument()
 })

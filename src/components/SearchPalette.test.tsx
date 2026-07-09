@@ -1,8 +1,7 @@
-import { render, screen, fireEvent } from '@testing-library/react'
-import { MemoryRouter } from 'react-router-dom'
-import App from '../App'
+import { screen, fireEvent } from '@testing-library/react'
 import { getSearchIndex } from '../lib/searchIndex'
 import { compendiumRegistry } from '../data/registry'
+import { renderApp } from '../test-utils'
 
 test('index finds topics and classes for a known query', async () => {
   const index = await getSearchIndex('java', compendiumRegistry.java)
@@ -13,11 +12,7 @@ test('index finds topics and classes for a known query', async () => {
 })
 
 test('palette opens from header button, searches, and navigates on Enter', async () => {
-  render(
-    <MemoryRouter>
-      <App />
-    </MemoryRouter>,
-  )
+  renderApp('/java')
   fireEvent.click(screen.getByRole('button', { name: 'Search' }))
   const input = await screen.findByRole('textbox', { name: /search query/i })
   fireEvent.change(input, { target: { value: 'volatile' } })

@@ -1,7 +1,6 @@
-import { render, screen, fireEvent, within } from '@testing-library/react'
-import { MemoryRouter } from 'react-router-dom'
+import { screen, fireEvent, within } from '@testing-library/react'
 import TopicView from './TopicView'
-import CompendiumProvider from '../lib/CompendiumProvider'
+import { renderWithCompendium } from '../test-utils'
 import type { Topic } from '../types/content'
 
 const fixture: Topic = {
@@ -36,13 +35,7 @@ const fixture: Topic = {
 }
 
 function renderTopic() {
-  return render(
-    <MemoryRouter>
-      <CompendiumProvider>
-        <TopicView topic={fixture} />
-      </CompendiumProvider>
-    </MemoryRouter>,
-  )
+  return renderWithCompendium(<TopicView topic={fixture} />)
 }
 
 test('renders all skim layers: title, summary, key points', () => {

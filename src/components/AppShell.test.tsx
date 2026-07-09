@@ -1,47 +1,21 @@
-import { render, screen, fireEvent } from '@testing-library/react'
-import { MemoryRouter, Routes, Route, Link } from 'react-router-dom'
-import AppShell from './AppShell'
-import CompendiumProvider from '../lib/CompendiumProvider'
+import { screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { renderApp } from '../test-utils'
 
-function Stub({ label, to }: { label: string; to?: string }) {
-  return (
-    <div>
-      <h1>{label}</h1>
-      {to && <Link to={to}>go</Link>}
-    </div>
-  )
-}
-
-function renderShell() {
-  return render(
-    <MemoryRouter initialEntries={['/topics/a']}>
-      <CompendiumProvider>
-        <Routes>
-          <Route element={<AppShell />}>
-            <Route path="topics/a" element={<Stub label="Page A" to="/topics/b" />} />
-            <Route path="topics/b" element={<Stub label="Page B" />} />
-          </Route>
-        </Routes>
-      </CompendiumProvider>
-    </MemoryRouter>,
-  )
-}
-
-test('scrolls to top when navigating to a different route', () => {
+test('scrolls to top when navigating to a different route', async () => {
   const scrollTo = vi.spyOn(window, 'scrollTo').mockImplementation(() => {})
-  renderShell()
-  expect(screen.getByRole('heading', { name: 'Page A' })).toBeInTheDocument()
+  const user = userEvent.setup()
+  renderApp('/java/topics/generics/type-erasure')
+  expect(await screen.findByRole('heading', { name: /type erasure/i, level: 1 })).toBeInTheDocument()
 
   scrollTo.mockClear()
-  fireEvent.click(screen.getByRole('link', { name: 'go' }))
+  await user.click(screen.getByRole('link', { name: 'Graph' }))
 
-  expect(screen.getByRole('heading', { name: 'Page B' })).toBeInTheDocument()
+  expect(await screen.findByRole('heading', { name: /knowledge graph/i })).toBeInTheDocument()
   expect(scrollTo).toHaveBeenCalled()
 })
 
 test('sets the document title to the active compendium, not a fixed string', () => {
-  localStorage.setItem('jkb-compendium', 'cs')
-  renderShell()
+  renderApp('/cs')
   expect(document.title).toBe('CS::Compendium')
-  localStorage.removeItem('jkb-compendium')
 })

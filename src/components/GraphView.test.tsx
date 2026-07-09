@@ -1,17 +1,10 @@
-import { render, screen, fireEvent, within } from '@testing-library/react'
-import { MemoryRouter } from 'react-router-dom'
+import { screen, fireEvent, within } from '@testing-library/react'
 import GraphView from './GraphView'
-import CompendiumProvider from '../lib/CompendiumProvider'
+import { renderWithCompendium } from '../test-utils'
 import { graphNodes } from '../data/graph'
 
 function renderGraph() {
-  return render(
-    <MemoryRouter>
-      <CompendiumProvider>
-        <GraphView />
-      </CompendiumProvider>
-    </MemoryRouter>,
-  )
+  return renderWithCompendium(<GraphView />)
 }
 
 test('renders a node for every graph entry', () => {
