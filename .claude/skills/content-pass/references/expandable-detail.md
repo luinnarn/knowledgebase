@@ -8,7 +8,7 @@ Every `KeyPoint` object (`{ text, detail }`) and every `pitfall`/`bestPractice`/
 
 ## What `detail` is for
 
-`detail` expands **why**, not **what**. The `text`/base sentence already states the fact or rule tersely; `detail` gives the reasoning, the failure mode it guards against, or the mental model that makes the rule stick — 2–4 sentences, dense, no restating the headline.
+`detail` expands **why**, not **what**. The `text`/base sentence already states the fact or rule tersely; `detail` gives the reasoning, the failure mode it guards against, or the mental model that makes the rule stick — dense, no restating the headline. Aim for roughly 2–4 sentences' worth of content, but one long em-dash-joined sentence is fine too if that's what the reasoning needs — match this codebase's existing voice, not a literal sentence count.
 
 ### Exemplar 1 — KeyPoint
 
