@@ -7,6 +7,8 @@ import { preloadClassArea } from './components/ClassDetail'
 import { getAllRoutes, type RouteMeta, type RouteKind } from './seo/routes'
 
 export { getAllRoutes, type RouteMeta, type RouteKind }
+export { generateOgImages } from './seo/ogImageRender'
+export { resolveOgImagePath } from './seo/ogImage'
 
 /** Pre-warms whichever lazy-loaded cache the given route depends on, so the single synchronous
  *  renderToString pass below renders real content instead of each component's "loading" state
