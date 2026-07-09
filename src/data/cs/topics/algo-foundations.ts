@@ -8,12 +8,30 @@ export const topics: Topic[] = [
     summary:
       'Asymptotic notation — **O**, **Ω**, and **Θ** — describes how running time or memory grows as input size *n* grows, stripped of machine-specific constants. It lets you compare algorithms, not benchmarks.',
     keyPoints: [
-      '`O(f(n))` is an upper bound on growth; `Ω(f(n))` a lower bound; `Θ(f(n))` means both match — the tight bound',
-      'Constants and low-order terms are dropped: `3n² + 100n + 5` is `Θ(n²)`',
-      'Worst case is the default lens; average case and best case need to be stated explicitly',
-      'Common orders, cheapest to priciest: `O(1)`, `O(log n)`, `O(n)`, `O(n log n)`, `O(n²)`, `O(2ⁿ)`',
-      'Define *n* precisely — number of elements, bits, vertices + edges — before quoting a bound',
-      'A bound describes a trend for large *n*; it says nothing about which algorithm wins at *n* = 10',
+      {
+        text: '`O(f(n))` is an upper bound on growth; `Ω(f(n))` a lower bound; `Θ(f(n))` means both match — the tight bound',
+        detail: 'These three are a family of inequalities, not three different notations for the same idea: `O` says "grows no faster than," `Ω` says "grows no slower than," and only when both hold simultaneously — `Θ` — do you have a bound that is actually tight in both directions. Most casual usage of "O(n)" in conversation actually means the `Θ(n)` claim.',
+      },
+      {
+        text: 'Constants and low-order terms are dropped: `3n² + 100n + 5` is `Θ(n²)`',
+        detail: 'This is justified because as *n* grows without bound, the `n²` term eventually dominates both the `100n` term and the constant `5`, regardless of the leading coefficient — the ratio of the full expression to `n²` converges to a constant (3). Dropping them loses information about small-*n* behavior but captures exactly the large-*n* trend the notation is designed to describe.',
+      },
+      {
+        text: 'Worst case is the default lens; average case and best case need to be stated explicitly',
+        detail: 'Worst case is the default because it is the only one that gives an unconditional guarantee — it holds no matter what the input turns out to be, which is what most engineering decisions actually need. Average case requires committing to an input distribution (uniformly random? adversarial-but-typical?) that may not match reality, and best case is rarely useful for anything beyond curiosity.',
+      },
+      {
+        text: 'Common orders, cheapest to priciest: `O(1)`, `O(log n)`, `O(n)`, `O(n log n)`, `O(n²)`, `O(2ⁿ)`',
+        detail: 'This ladder is worth memorizing because it maps directly onto recognizable algorithm shapes: `O(1)` is a hash lookup, `O(log n)` is binary search or a balanced tree, `O(n)` is a single scan, `O(n log n)` is comparison sorting, `O(n²)` is a nested loop over the same data, and `O(2ⁿ)` is brute-force enumeration of subsets — recognizing which shape a piece of code has is most of the work of estimating its cost.',
+      },
+      {
+        text: 'Define *n* precisely — number of elements, bits, vertices + edges — before quoting a bound',
+        detail: 'A bound like `O(n)` is meaningless without agreeing on what *n* counts — an algorithm that is linear in the number of graph vertices can be exponential in the number of bits needed to represent a large numeric input, and vice versa. Ambiguity about *n* is a common source of bounds that sound comparable but are not actually measuring the same thing.',
+      },
+      {
+        text: 'A bound describes a trend for large *n*; it says nothing about which algorithm wins at *n* = 10',
+        detail: 'Asymptotic notation deliberately hides constant factors, and for small *n* those hidden constants can dominate — a `Θ(n²)` algorithm with a tiny constant can easily outrun a `Θ(n log n)` algorithm with a large one until *n* grows large enough for the asymptotic trend to take over. This is precisely why insertion sort (quadratic) still wins over mergesort on small arrays in practice, and why many production sorts switch strategies below a size threshold.',
+      },
     ],
     blocks: [
       {
@@ -44,16 +62,19 @@ export const topics: Topic[] = [
         title: 'Hidden work inside a "simple" line',
         text: 'A single line can smuggle in linear or worse cost. `String` concatenation in a loop (`result += s`) copies the whole accumulated string every iteration, turning an apparent `O(n)` loop into `O(n²)`; `list.contains(x)` on an `ArrayList` is `O(n)`, so calling it inside another loop is quadratic even though neither loop looks suspicious on its own.',
         code: 'String bad = "";\nfor (String s : words) bad += s;   // O(n^2) — use a StringBuilder instead',
+        detail: 'The danger is specifically that each individual line reads as `O(1)` in isolation — a concatenation, a `contains` call — so the quadratic behavior only becomes visible when you account for what that "O(1)-looking" line actually costs when it is really `O(n)` and sits inside another `O(n)` loop. Reading code for asymptotic cost means checking every method call\'s real complexity, not just counting loop nesting.',
       },
       {
         kind: 'note',
         title: 'Θ vs the informal "O" everyone actually means',
         text: 'In casual conversation "O(n)" almost always means Θ(n) — a tight bound, not just an upper one (technically `O(n²)` is also a correct-but-useless upper bound for a linear algorithm). Sedgewick\'s *Algorithms* leans on **tilde notation** (`~cn`) instead, keeping the leading constant so two `Θ(n)` algorithms with very different constants can still be told apart before amortized costs ([[amortized-analysis]]) are folded in.',
+        detail: 'Tilde notation is a deliberate departure from the usual constant-dropping convention: `~cn` keeps the leading coefficient visible specifically because two algorithms that are both `Θ(n)` can still differ by a large, practically important constant factor — information plain `Θ` notation throws away by design. It is a middle ground between full asymptotic abstraction and an exact operation count.',
       },
       {
         kind: 'bestPractice',
         title: 'Profile before you optimize',
         text: 'Asymptotic analysis tells you how an algorithm scales, not whether today\'s bottleneck is that algorithm at all. Identify the actual hot path — usually with a profiler, not intuition — before trading a clear `O(n²)` for a harder-to-maintain `O(n log n)` that only matters past a size the program never reaches. See [[interview-problem-solving-method]] for the discipline of establishing correctness before optimizing.',
+        detail: 'Asymptotic analysis answers "how does this scale" but says nothing about "is this actually where the time goes" — a program can spend 95% of its wall-clock time in an `O(n)` I/O call and 5% in an `O(n²)` in-memory loop that never runs on inputs large enough to matter. Optimizing the mathematically worse complexity first, without measuring, routinely wastes effort on code that was never the bottleneck.',
       },
     ],
     refs: [
@@ -70,11 +91,26 @@ export const topics: Topic[] = [
     summary:
       'A recursive algorithm solves a problem by solving smaller instances of itself; a recurrence relation is the equation describing its running time in terms of those smaller instances.',
     keyPoints: [
-      'Every recursive method needs a base case that terminates without recursing, and progress toward it on every call',
-      'The call stack is real memory: depth *n* recursion uses `O(n)` stack frames and can overflow',
-      'A recurrence like `T(n) = 2T(n/2) + O(n)` describes divide-and-conquer cost; the Master Theorem solves the common shapes directly',
-      'Tail-recursive-looking Java code is **not** optimized away — the JVM keeps every frame, unlike languages with guaranteed tail-call elimination',
-      'Memoization turns exponential naive recursion into polynomial time by caching subproblem results ([[dynamic-programming]])',
+      {
+        text: 'Every recursive method needs a base case that terminates without recursing, and progress toward it on every call',
+        detail: 'Both halves are required, not just the base case: a method that has a base case but does not strictly shrink the problem on every recursive call (e.g. recursing on the same value, or the wrong half of a range) can recurse forever despite technically "having" a stopping condition it never actually reaches.',
+      },
+      {
+        text: 'The call stack is real memory: depth *n* recursion uses `O(n)` stack frames and can overflow',
+        detail: 'Each recursive call pushes a real stack frame — local variables, the return address, saved registers — onto a fixed-size region of memory, so recursion depth is not a free abstraction the way it might feel while writing it. A recursive algorithm whose depth scales with input size needs the same space-complexity accounting as any other memory usage, and risks `StackOverflowError` on large enough input.',
+      },
+      {
+        text: 'A recurrence like `T(n) = 2T(n/2) + O(n)` describes divide-and-conquer cost; the Master Theorem solves the common shapes directly',
+        detail: 'The recurrence directly encodes the algorithm\'s shape: "2T(n/2)" means two recursive calls each on half the input, and "+O(n)" is the work done to split the problem and combine the two results. The Master Theorem is a lookup table for exactly this common family of recurrences, sparing you from re-deriving the closed-form growth rate from scratch every time.',
+      },
+      {
+        text: 'Tail-recursive-looking Java code is **not** optimized away — the JVM keeps every frame, unlike languages with guaranteed tail-call elimination',
+        detail: 'In languages that guarantee tail-call elimination, a recursive call in tail position reuses the current stack frame instead of pushing a new one, making deep tail recursion effectively free in stack space. The JVM specification makes no such guarantee — every call, tail-positioned or not, gets its own frame — so code that "looks" tail-recursive still accumulates stack depth exactly like any other recursion in Java.',
+      },
+      {
+        text: 'Memoization turns exponential naive recursion into polynomial time by caching subproblem results ([[dynamic-programming]])',
+        detail: 'Naive recursion re-derives the same subproblem\'s answer every time it is reached through a different call path, and when subproblems overlap heavily (as in naive Fibonacci) that repeated work compounds exponentially. Caching each subproblem\'s result the first time it is computed, and returning the cached value on every subsequent request, collapses the total work down to the number of *distinct* subproblems — usually polynomial.',
+      },
     ],
     blocks: [
       {
@@ -101,16 +137,19 @@ export const topics: Topic[] = [
         kind: 'pitfall',
         title: 'Exponential blowup from re-solving subproblems',
         text: 'Naive recursion that branches into overlapping subproblems — `fib(n-1)` and `fib(n-2)` both eventually recompute `fib(n-3)` — re-derives the same answer exponentially many times. The fix is either memoization (top-down, cache as you recurse) or tabulation (bottom-up, build a table in a loop); both turn `Θ(φⁿ)` into `Θ(n)` here. See [[dynamic-programming]].',
+        detail: 'The exponential blowup comes specifically from *overlapping* subproblems — divide-and-conquer recursion (like mergesort) that splits into genuinely disjoint subproblems does not have this issue, because no subproblem is ever solved twice. Recognizing whether subproblems overlap is exactly the test for whether memoization/tabulation will help or whether the recursion was already efficient as written.',
       },
       {
         kind: 'note',
         title: 'No guaranteed tail-call elimination on the JVM',
         text: 'Writing a "tail-recursive" Java method — where the recursive call is the very last operation — does not save stack frames the way it would in Scheme or Scala (with `@tailrec`). Deep tail recursion in Java still risks `StackOverflowError`; converting to an explicit loop with an accumulator, or an explicit stack ([[stacks-and-queues]]), is the reliable fix for genuinely deep recursion.',
+        detail: 'An explicit loop with an accumulator variable is doing by hand exactly what a tail-call-eliminating compiler would do automatically — carrying the "running result" forward instead of building up a chain of pending stack frames waiting to combine their results. It is more verbose than the recursive version but uses `O(1)` stack space instead of `O(n)`.',
       },
       {
         kind: 'bestPractice',
         title: 'State the recurrence before you code the recursion',
         text: 'Write `T(n) = ...` on paper first: how many subproblems, how much smaller, how much work to combine. If you cannot state it, you likely cannot argue the algorithm terminates or bound its cost — and the Master Theorem only applies once the recurrence is in its standard form.',
+        detail: 'This is a forcing function for design clarity: if you cannot say how many recursive calls there are and how much smaller each subproblem is, you likely have not actually worked out the algorithm\'s structure yet, only a vague idea of "solve it recursively." Writing the recurrence first surfaces that gap before any code is written, when it is cheap to fix.',
       },
     ],
     refs: [
@@ -128,11 +167,26 @@ export const topics: Topic[] = [
     summary:
       'Amortized analysis bounds the *average* cost per operation over a worst-case **sequence** of operations, even when individual operations occasionally cost much more than that average.',
     keyPoints: [
-      'A single expensive operation is fine if it is rare enough that cheap operations pay for it over the whole sequence',
-      'Dynamic array growth (`ArrayList.add`) is `O(1)` amortized: doubling capacity makes resizes exponentially rarer as the array grows',
-      'The **accounting method**: overcharge cheap operations a little, bank the credit, spend it on the rare expensive one',
-      'Amortized bounds are about a sequence starting from empty — a single worst-case call can still be `O(n)`',
-      'Different from average-case analysis: amortized bounds require no assumption about input distribution, only about the operation sequence',
+      {
+        text: 'A single expensive operation is fine if it is rare enough that cheap operations pay for it over the whole sequence',
+        detail: 'The key insight is that amortized analysis looks at *total* cost over a sequence divided by the number of operations, not the cost of any individual operation — an occasional `O(n)` operation is invisible in the average as long as it is followed by enough `O(1)` operations to dilute it back down.',
+      },
+      {
+        text: 'Dynamic array growth (`ArrayList.add`) is `O(1)` amortized: doubling capacity makes resizes exponentially rarer as the array grows',
+        detail: 'Because each resize doubles capacity, the array must roughly double in size again before the next resize is needed — resizes happen at sizes 1, 2, 4, 8, 16, geometrically spaced apart. The total copying work across all resizes up to size *n* sums to a geometric series bounded by `O(n)`, which spread evenly across *n* `add` calls gives `O(1)` per call on average.',
+      },
+      {
+        text: 'The **accounting method**: overcharge cheap operations a little, bank the credit, spend it on the rare expensive one',
+        detail: 'This is a bookkeeping technique for *proving* an amortized bound, not a runtime mechanism — you assign each operation a fixed "charge" higher than its immediate cost, deposit the surplus as credit, and then show the accumulated credit is always enough to cover the occasional expensive operation without the balance ever going negative.',
+      },
+      {
+        text: 'Amortized bounds are about a sequence starting from empty — a single worst-case call can still be `O(n)`',
+        detail: 'Amortized `O(1)` for `add` does not mean every individual call is fast — the one call that triggers a resize is genuinely `O(n)` in that instant. The guarantee is only about the *average* over a full sequence of operations starting from an empty structure, which matters for anyone assuming every single call meets a real-time deadline.',
+      },
+      {
+        text: 'Different from average-case analysis: amortized bounds require no assumption about input distribution, only about the operation sequence',
+        detail: 'Average-case analysis needs a probability distribution over inputs and can be defeated by an adversarially chosen input that falls outside the assumed distribution. Amortized analysis makes no such assumption — the `O(1)` amortized bound for `ArrayList.add` holds for literally any sequence of adds, chosen by anyone, with no probabilistic hand-waving involved.',
+      },
     ],
     blocks: [
       {
@@ -160,11 +214,13 @@ export const topics: Topic[] = [
         kind: 'pitfall',
         title: 'Growing by a fixed amount instead of a fixed factor',
         text: 'If a dynamic array grew by adding a constant *k* elements each resize instead of multiplying capacity by a constant factor, the number of resizes over *n* inserts becomes `n/k` — linear, not logarithmic — and each resize still costs `O(current size)`, so total cost becomes `Θ(n²)`. Geometric (multiplicative) growth is what makes amortized `O(1)` possible at all; this is why every serious dynamic array implementation doubles (or 1.5×s) rather than adding a fixed chunk.',
+        detail: 'The difference between additive and multiplicative growth is the difference between an arithmetic and a geometric series of resize costs — additive growth means resize cost grows linearly with the number of resizes already performed, summing to `Θ(n²)` total, while multiplicative growth means each resize costs roughly as much as all previous resizes combined, summing to only `Θ(n)` total. This is a small implementation choice with a large asymptotic consequence.',
       },
       {
         kind: 'note',
         title: 'Amortized ≠ average case',
         text: 'Average-case analysis assumes a probability distribution over inputs and asks about expected cost — it can be defeated by an adversarial input. Amortized analysis makes no probabilistic assumption at all: it is a worst-case guarantee over any sequence of operations, which is why it is the right tool for justifying `ArrayList`, hash-table resizing ([[hash-tables]]), and the union-find path-compression bound ([[disjoint-sets-union-find]]).',
+        detail: 'This distinction matters in practice because an average-case bound can be quietly invalidated by a workload that does not match the assumed distribution, while an amortized bound keeps holding regardless of what sequence of operations actually occurs — which is exactly the stronger guarantee you want before relying on it for a general-purpose library data structure used by unknown callers.',
       },
     ],
     refs: [
@@ -181,11 +237,26 @@ export const topics: Topic[] = [
     summary:
       'An abstract data type (ADT) is a contract — what operations exist and what they guarantee — decoupled from any specific data structure that implements it. `List`, `Stack`, and `Map` are ADTs; `ArrayList`, `ArrayDeque`, and `HashMap` are implementations.',
     keyPoints: [
-      'An ADT specifies *behavior* (operations and their pre/post-conditions), never *how* it is stored',
-      'The same ADT can have wildly different implementations with different performance shapes — a `Stack` can sit on an array or a linked list',
-      'Java interfaces (`List`, `Queue`, `Map`) are the language mechanism for expressing an ADT; classes (`ArrayList`, `LinkedList`) are implementations',
-      'Programming against the ADT, not the implementation, is what lets you swap implementations later without touching callers',
-      'Choosing a data structure is really choosing an ADT first, then an implementation whose performance profile matches the workload',
+      {
+        text: 'An ADT specifies *behavior* (operations and their pre/post-conditions), never *how* it is stored',
+        detail: 'The definition of a `Stack` — push, pop, peek, LIFO order — says nothing about arrays, linked nodes, or memory layout at all. That silence is deliberate: it is what lets the same contract be satisfied by implementations with completely different internal representations and performance characteristics.',
+      },
+      {
+        text: 'The same ADT can have wildly different implementations with different performance shapes — a `Stack` can sit on an array or a linked list',
+        detail: 'Both an array-backed and a linked-node-backed stack satisfy the exact same push/pop/peek contract with the same LIFO ordering guarantee, yet they differ meaningfully in memory locality, per-operation allocation, and cache behavior — the ADT contract is silent on all of that, leaving it entirely to the implementation choice.',
+      },
+      {
+        text: 'Java interfaces (`List`, `Queue`, `Map`) are the language mechanism for expressing an ADT; classes (`ArrayList`, `LinkedList`) are implementations',
+        detail: 'This maps the abstract concept directly onto Java syntax: the interface declares the operations (the ADT), and each implementing class provides a concrete strategy for storing the data and executing those operations. The language enforces the separation — code can only call what the interface declares, never anything implementation-specific, unless it explicitly downcasts.',
+      },
+      {
+        text: 'Programming against the ADT, not the implementation, is what lets you swap implementations later without touching callers',
+        detail: 'A variable declared as `List<String>` can be reassigned from `ArrayList` to `LinkedList` (or any other `List` implementation) without changing a single line at any call site, because every call site only ever invoked operations the `List` interface guarantees. Declaring it as `ArrayList<String>` instead quietly permits callers to depend on `ArrayList`-specific behavior, closing off that flexibility.',
+      },
+      {
+        text: 'Choosing a data structure is really choosing an ADT first, then an implementation whose performance profile matches the workload',
+        detail: 'These are two genuinely different questions best asked in order: "what operations do I need" (which ADT) determines correctness, and only after that is answered does "what are my performance constraints" (which implementation) matter. Skipping straight to picking a concrete class without first identifying the needed operations is how a mismatched implementation — like an `ArrayList` used for frequent middle-insertion — ends up buried in otherwise-reasonable-looking code.',
+      },
     ],
     blocks: [
       {
@@ -214,11 +285,13 @@ export const topics: Topic[] = [
         kind: 'pitfall',
         title: 'Coding against the implementation, not the ADT',
         text: 'Declaring `ArrayList<String> names = new ArrayList<>()` instead of `List<String> names = new ArrayList<>()` looks harmless until a caller starts depending on `ArrayList`-specific behavior (like index-based `get` being fast) that a future swap to a different `List` would silently break. Program to the ADT\'s interface type — this is the whole idea behind [[collections-overview|the Collections Framework]]\'s interface hierarchy.',
+        detail: 'The failure mode is silent by nature: nothing fails to compile when a `List<String>` reassigned from `ArrayList` to `LinkedList` gets a lot slower, only the performance changes — which is exactly the kind of regression that is hard to catch in review and easy to miss until it shows up as a production slowdown.',
       },
       {
         kind: 'bestPractice',
         title: 'Pick the ADT from the operations you need, then the implementation from the performance you need',
         text: 'Ask "do I need order? duplicates? fast lookup by key? fast lookup by position?" first — that selects the ADT. Only then ask about growth patterns, memory locality, and concurrency to select an implementation. Skipping straight to "I\'ll just use an `ArrayList`" without asking the first question is how `O(n)` `contains` calls end up buried in a hot loop.',
+        detail: 'Answering the ADT question first (List? Set? Map?) is what surfaces requirements like "no duplicates" or "fast membership check" before any code is written — skip it, and a default reach for `ArrayList` bakes in `O(n)` `contains` semantics that were never actually the requirement, just the path of least resistance at the moment of writing the code.',
       },
     ],
     refs: [
@@ -235,11 +308,26 @@ export const topics: Topic[] = [
     summary:
       'An invariant is a property that stays true across every iteration of a loop or every level of a recursion. Proving an algorithm correct almost always means finding the right invariant and showing it holds at the start, is preserved by each step, and implies the answer at the end.',
     keyPoints: [
-      'A loop invariant must hold: (1) before the first iteration, (2) if true before an iteration then true after it, (3) at termination in a form that implies correctness',
-      'This is induction in disguise — the invariant is the inductive hypothesis, the loop step is the inductive step',
-      'Termination must be argued separately from correctness: a variant (a value that strictly decreases and is bounded) proves the loop ends',
-      'Off-by-one bugs are almost always an invariant that was never stated precisely — "sorted up to index i" vs "sorted up to and including index i" are different invariants',
-      'Recursive correctness proofs mirror loop invariants: base case = initialization, recursive case = preservation, assuming smaller instances are already correct',
+      {
+        text: 'A loop invariant must hold: (1) before the first iteration, (2) if true before an iteration then true after it, (3) at termination in a form that implies correctness',
+        detail: 'All three parts are necessary and none is optional: initialization alone just says the starting point is fine, preservation alone says nothing ever breaks the property once true (but never establishes it was true to begin with), and only termination connects the maintained property back to the actual claim you wanted to prove about the finished computation.',
+      },
+      {
+        text: 'This is induction in disguise — the invariant is the inductive hypothesis, the loop step is the inductive step',
+        detail: 'Mathematical induction proves a statement for all *n* by proving it for a base case and showing each case implies the next; a loop invariant proof is the exact same structure applied to a running program — the invariant is the statement being inducted on, and each loop iteration is one step of the induction, which is why loop-invariant reasoning feels like second nature to anyone comfortable with induction.',
+      },
+      {
+        text: 'Termination must be argued separately from correctness: a variant (a value that strictly decreases and is bounded) proves the loop ends',
+        detail: 'A loop can maintain a perfectly valid invariant forever without ever terminating — invariant preservation says nothing about progress toward the exit condition. A variant closes that gap by identifying a quantity that strictly shrinks every iteration and cannot go below some bound, which is what actually guarantees the loop cannot run forever.',
+      },
+      {
+        text: 'Off-by-one bugs are almost always an invariant that was never stated precisely — "sorted up to index i" vs "sorted up to and including index i" are different invariants',
+        detail: 'These two phrasings differ by exactly one index, and that single-index ambiguity is precisely where boundary bugs live — code written against a fuzzy mental model of the invariant tends to get the loop bounds or update step wrong in exactly the way a precisely stated invariant would have prevented, because the precise version makes the exact boundary an explicit, checkable claim.',
+      },
+      {
+        text: 'Recursive correctness proofs mirror loop invariants: base case = initialization, recursive case = preservation, assuming smaller instances are already correct',
+        detail: 'This mapping is not a loose analogy — it is the same proof technique wearing different clothes: the recursive case gets to *assume* the recursive call on a smaller instance already produces a correct answer (the inductive hypothesis) and only needs to show how to combine that into a correct answer for the current instance, exactly mirroring how a loop invariant proof assumes the property held before the current iteration.',
+      },
     ],
     blocks: [
       {
@@ -267,11 +355,13 @@ export const topics: Topic[] = [
         title: 'A vague invariant hides an off-by-one bug',
         text: '"The array is mostly sorted by index i" is not an invariant — it is not precise enough to check. Binary search bugs almost always trace back to sloppiness about whether `lo`/`hi` are inclusive or exclusive bounds of the remaining search range; state the invariant as a precise set membership (`answer ∈ a[lo..hi]`) and the loop condition and update falls out mechanically.',
         code: '// imprecise: "somewhere in the middle part"\n// precise:   answer index is in a[lo..hi] inclusive, on every iteration',
+        detail: 'A precise invariant is checkable in a way a vague one is not — "somewhere in the middle" gives no way to verify whether a particular update statement preserves it, while "answer ∈ a[lo..hi] inclusive" tells you exactly what `lo`/`hi` must become after each comparison to keep the claim true, which is why the loop update code "falls out mechanically" once the invariant is stated this way.',
       },
       {
         kind: 'note',
         title: 'Termination needs its own argument',
         text: 'Correctness (the invariant holds) and termination (the loop actually ends) are logically independent claims. The standard termination argument exhibits a **variant**: an integer expression that strictly decreases every iteration and is bounded below (usually by 0). For a `while (lo <= hi)` binary search, `hi - lo` is the variant — it strictly shrinks each iteration and cannot go negative, so the loop must end.',
+        detail: 'It is entirely possible to write a loop that maintains a correct invariant on every iteration it happens to run, while never actually terminating — invariant preservation is a statement about *if* another iteration happens, not about *whether* one will. The variant is what rules out the infinite-loop case by giving a concrete, boundable measure of progress toward the exit condition.',
       },
     ],
     refs: [
@@ -288,11 +378,26 @@ export const topics: Topic[] = [
     summary:
       'Introducing randomness deliberately — a random pivot, a random hash seed, a random sample — can turn an algorithm\'s worst case from likely-to-happen into vanishingly-unlikely, trading a guarantee for an *expected* bound that holds regardless of input.',
     keyPoints: [
-      'A randomized algorithm\'s running time is a random variable; "expected `O(n log n)`" means averaged over the algorithm\'s own coin flips, not over input distribution',
-      'Randomized quicksort with a random pivot has expected `O(n log n)` time on **every** input, because no adversary can target the randomness in advance',
-      'Reservoir sampling picks a uniform-random sample of unknown-size streaming data in one pass with `O(k)` memory',
-      'Randomized algorithms are either Las Vegas (always correct, random running time — randomized quicksort) or Monte Carlo (bounded time, small chance of a wrong answer)',
-      'Never use `java.util.Random` for anything security-sensitive; use `SecureRandom` there — this domain is about algorithmic randomness, not cryptographic randomness',
+      {
+        text: 'A randomized algorithm\'s running time is a random variable; "expected `O(n log n)`" means averaged over the algorithm\'s own coin flips, not over input distribution',
+        detail: 'This is a subtle but crucial distinction from average-case analysis: the expectation here is taken over the algorithm\'s internal random choices for a single *fixed* input, not over a distribution of possible inputs. The same input, run many times, produces a random distribution of running times, and it is that distribution\'s average the "expected" bound describes.',
+      },
+      {
+        text: 'Randomized quicksort with a random pivot has expected `O(n log n)` time on **every** input, because no adversary can target the randomness in advance',
+        detail: 'A deterministic pivot rule (always the first element, say) has a *fixed* worst-case input — an adversary who knows the rule can construct it. A random pivot removes that predictability entirely: the badness now depends on private coin flips the adversary cannot see or influence in advance, so there is no longer any single input that reliably triggers the worst case.',
+      },
+      {
+        text: 'Reservoir sampling picks a uniform-random sample of unknown-size streaming data in one pass with `O(k)` memory',
+        detail: 'The elegant part is that it works without ever knowing the stream\'s total length in advance — each new element is accepted into the sample with a probability that decreases as more elements are seen, calculated so that by the time the stream ends, every element that has passed through had exactly equal probability of ending up in the final sample.',
+      },
+      {
+        text: 'Randomized algorithms are either Las Vegas (always correct, random running time — randomized quicksort) or Monte Carlo (bounded time, small chance of a wrong answer)',
+        detail: 'These represent two different places to put the uncertainty: a Las Vegas algorithm never sacrifices correctness, only predictability of running time, while a Monte Carlo algorithm caps the running time but accepts a small, quantifiable probability of an incorrect answer — which one is appropriate depends entirely on whether your application can tolerate occasional wrong answers in exchange for a hard time bound.',
+      },
+      {
+        text: 'Never use `java.util.Random` for anything security-sensitive; use `SecureRandom` there — this domain is about algorithmic randomness, not cryptographic randomness',
+        detail: '`java.util.Random`\'s output is fully predictable from its seed via a public, documented algorithm, which is exactly the property algorithmic randomization exploits (defeating an adversary who cannot see the coin flips) but exactly the property that makes it unsafe for tokens, keys, or anything where an attacker predicting future "random" values would be a security failure — that is what `SecureRandom` exists for instead.',
+      },
     ],
     blocks: [
       {
@@ -319,11 +424,13 @@ export const topics: Topic[] = [
         kind: 'pitfall',
         title: '"Expected" is not "guaranteed"',
         text: 'An expected `O(n log n)` bound describes the average over the algorithm\'s internal randomness; a specific unlucky run can still be slow (though astronomically improbable for reasonable *n*). For hard real-time guarantees, expected-case analysis is not enough — that calls for an algorithm with a true worst-case bound (e.g. median-of-medians selection instead of randomized quickselect, [[order-statistics-selection]]).',
+        detail: 'The gap between "expected" and "guaranteed" matters most exactly where it is least likely to be tested: an application with a hard deadline (real-time control, a latency SLA with a strict cutoff) cannot accept "astronomically unlikely to be slow" as a substitute for "provably never slow," even though the astronomically-unlikely case may never surface in testing or years of production use.',
       },
       {
         kind: 'note',
         title: 'Randomization also defangs hash-flooding attacks',
         text: 'Java\'s `HashMap` uses a randomized hash seed partly to prevent an attacker who knows the hash function from crafting inputs that all collide into one bucket, degrading lookups to `O(n)` ([[hash-tables]]). The same idea — using randomness to neutralize an adversary\'s ability to target a worst case — underlies both randomized quicksort and hash-table seed randomization.',
+        detail: 'Without a randomized seed, the hash function is a fixed, publicly known mapping, so an attacker submitting untrusted input (form field names, JSON keys) to a service can precompute a set of strings that all hash to the same bucket, deliberately degrading a hash table from `O(1)` to `O(n)` lookups and creating a denial-of-service vector. Randomizing the seed per JVM instance means the attacker cannot precompute that colliding set in advance.',
       },
     ],
     refs: [
@@ -340,11 +447,26 @@ export const topics: Topic[] = [
     summary:
       '**P** is the class of problems solvable in polynomial time; **NP** is the class whose solutions can be *verified* in polynomial time. Whether P = NP is the central open question of computer science — and in practice, treating a problem as NP-hard changes how you approach it.',
     keyPoints: [
-      'P: solvable in polynomial time. NP: a proposed solution can be checked in polynomial time (not necessarily found quickly)',
-      'Every problem in P is in NP — if you can solve it quickly, you can trivially verify a solution quickly',
-      'NP-complete problems are the hardest problems in NP: every NP problem reduces to them in polynomial time',
-      'No polynomial-time algorithm is known for any NP-complete problem, and finding one would prove P = NP',
-      'Recognizing a problem is NP-hard is actionable: stop searching for an exact polynomial algorithm, switch to heuristics, approximation, or restricting the input',
+      {
+        text: 'P: solvable in polynomial time. NP: a proposed solution can be checked in polynomial time (not necessarily found quickly)',
+        detail: 'The asymmetry between "solve" and "check" is the entire point of the definition — for a problem in P, finding and verifying a solution are both fast; for a problem believed to be outside P but inside NP, verification stays fast even though no fast way to find the solution in the first place is known.',
+      },
+      {
+        text: 'Every problem in P is in NP — if you can solve it quickly, you can trivially verify a solution quickly',
+        detail: 'This containment is almost definitional: if you already have a polynomial-time algorithm that solves the problem, you can "verify" any proposed solution by simply re-solving it from scratch and comparing — which is itself a polynomial-time verification procedure, satisfying NP\'s requirement trivially.',
+      },
+      {
+        text: 'NP-complete problems are the hardest problems in NP: every NP problem reduces to them in polynomial time',
+        detail: '"Reduces to" means any instance of any other NP problem can be transformed, in polynomial time, into an equivalent instance of the NP-complete problem — which is what makes NP-complete problems universal hardness benchmarks: a fast algorithm for even one of them would give a fast algorithm for every problem in NP, via the reduction.',
+      },
+      {
+        text: 'No polynomial-time algorithm is known for any NP-complete problem, and finding one would prove P = NP',
+        detail: 'Because every NP problem reduces to any NP-complete problem, a polynomial algorithm for just one NP-complete problem would immediately transfer, via those reductions, into a polynomial algorithm for every problem in NP — collapsing the entire class NP down into P. This is exactly why the P vs NP question can be settled by resolving the status of a single NP-complete problem.',
+      },
+      {
+        text: 'Recognizing a problem is NP-hard is actionable: stop searching for an exact polynomial algorithm, switch to heuristics, approximation, or restricting the input',
+        detail: 'This is the practical payoff of complexity theory for working engineers: proving a problem NP-hard does not mean "impossible," it means "redirect effort" — toward heuristics that work well in practice, approximation algorithms with a provable quality bound, or restricting to a special case of the input that happens to be tractable, rather than continuing to search for an exact polynomial algorithm that almost certainly does not exist.',
+      },
     ],
     blocks: [
       {
@@ -372,11 +494,13 @@ export const topics: Topic[] = [
         kind: 'pitfall',
         title: '"NP" does not mean "not polynomial"',
         text: 'A common misreading: NP stands for "nondeterministic polynomial time," not "not polynomial." P is a subset of NP (every polynomial-time problem is also polynomial-time verifiable) — the open question is whether that containment is strict. Calling a problem simply "NP" says nothing about its difficulty by itself; the interesting claims are "NP-complete" or "NP-hard."',
+        detail: 'The naming is genuinely confusing on first encounter, and the misreading has real consequences: calling an easy, polynomial-time problem "an NP problem" is technically true but misleadingly implies difficulty it does not have, since P is entirely contained within NP — the actual hardness claim only kicks in with "NP-complete" or "NP-hard," which are much stronger and much rarer statements.',
       },
       {
         kind: 'bestPractice',
         title: 'Prove NP-hardness, then stop looking for an exact fast algorithm',
         text: 'If a problem reduces from a known NP-complete problem ([[reductions-and-intractability]]), that is a strong signal to redirect effort: exact exponential/backtracking solutions for small instances ([[backtracking]]), approximation algorithms with a provable ratio, heuristics tuned to the problem\'s structure, or restricting to a tractable special case — rather than continuing to search for a polynomial exact algorithm that almost certainly does not exist.',
+        detail: 'This is a genuine engineering decision point, not just theory: an NP-hardness proof tells you with high confidence that continued effort spent searching for an exact polynomial algorithm is very likely wasted, and that effort is better redirected toward the practical options — which one depends on whether the actual instances you face are small (exact search is fine), need a quality guarantee (approximation), or have exploitable structure (specialized heuristics).',
       },
     ],
     refs: [
