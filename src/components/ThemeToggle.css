@@ -1,0 +1,14 @@
+.shell-icon-btn {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--radius-sm);
+  color: var(--ink-2);
+  transition: color var(--dur) var(--ease), background var(--dur) var(--ease);
+}
+
+.shell-icon-btn:hover {
+  color: var(--ink);
+  background: var(--bg-sunken);
+}
