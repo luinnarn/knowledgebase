@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { screen } from '@testing-library/react'
 import { compendiumRegistry } from '../data/registry'
 import ClassDetail, { preloadClassArea } from './ClassDetail'
 import { renderWithCompendium } from '../test-utils'
