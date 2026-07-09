@@ -38,3 +38,10 @@ test('scrolls to top when navigating to a different route', () => {
   expect(screen.getByRole('heading', { name: 'Page B' })).toBeInTheDocument()
   expect(scrollTo).toHaveBeenCalled()
 })
+
+test('sets the document title to the active compendium, not a fixed string', () => {
+  localStorage.setItem('jkb-compendium', 'cs')
+  renderShell()
+  expect(document.title).toBe('CS::Compendium')
+  localStorage.removeItem('jkb-compendium')
+})

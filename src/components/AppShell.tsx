@@ -109,6 +109,12 @@ export default function AppShell() {
     window.scrollTo(0, 0)
   }, [pathname])
 
+  // index.html's static <title> only covers the initial load — keep the tab
+  // title in sync with whichever compendium is actually selected.
+  useEffect(() => {
+    document.title = `${meta.label}::Compendium`
+  }, [meta.label])
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
