@@ -81,14 +81,14 @@ export default function TopicView({ topic }: { topic: Topic }) {
         </div>
         <ul className="topic-keypoints">
           {topic.keyPoints.map((kp, i) => (
-            <KeyPointItem key={i} point={kp} />
+            <KeyPointItem key={`${topic.id}-${i}`} point={kp} />
           ))}
         </ul>
       </header>
 
       <div className="topic-body">
         {topic.blocks.map((b, i) => (
-          <Block key={i} block={b} />
+          <Block key={`${topic.id}-${i}`} block={b} />
         ))}
       </div>
 

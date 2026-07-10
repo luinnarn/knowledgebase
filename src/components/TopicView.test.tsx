@@ -1,5 +1,7 @@
-import { screen, fireEvent, within } from '@testing-library/react'
+import { render, screen, fireEvent, within } from '@testing-library/react'
+import { MemoryRouter, Routes, Route } from 'react-router-dom'
 import TopicView from './TopicView'
+import CompendiumProvider from '../lib/CompendiumProvider'
 import { renderWithCompendium } from '../test-utils'
 import type { Topic } from '../types/content'
 
@@ -87,4 +89,57 @@ test('key points and callouts with a detail reveal it on toggle, and stay collap
 
   // A callout with no detail gets no toggle button.
   expect(screen.getByText('Item 1').closest('.callout')?.querySelector('.explain-toggle')).toBeNull()
+})
+
+test('expanded key point and callout details collapse when the topic changes', () => {
+  function renderAt(topic: Topic) {
+    return render(
+      <MemoryRouter initialEntries={['/java']}>
+        <Routes>
+          <Route path=":compendiumId" element={<CompendiumProvider><TopicView topic={topic} /></CompendiumProvider>} />
+        </Routes>
+      </MemoryRouter>,
+    )
+  }
+
+  const { rerender } = renderAt(fixture)
+
+  const keyPointLi = screen.getByText('One public class per file').closest('li')!
+  fireEvent.click(within(keyPointLi).getByRole('button', { name: 'More' }))
+  expect(screen.getByText(/compiler only enforces this for the public top-level type/i)).toBeInTheDocument()
+
+  fireEvent.click(screen.getByText('Classpath confusion').closest('.callout')!.querySelector('.explain-toggle')!)
+  expect(screen.getByText(/graph-based and enforces encapsulation/i)).toBeInTheDocument()
+
+  const otherTopic: Topic = {
+    ...fixture,
+    id: 'other-topic',
+    title: 'A Completely Different Topic',
+    keyPoints: [
+      'Entry point is `main`',
+      'Compiled to bytecode',
+      { text: 'A different key point', detail: 'A brand new detail body that should start hidden.' },
+    ],
+    blocks: [
+      fixture.blocks[0],
+      fixture.blocks[1],
+      fixture.blocks[2],
+      { kind: 'pitfall', title: 'A different pitfall', text: 'Different pitfall body.', detail: 'A brand new pitfall detail that should start hidden.' },
+      fixture.blocks[4],
+      fixture.blocks[5],
+      fixture.blocks[6],
+    ],
+  }
+
+  rerender(
+    <MemoryRouter initialEntries={['/java']}>
+      <Routes>
+        <Route path=":compendiumId" element={<CompendiumProvider><TopicView topic={otherTopic} /></CompendiumProvider>} />
+      </Routes>
+    </MemoryRouter>,
+  )
+
+  expect(screen.getByRole('heading', { name: /a completely different topic/i })).toBeInTheDocument()
+  expect(screen.queryByText(/a brand new detail body that should start hidden/i)).not.toBeInTheDocument()
+  expect(screen.queryByText(/a brand new pitfall detail that should start hidden/i)).not.toBeInTheDocument()
 })
