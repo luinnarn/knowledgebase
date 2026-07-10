@@ -48,7 +48,7 @@ export function validateCodeBlock(block: CodeContentBlock): string[] {
 
   const sqlVariants = block.variants.filter((variant) => variant.language === 'sql')
   if (sqlVariants.length >= 2) {
-    if (sqlVariants[0].label !== 'PostgreSQL') errors.push('PostgreSQL must be first')
+    if (block.variants[0].label !== 'PostgreSQL') errors.push('PostgreSQL must be first')
     for (const variant of sqlVariants) {
       if (!APPROVED_SQL_LABELS.has(variant.label)) {
         errors.push('approved SQL dialect label')
@@ -84,6 +84,19 @@ describe('validateCodeBlock', () => {
 
   it('requires PostgreSQL to be the first SQL dialect', () => {
     expect(validateCodeBlock({ kind: 'code', variants: [mysql, pg] })).toContain('PostgreSQL must be first')
+  })
+
+  it('requires PostgreSQL to be the first block variant in a multi-dialect SQL comparison', () => {
+    const java: CodeVariant = {
+      id: 'java',
+      label: 'Java',
+      language: 'java',
+      code: 'System.out.println(1);',
+    }
+
+    expect(validateCodeBlock({ kind: 'code', variants: [java, pg, mysql] })).toContain(
+      'PostgreSQL must be first',
+    )
   })
 
   it.each([
