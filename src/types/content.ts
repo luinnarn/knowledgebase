@@ -1,9 +1,22 @@
 /** Shared content types — the single source of truth for all data files. */
 
+export type CodeLanguage = 'java' | 'javascript' | 'typescript' | 'sql' | 'bash' | 'json' | 'markup' | 'text'
+
+export interface CodeVariant {
+  id: string
+  label: string
+  language: CodeLanguage
+  code: string
+}
+
+export type CodeContentBlock =
+  | { kind: 'code'; code: string; language?: CodeLanguage; variants?: never; title?: string; caption?: string }
+  | { kind: 'code'; code?: never; language?: never; variants: CodeVariant[]; title?: string; caption?: string }
+
 export type ContentBlock =
   | { kind: 'paragraph'; text: string } // supports **bold**, `code`, [[topic-id]] links
   | { kind: 'subheading'; text: string }
-  | { kind: 'code'; title?: string; code: string; caption?: string }
+  | CodeContentBlock
   | { kind: 'pitfall'; title: string; text: string; code?: string; detail?: string }
   | { kind: 'bestPractice'; title: string; text: string; code?: string; detail?: string }
   | { kind: 'note'; title?: string; text: string; detail?: string }
