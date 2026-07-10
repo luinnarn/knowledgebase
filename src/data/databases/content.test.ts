@@ -3,6 +3,7 @@ import { books, bookByKey } from './books'
 import { domains, domainById } from './domains'
 import { dbFoundationTopics } from './topics/db-foundations'
 import { dbModelingTopics } from './topics/db-modeling'
+import { dbSqlTopics } from './topics/db-sql'
 import type { CodeContentBlock, CodeLanguage, Topic } from '../../types/content'
 
 const LINK_RE = /\[\[([a-z0-9-]+)\]\]/g
@@ -22,6 +23,7 @@ const plannedTopicIds = new Set(domains.flatMap(({ topicIds }) => topicIds))
 const authoredModules: Array<{ domainId: string; topics: Topic[] }> = [
   { domainId: 'db-foundations', topics: dbFoundationTopics },
   { domainId: 'db-modeling', topics: dbModelingTopics },
+  { domainId: 'db-sql', topics: dbSqlTopics },
 ]
 
 function allAuthoredTopics(): Topic[] {
@@ -233,6 +235,22 @@ describe('database topic pre-registration validation', () => {
       'schema-design-antipatterns',
     ])
     expect(dbModelingTopics).toHaveLength(10)
+  })
+
+  test('authors the ten SQL querying topics in plan order', () => {
+    expect(dbSqlTopics.map(({ id }) => id)).toEqual([
+      'logical-query-processing',
+      'select-expressions-and-filtering',
+      'joins',
+      'subqueries-and-correlation',
+      'exists-in-and-null-traps',
+      'set-operations',
+      'grouping-and-aggregation',
+      'ordering-and-pagination',
+      'insert-update-delete',
+      'merge-upsert-and-returning',
+    ])
+    expect(dbSqlTopics).toHaveLength(10)
   })
 
   test('accepts a complete domain module', () => {
