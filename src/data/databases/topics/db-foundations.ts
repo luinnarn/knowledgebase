@@ -331,7 +331,7 @@ export const dbFoundationTopics: Topic[] = [
         language: 'sql',
         title: 'Students with at least one database enrollment',
         code:
-          "SELECT s.student_id, s.name\nFROM student AS s\nWHERE EXISTS (\n  SELECT 1\n  FROM enrollment AS e\n  JOIN course AS c ON c.course_id = e.course_id\n  WHERE e.student_id = s.student_id\n    AND c.subject = 'Database'\n)",
+          'SELECT s.student_id, s.name\nFROM student AS s\nWHERE EXISTS (\n  SELECT 1\n  FROM enrollment AS e\n  JOIN course AS c ON c.course_id = e.course_id\n  WHERE e.student_id = s.student_id\n    AND c.subject = \'Database\'\n)',
       },
       {
         kind: 'pitfall',
@@ -424,7 +424,7 @@ export const dbFoundationTopics: Topic[] = [
         kind: 'bestPractice',
         title: 'Annotate multiplicity while designing a query',
         text:
-          'For every join and projection, ask what identifies an output row and whether repeated equal rows carry meaning. Use `UNION ALL` when inputs are disjoint or multiplicity matters; use set operators when membership is the intended result.',
+          'For every join and projection, ask what identifies an output row and whether repeated equal rows carry meaning. Use `UNION ALL` when multiplicity is intended, or when each input is duplicate-free and the inputs are disjoint; use set operators when membership is the intended result.',
       },
     ],
     refs: [
@@ -442,11 +442,11 @@ export const dbFoundationTopics: Topic[] = [
     summary:
       'SQL `NULL` marks the absence of a regular value and makes many comparisons evaluate to `UNKNOWN`, producing three-valued logic rather than ordinary Boolean logic. Because filtering retains only `TRUE`, correct queries must account for `UNKNOWN` explicitly.',
     keyPoints: [
-      '`NULL` is not a value equal to itself; use `IS NULL` and `IS NOT NULL`, not `= NULL` or `<> NULL`.',
+      'Ordinary comparison with `NULL`, including `NULL = NULL`, evaluates to `UNKNOWN`; use `IS NULL` and `IS NOT NULL`, not `= NULL` or `<> NULL`.',
       {
         text: 'Most comparisons with NULL produce UNKNOWN.',
         detail:
-          '`salary > 50000` is `UNKNOWN` when salary is null. Both `WHERE` and `HAVING` reject rows whose condition is `FALSE` or `UNKNOWN`.',
+          '`salary > 50000` is `UNKNOWN` when salary is null. `WHERE` filters rows and `HAVING` filters groups; both retain only conditions that evaluate to `TRUE`.',
       },
       '`NOT UNKNOWN` remains `UNKNOWN`; negating a nullable comparison does not necessarily include the rows the comparison excluded.',
       '`FALSE AND UNKNOWN` is `FALSE`, while `TRUE OR UNKNOWN` is `TRUE`; the known operand can determine the result.',
