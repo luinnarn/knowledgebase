@@ -4,6 +4,7 @@ import { domains, domainById } from './domains'
 import { dbFoundationTopics } from './topics/db-foundations'
 import { dbModelingTopics } from './topics/db-modeling'
 import { dbSqlTopics } from './topics/db-sql'
+import { dbAdvancedSqlTopics } from './topics/db-advanced-sql'
 import type { CodeContentBlock, CodeLanguage, Topic } from '../../types/content'
 
 const LINK_RE = /\[\[([a-z0-9-]+)\]\]/g
@@ -24,6 +25,7 @@ const authoredModules: Array<{ domainId: string; topics: Topic[] }> = [
   { domainId: 'db-foundations', topics: dbFoundationTopics },
   { domainId: 'db-modeling', topics: dbModelingTopics },
   { domainId: 'db-sql', topics: dbSqlTopics },
+  { domainId: 'db-advanced-sql', topics: dbAdvancedSqlTopics },
 ]
 
 function allAuthoredTopics(): Topic[] {
@@ -251,6 +253,21 @@ describe('database topic pre-registration validation', () => {
       'merge-upsert-and-returning',
     ])
     expect(dbSqlTopics).toHaveLength(10)
+  })
+
+  test('authors the nine advanced SQL topics in plan order', () => {
+    expect(dbAdvancedSqlTopics.map(({ id }) => id)).toEqual([
+      'common-table-expressions',
+      'recursive-queries',
+      'window-functions',
+      'advanced-window-patterns',
+      'lateral-joins-and-apply',
+      'grouping-sets-rollup-and-cube',
+      'pivot-unpivot-and-conditional-aggregation',
+      'gaps-islands-and-relational-division',
+      'temporal-and-versioned-queries',
+    ])
+    expect(dbAdvancedSqlTopics).toHaveLength(9)
   })
 
   test('accepts a complete domain module', () => {
