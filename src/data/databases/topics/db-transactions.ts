@@ -34,14 +34,14 @@ export const dbTransactionsTopics: Topic[] = [
       { text: 'Recoverability is a separate axis.', detail: 'Cascadeless/strict schedules prevent committed transactions from depending on aborted data; serializability alone is not a recovery policy.' },
     ],
     blocks: [
-      { kind: 'code', language: 'text', title: 'A cyclic transfer history', code: 'Start: X = 100, Y = 100; invariant X + Y = 200.\nH = r1(X) w1(X=90) r2(X=90) w2(Y=110) r1(Y=110) c2 c1\nEdges: T1 → T2 from w1(X) before r2(X); T2 → T1 from w2(Y) before r1(Y).\nCycle: T1 → T2 → T1, so H is not conflict-serializable.' },
-      { kind: 'diagram', title: 'Precedence graph', code: 'flowchart LR\n  T1["T1: X then Y"] -->|"w1(X) before r2(X)"| T2["T2: X then Y"]\n  T2 -->|"w2(Y) before r1(Y)"| T1' },
+      { kind: 'code', language: 'text', title: 'A lost-update counter history', code: 'Start: counter X = 0. T1 and T2 each mean “increment X once.”\nH = r1(X=0), r2(X=0), w1(X=1), c1, w2(X=1), c2\nEdges: T1 → T2 from r1(X) before w2(X) (and w1(X) before w2(X)); T2 → T1 from r2(X) before w1(X).\nThe cycle T1 → T2 → T1 proves H is not conflict-serializable. Both transactions commit, but final X = 1 violates the invariant X = number of committed increments = 2. T2 reads the initial committed value, and its write follows c1, so the history contains no dirty read or dirty write.' },
+      { kind: 'diagram', title: 'Lost-update precedence cycle', code: 'flowchart LR\n  T1["T1: increment X once"] -->|"r1(X) before w2(X); w1(X) before w2(X)"| T2["T2: increment X once"]\n  T2 -->|"r2(X) before w1(X)"| T1' },
       { kind: 'table', caption: 'Schedule properties answer different questions', headers: ['Property', 'Question'], rows: [['Serial', 'Did transactions run without interleaving?'], ['Conflict-serializable', 'Can conflicting operations be reordered to a serial history?'], ['View-serializable', 'Are read-from relations and final writes equivalent to a serial history?'], ['Strict', 'Are uncommitted writes neither read nor overwritten?'], ['Strict serializable', 'Is it serializable and consistent with real-time order?']] },
-      { kind: 'paragraph', text: 'The trace violates the invariant in an exposed intermediate state and contains a cycle. A graph is an analysis model, not a claim that an engine literally constructs this graph for every execution.' },
+      { kind: 'paragraph', text: 'The trace loses one committed increment without exposing uncommitted data: both transactions derive the same replacement value from X=0, and T2 overwrites X only after T1 commits. The precedence cycle rules out either serial order, each of which would finish at X=2. A graph is an analysis model, not a claim that an engine literally constructs this graph for every execution.' },
       { kind: 'pitfall', title: 'Equating serializable with serial execution', text: 'A serializable engine may interleave and run transactions in parallel, then block or abort enough work to ensure an equivalent serial outcome.' },
       { kind: 'bestPractice', title: 'Capture the smallest decisive history', text: 'Name initial values, reads, writes, commit/abort events, and invariant; derive every graph edge from a concrete conflicting pair.' },
     ],
-    refs: [{ book: 'database-system-concepts', chapter: 'Ch. 17 — Transactions: Schedules and Serializability' }, { book: 'berenson-isolation', chapter: '§2 — Anomalies and Isolation Levels' }, { book: 'ddia-2', chapter: 'Ch. 8 — Transactions: Serializability' }],
+    refs: [{ book: 'database-system-concepts', chapter: 'Ch. 17 — Transactions: Schedules and Serializability' }, { book: 'berenson-isolation', chapter: '§2.1 — Serializability Concepts' }, { book: 'ddia-2', chapter: 'Ch. 8 — Transactions: Serializability' }],
     related: ['transactions-and-acid', 'isolation-levels-and-anomalies', 'serializable-transactions'],
   },
   {
@@ -55,14 +55,14 @@ export const dbTransactionsTopics: Topic[] = [
       { text: 'Names do not fully specify implementations.', detail: 'Ask about snapshot timing, lost-update detection, predicate protection, and serialization failure behavior on the actual engine.' },
     ],
     blocks: [
-      { kind: 'table', caption: 'Anomaly matrix (✓ means the mechanism targets it; vendor details still apply)', headers: ['Anomaly', 'Minimal history', 'RC', 'RR / snapshot-style', 'Serializable'], rows: [['Dirty write', 'w1(X), w2(X) before c1', '✓', '✓', '✓'], ['Dirty read', 'w1(X), r2(X) before c1', '✓', '✓', '✓'], ['Nonrepeatable/fuzzy read', 'r1(X), w2(X)c2, r1(X)', '—', 'usually ✓', '✓'], ['Phantom', 'predicate r1(P), insert2(P)c2, r1(P)', '—', 'varies', '✓'], ['Lost update', 'r1(X), r2(X), w1(X), w2(X)', 'varies', 'varies', '✓/abort'], ['Read skew', 'r1(X), w2(X,Y)c2, r1(Y)', '—', 'snapshot ✓', '✓'], ['Write skew', 'r1(P), r2(P), disjoint w1/w2', '—', '— under SI', '✓/abort'], ['Serialization anomaly', 'cycle in dependency graph', '—', '—', '✓/abort']] },
+      { kind: 'table', caption: 'Anomaly matrix (✓ means the mechanism targets it; vendor details still apply)', headers: ['Anomaly', 'Minimal history', 'RC', 'RR / snapshot-style', 'Serializable'], rows: [['Dirty write', 'w1(X), w2(X) before c1', '✓', '✓', '✓'], ['Dirty read', 'w1(X), r2(X) before c1', '✓', '✓', '✓'], ['Nonrepeatable/fuzzy read', 'r1(X), w2(X)c2, r1(X)', '—', 'usually ✓', '✓'], ['Phantom', 'predicate r1(P), insert2(P)c2, r1(P)', '—', 'varies', '✓'], ['Lost update', 'r1(X=0), r2(X=0), w1(X=1)c1, w2(X=1)c2', 'varies', 'varies', '✓/abort'], ['Read skew', 'r1(X), w2(X,Y)c2, r1(Y)', '—', 'snapshot ✓', '✓'], ['Write skew', 'r1(P), r2(P), disjoint w1/w2', '—', '— under SI', '✓/abort'], ['Serialization anomaly', 'cycle in dependency graph', '—', '—', '✓/abort']] },
       { kind: 'code', language: 'text', title: 'Lost update trace', code: 'Start: inventory.on_hand = 10; invariant on_hand equals prior stock minus all committed sales.\nT1 reads 10; T2 reads 10; T1 writes 9 and commits; T2 writes 8 and commits.\nFinal = 8, but three units were sold, so expected 7: T1’s decrement was lost.' },
       { kind: 'paragraph', text: 'The SQL standard’s classic dirty/nonrepeatable/phantom framing is not a complete taxonomy. Berenson et al. show why lock- and history-based definitions matter; modern MVCC systems add snapshot and dependency behavior that cannot be inferred from a label.' },
       { kind: 'note', title: 'A level is necessary, not sufficient', text: 'Even serializable transactions cannot repair an incorrectly stated invariant, missing row, external side effect, or stale value read before the transaction began.' },
       { kind: 'pitfall', title: 'Publishing a universal checkmark chart', text: 'A chart that maps every vendor’s `REPEATABLE READ` to one behavior is misleading. Treat this matrix as concepts, then verify each engine and configuration.' },
       { kind: 'bestPractice', title: 'Test histories, not marketing names', text: 'Build two-session tests for the application’s exact invariant and record whether the engine blocks, returns a version, commits both, or aborts one.' },
     ],
-    refs: [{ book: 'berenson-isolation', chapter: '§2–§4 — Phenomena and proposed isolation levels' }, { book: 'database-system-concepts', chapter: 'Ch. 17–18 — Transactions and Concurrency Control' }, { book: 'ddia-2', chapter: 'Ch. 8 — Weak Isolation Levels' }, { book: 'sql-standard', chapter: 'SQL/Foundation — Transaction isolation levels' }],
+    refs: [{ book: 'berenson-isolation', chapter: '§2.2 — ANSI SQL Isolation Levels; §3 — Analyzing ANSI SQL Isolation Levels; §4 — Other Isolation Types' }, { book: 'database-system-concepts', chapter: 'Ch. 17–18 — Transactions and Concurrency Control' }, { book: 'ddia-2', chapter: 'Ch. 8 — Weak Isolation Levels' }, { book: 'sql-standard', chapter: 'SQL/Foundation — Transaction isolation levels' }],
     related: ['histories-schedules-and-serializability', 'read-committed-and-repeatable-read', 'snapshot-isolation-and-write-skew'],
   },
   {
@@ -103,7 +103,7 @@ export const dbTransactionsTopics: Topic[] = [
       { kind: 'pitfall', title: 'Locking only the row being changed', text: 'T1 and T2 change different doctors, so those locks never conflict. Lock the rows or predicate that justify the decision, or use serializable validation.' },
       { kind: 'bestPractice', title: 'Search for multi-object decisions', text: 'Audit uniqueness checks, quotas, schedules, inventory totals, and “at least one” rules; write the disjoint-write trace before selecting an isolation level.' },
     ],
-    refs: [{ book: 'ddia-2', chapter: 'Ch. 8 — Snapshot Isolation and Repeatable Read; Write Skew and Phantoms' }, { book: 'berenson-isolation', chapter: '§4 — Snapshot Isolation' }, { book: 'postgresql-ssi', chapter: '§2–§3 — Snapshot Isolation and SSI' }, { book: 'database-system-concepts', chapter: 'Ch. 18 — Multiversion Concurrency Control' }],
+    refs: [{ book: 'ddia-2', chapter: 'Ch. 8 — Snapshot Isolation and Repeatable Read; Write Skew and Phantoms' }, { book: 'berenson-isolation', chapter: '§4.2 — Snapshot Isolation' }, { book: 'postgresql-ssi', chapter: '§2.1 — Snapshot Isolation; §3.3 — SSI' }, { book: 'database-system-concepts', chapter: 'Ch. 18 — Multiversion Concurrency Control' }],
     related: ['mvcc', 'serializable-transactions', 'application-concurrency-and-transaction-boundaries'],
   },
   {
@@ -124,7 +124,7 @@ export const dbTransactionsTopics: Topic[] = [
       { kind: 'pitfall', title: 'Retrying only the failed statement', text: 'The earlier reads established a stale premise. Roll back and rerun the complete transaction function, with external effects protected from duplication.' },
       { kind: 'bestPractice', title: 'Make retryable units explicit', text: 'Keep inputs immutable, move remote calls outside, classify retryable error codes, cap attempts and latency, and observe abort rate by transaction type.' },
     ],
-    refs: [{ book: 'database-system-concepts', chapter: 'Ch. 18 — Concurrency Control' }, { book: 'ddia-2', chapter: 'Ch. 8 — Serializability' }, { book: 'postgresql-ssi', chapter: 'Serializable Snapshot Isolation in PostgreSQL' }, { book: 'postgresql-docs', chapter: '13.2.3 — Serializable Isolation Level' }],
+    refs: [{ book: 'database-system-concepts', chapter: 'Ch. 18 — Concurrency Control' }, { book: 'ddia-2', chapter: 'Ch. 8 — Serializability' }, { book: 'postgresql-ssi', chapter: '§3.3 — SSI; §5.2 — Detecting Conflicts' }, { book: 'postgresql-docs', chapter: '13.2.3 — Serializable Isolation Level' }],
     related: ['snapshot-isolation-and-write-skew', 'locking-and-two-phase-locking', 'deadlocks-contention-and-retries'],
   },
   {
