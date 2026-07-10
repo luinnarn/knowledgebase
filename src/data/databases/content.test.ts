@@ -8,6 +8,7 @@ import { dbAdvancedSqlTopics } from './topics/db-advanced-sql'
 import { dbSchemaObjectsTopics } from './topics/db-schema-objects'
 import { dbTransactionsTopics } from './topics/db-transactions'
 import { dbPerformanceTopics } from './topics/db-performance'
+import { dbInternalsTopics } from './topics/db-internals'
 import type { CodeContentBlock, CodeLanguage, Topic } from '../../types/content'
 
 const LINK_RE = /\[\[([a-z0-9-]+)\]\]/g
@@ -32,6 +33,7 @@ const authoredModules: Array<{ domainId: string; topics: Topic[] }> = [
   { domainId: 'db-schema-objects', topics: dbSchemaObjectsTopics },
   { domainId: 'db-transactions', topics: dbTransactionsTopics },
   { domainId: 'db-performance', topics: dbPerformanceTopics },
+  { domainId: 'db-internals', topics: dbInternalsTopics },
 ]
 
 function allAuthoredTopics(): Topic[] {
@@ -322,6 +324,21 @@ describe('database topic pre-registration validation', () => {
       'explain-and-performance-methodology',
     ])
     expect(dbPerformanceTopics).toHaveLength(11)
+  })
+
+  test('authors the nine storage, execution, and recovery internals topics in plan order', () => {
+    expect(dbInternalsTopics.map(({ id }) => id)).toEqual([
+      'database-system-architecture',
+      'pages-records-and-file-layout',
+      'heap-clustered-and-index-organized-storage',
+      'buffer-pools-and-caching',
+      'write-ahead-logging-and-checkpoints',
+      'aries-and-crash-recovery',
+      'query-lifecycle-and-iterator-execution',
+      'row-column-and-compressed-storage',
+      'space-reclamation-and-maintenance',
+    ])
+    expect(dbInternalsTopics).toHaveLength(9)
   })
 
   test('accepts a complete domain module', () => {
