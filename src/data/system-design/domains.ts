@@ -28,6 +28,22 @@ export const domains: Domain[] = [
     ],
   },
   {
+    id: 'sd-iam',
+    title: 'Identity & Access Management',
+    blurb: 'Who is this request from, and what are they allowed to do — the authentication and authorization layer every other domain in this compendium quietly assumes already works.',
+    color: '#14B8A6',
+    topicIds: [
+      'authentication-fundamentals',
+      'oauth2-and-openid-connect',
+      'sso-and-identity-federation',
+      'token-based-sessions-and-jwts',
+      'authorization-models',
+      'api-and-service-to-service-auth',
+      'zero-trust-architecture',
+      'secrets-management-and-credential-storage',
+    ],
+  },
+  {
     id: 'sd-caching',
     title: 'Caching',
     blurb: 'The single highest-leverage technique for making a slow system feel fast — and the invalidation problems that come with it.',
