@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest'
 import { books, bookByKey } from './books'
 import { domains, domainById } from './domains'
+import { dbFoundationTopics } from './topics/db-foundations'
 import type { CodeContentBlock, CodeLanguage, Topic } from '../../types/content'
 
 const LINK_RE = /\[\[([a-z0-9-]+)\]\]/g
@@ -17,7 +18,9 @@ const APPROVED_LANGUAGES = new Set<CodeLanguage>([
 const APPROVED_SQL_LABELS = new Set(['PostgreSQL', 'MySQL', 'SQLite', 'SQL Server', 'Oracle'])
 const plannedTopicIds = new Set(domains.flatMap(({ topicIds }) => topicIds))
 
-const authoredModules: Array<{ domainId: string; topics: Topic[] }> = []
+const authoredModules: Array<{ domainId: string; topics: Topic[] }> = [
+  { domainId: 'db-foundations', topics: dbFoundationTopics },
+]
 
 function allAuthoredTopics(): Topic[] {
   return authoredModules.flatMap(({ topics }) => topics)
@@ -200,6 +203,20 @@ describe('database compendium plan', () => {
 })
 
 describe('database topic pre-registration validation', () => {
+  test('authors the eight relational foundations topics in plan order', () => {
+    expect(dbFoundationTopics.map(({ id }) => id)).toEqual([
+      'relational-model',
+      'relations-tuples-attributes-domains',
+      'keys-and-identity',
+      'relational-algebra',
+      'relational-calculus-and-declarative-queries',
+      'set-vs-bag-semantics',
+      'nulls-and-three-valued-logic',
+      'sql-vs-the-relational-model',
+    ])
+    expect(dbFoundationTopics).toHaveLength(8)
+  })
+
   test('accepts a complete domain module', () => {
     expect(validateDomainTopics('db-foundations', validFoundationTopics())).toEqual([])
   })
