@@ -18,11 +18,15 @@ import { seedClassAreaCache } from './components/ClassDetail'
 function seedFromPreloadedData(): void {
   const el = document.getElementById('__PRELOADED__')
   if (!el?.textContent) return
-  const data = JSON.parse(el.textContent)
-  if (data.kind === 'topic') {
-    seedTopicsCache(data.compendiumId, data.domainId, data.topics)
-  } else if (data.kind === 'class-detail') {
-    seedClassAreaCache(data.compendiumId, data.area, data.classes)
+  try {
+    const data = JSON.parse(el.textContent)
+    if (data.kind === 'topic') {
+      seedTopicsCache(data.compendiumId, data.domainId, data.topics)
+    } else if (data.kind === 'class-detail') {
+      seedClassAreaCache(data.compendiumId, data.area, data.classes)
+    }
+  } catch (err) {
+    console.error('Failed to seed cache from preloaded data:', err)
   }
 }
 
