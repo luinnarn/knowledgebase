@@ -18,6 +18,16 @@ const topicNodeSpecs: Record<string, TopicNodeSpec[]> = {
     ['content-delivery-networks', 'CDNs', 2],
     ['communication-protocols-for-services', 'Service Communication Protocols', 2],
   ],
+  'sd-iam': [
+    ['authentication-fundamentals', 'Authentication Fundamentals', 3],
+    ['oauth2-and-openid-connect', 'OAuth 2.0 & OIDC', 3],
+    ['sso-and-identity-federation', 'SSO & Identity Federation', 2],
+    ['token-based-sessions-and-jwts', 'Token-Based Sessions & JWTs', 3],
+    ['authorization-models', 'Authorization Models', 3],
+    ['api-and-service-to-service-auth', 'API & Service-to-Service Auth', 2],
+    ['zero-trust-architecture', 'Zero Trust Architecture', 2],
+    ['secrets-management-and-credential-storage', 'Secrets Management', 2],
+  ],
   'sd-caching': [
     ['caching-fundamentals', 'Caching Fundamentals', 3],
     ['cache-invalidation-strategies', 'Cache Invalidation', 3],
@@ -132,6 +142,10 @@ const prerequisites: Array<[string, string]> = [
   ['event-driven-architecture', 'designing-a-news-feed'],
   ['monitoring-and-metrics', 'alerting-and-on-call'],
   ['alerting-and-on-call', 'incident-management-and-postmortems'],
+  ['authentication-fundamentals', 'oauth2-and-openid-connect'],
+  ['oauth2-and-openid-connect', 'sso-and-identity-federation'],
+  ['oauth2-and-openid-connect', 'token-based-sessions-and-jwts'],
+  ['authorization-models', 'api-and-service-to-service-auth'],
 ]
 
 /** Cross-domain and intra-domain conceptual links. */
@@ -167,6 +181,21 @@ const related: Array<[string, string]> = [
   ['stateless-services-and-session-management', 'horizontal-vs-vertical-scaling'],
   ['write-through-vs-write-back', 'cache-invalidation-strategies'],
   ['cache-stampede-and-hot-keys', 'rate-limiting-algorithms'],
+  ['authentication-fundamentals', 'token-based-sessions-and-jwts'],
+  ['authentication-fundamentals', 'rate-limiting-algorithms'],
+  ['authentication-fundamentals', 'sso-and-identity-federation'],
+  ['authentication-fundamentals', 'authorization-models'],
+  ['oauth2-and-openid-connect', 'api-and-service-to-service-auth'],
+  ['sso-and-identity-federation', 'authorization-models'],
+  ['authorization-models', 'zero-trust-architecture'],
+  ['api-and-service-to-service-auth', 'zero-trust-architecture'],
+  ['secrets-management-and-credential-storage', 'api-and-service-to-service-auth'],
+  ['secrets-management-and-credential-storage', 'zero-trust-architecture'],
+  ['secrets-management-and-credential-storage', 'token-based-sessions-and-jwts'],
+  ['api-and-service-to-service-auth', 'service-mesh'],
+  ['api-and-service-to-service-auth', 'api-gateways-and-service-discovery'],
+  ['zero-trust-architecture', 'microservices-vs-monolith'],
+  ['token-based-sessions-and-jwts', 'stateless-services-and-session-management'],
 ]
 
 export const graphEdges: GraphEdge[] = [

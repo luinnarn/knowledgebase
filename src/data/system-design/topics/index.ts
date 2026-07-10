@@ -8,6 +8,7 @@ import type { Topic } from '../../../types/content'
 export const topicLoaders: Record<string, () => Promise<{ topics: Topic[] }>> = {
   'sd-foundations': () => import('./sd-foundations'),
   'sd-networking': () => import('./sd-networking'),
+  'sd-iam': () => import('./sd-iam'),
   'sd-caching': () => import('./sd-caching'),
   'sd-databases': () => import('./sd-databases'),
   'sd-messaging': () => import('./sd-messaging'),
