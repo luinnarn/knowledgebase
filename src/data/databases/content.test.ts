@@ -6,6 +6,7 @@ import { dbModelingTopics } from './topics/db-modeling'
 import { dbSqlTopics } from './topics/db-sql'
 import { dbAdvancedSqlTopics } from './topics/db-advanced-sql'
 import { dbSchemaObjectsTopics } from './topics/db-schema-objects'
+import { dbTransactionsTopics } from './topics/db-transactions'
 import type { CodeContentBlock, CodeLanguage, Topic } from '../../types/content'
 
 const LINK_RE = /\[\[([a-z0-9-]+)\]\]/g
@@ -28,6 +29,7 @@ const authoredModules: Array<{ domainId: string; topics: Topic[] }> = [
   { domainId: 'db-sql', topics: dbSqlTopics },
   { domainId: 'db-advanced-sql', topics: dbAdvancedSqlTopics },
   { domainId: 'db-schema-objects', topics: dbSchemaObjectsTopics },
+  { domainId: 'db-transactions', topics: dbTransactionsTopics },
 ]
 
 function allAuthoredTopics(): Topic[] {
@@ -285,6 +287,22 @@ describe('database topic pre-registration validation', () => {
       'sequences-generated-columns-triggers-and-routines',
     ])
     expect(dbSchemaObjectsTopics).toHaveLength(9)
+  })
+
+  test('authors the ten transactions topics in plan order', () => {
+    expect(dbTransactionsTopics.map(({ id }) => id)).toEqual([
+      'transactions-and-acid',
+      'histories-schedules-and-serializability',
+      'isolation-levels-and-anomalies',
+      'read-committed-and-repeatable-read',
+      'snapshot-isolation-and-write-skew',
+      'serializable-transactions',
+      'locking-and-two-phase-locking',
+      'mvcc',
+      'deadlocks-contention-and-retries',
+      'application-concurrency-and-transaction-boundaries',
+    ])
+    expect(dbTransactionsTopics).toHaveLength(10)
   })
 
   test('accepts a complete domain module', () => {
