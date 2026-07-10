@@ -7,6 +7,7 @@ import { dbSqlTopics } from './topics/db-sql'
 import { dbAdvancedSqlTopics } from './topics/db-advanced-sql'
 import { dbSchemaObjectsTopics } from './topics/db-schema-objects'
 import { dbTransactionsTopics } from './topics/db-transactions'
+import { dbPerformanceTopics } from './topics/db-performance'
 import type { CodeContentBlock, CodeLanguage, Topic } from '../../types/content'
 
 const LINK_RE = /\[\[([a-z0-9-]+)\]\]/g
@@ -30,6 +31,7 @@ const authoredModules: Array<{ domainId: string; topics: Topic[] }> = [
   { domainId: 'db-advanced-sql', topics: dbAdvancedSqlTopics },
   { domainId: 'db-schema-objects', topics: dbSchemaObjectsTopics },
   { domainId: 'db-transactions', topics: dbTransactionsTopics },
+  { domainId: 'db-performance', topics: dbPerformanceTopics },
 ]
 
 function allAuthoredTopics(): Topic[] {
@@ -303,6 +305,23 @@ describe('database topic pre-registration validation', () => {
       'application-concurrency-and-transaction-boundaries',
     ])
     expect(dbTransactionsTopics).toHaveLength(10)
+  })
+
+  test('authors the eleven indexes and query performance topics in plan order', () => {
+    expect(dbPerformanceTopics.map(({ id }) => id)).toEqual([
+      'index-mental-model',
+      'b-tree-indexes',
+      'non-btree-indexes',
+      'composite-indexes',
+      'covering-and-index-only-scans',
+      'partial-functional-and-specialized-indexes',
+      'selectivity-cardinality-and-statistics',
+      'sargability-and-query-shape',
+      'cost-based-query-planning',
+      'join-sort-and-aggregation-algorithms',
+      'explain-and-performance-methodology',
+    ])
+    expect(dbPerformanceTopics).toHaveLength(11)
   })
 
   test('accepts a complete domain module', () => {
