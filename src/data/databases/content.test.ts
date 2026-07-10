@@ -5,6 +5,7 @@ import { dbFoundationTopics } from './topics/db-foundations'
 import { dbModelingTopics } from './topics/db-modeling'
 import { dbSqlTopics } from './topics/db-sql'
 import { dbAdvancedSqlTopics } from './topics/db-advanced-sql'
+import { dbSchemaObjectsTopics } from './topics/db-schema-objects'
 import type { CodeContentBlock, CodeLanguage, Topic } from '../../types/content'
 
 const LINK_RE = /\[\[([a-z0-9-]+)\]\]/g
@@ -26,6 +27,7 @@ const authoredModules: Array<{ domainId: string; topics: Topic[] }> = [
   { domainId: 'db-modeling', topics: dbModelingTopics },
   { domainId: 'db-sql', topics: dbSqlTopics },
   { domainId: 'db-advanced-sql', topics: dbAdvancedSqlTopics },
+  { domainId: 'db-schema-objects', topics: dbSchemaObjectsTopics },
 ]
 
 function allAuthoredTopics(): Topic[] {
@@ -268,6 +270,21 @@ describe('database topic pre-registration validation', () => {
       'temporal-and-versioned-queries',
     ])
     expect(dbAdvancedSqlTopics).toHaveLength(9)
+  })
+
+  test('authors the nine schema objects topics in plan order', () => {
+    expect(dbSchemaObjectsTopics.map(({ id }) => id)).toEqual([
+      'numeric-types-and-precision',
+      'text-types-collations-and-encoding',
+      'dates-times-and-time-zones',
+      'boolean-enum-domain-and-uuid-types',
+      'json-arrays-and-composite-data',
+      'primary-unique-and-check-constraints',
+      'foreign-keys-and-referential-actions',
+      'views-and-materialized-views',
+      'sequences-generated-columns-triggers-and-routines',
+    ])
+    expect(dbSchemaObjectsTopics).toHaveLength(9)
   })
 
   test('accepts a complete domain module', () => {
