@@ -11,18 +11,57 @@
 .codeblock-bar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: var(--sp-2) var(--sp-4);
+  gap: var(--sp-3);
+  min-width: 0;
+  padding: var(--sp-2) var(--sp-3) var(--sp-2) var(--sp-4);
   border-bottom: 1px solid rgb(255 255 255 / 0.07);
 }
 
 .codeblock-title {
+  flex: 0 0 auto;
   font-family: var(--font-mono);
   font-size: var(--fs-xs);
   color: #8494ab;
 }
 
+.codeblock-tabs {
+  display: flex;
+  flex: 1 1 auto;
+  gap: var(--sp-1);
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.codeblock-tab {
+  flex: 0 0 auto;
+  padding: 0.2rem 0.55rem;
+  border-radius: 5px;
+  color: #8494ab;
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  transition: color var(--dur) var(--ease), background-color var(--dur) var(--ease);
+}
+
+.codeblock-tab:hover {
+  color: #d6deea;
+  background: rgb(255 255 255 / 0.06);
+}
+
+.codeblock-tab[aria-selected='true'] {
+  color: #fff;
+  background: rgb(255 255 255 / 0.12);
+}
+
+.codeblock-tab:focus-visible,
+.codeblock-copy:focus-visible {
+  outline: 2px solid #7fd6c2;
+  outline-offset: 2px;
+}
+
 .codeblock-copy {
+  flex: 0 0 auto;
+  margin-left: auto;
   font-size: var(--fs-xs);
   font-weight: 500;
   color: #8494ab;
