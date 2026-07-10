@@ -147,7 +147,7 @@ export async function getAllRoutes(): Promise<RouteMeta[]> {
       path: '/',
       kind: 'picker',
       title: 'Choose a Compendium · Compendium',
-      description: 'Java, CS, and System Design — three cross-linked knowledge bases distilled from foundational books.',
+      description: `${compendiums.map((c) => c.label).join(', ')} — ${compendiums.length} cross-linked knowledge bases distilled from foundational books.`,
     },
   ]
   for (const meta of compendiums) {
