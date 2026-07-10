@@ -2,6 +2,7 @@ import { describe, expect, test } from 'vitest'
 import { books, bookByKey } from './books'
 import { domains, domainById } from './domains'
 import { dbFoundationTopics } from './topics/db-foundations'
+import { dbModelingTopics } from './topics/db-modeling'
 import type { CodeContentBlock, CodeLanguage, Topic } from '../../types/content'
 
 const LINK_RE = /\[\[([a-z0-9-]+)\]\]/g
@@ -20,6 +21,7 @@ const plannedTopicIds = new Set(domains.flatMap(({ topicIds }) => topicIds))
 
 const authoredModules: Array<{ domainId: string; topics: Topic[] }> = [
   { domainId: 'db-foundations', topics: dbFoundationTopics },
+  { domainId: 'db-modeling', topics: dbModelingTopics },
 ]
 
 function allAuthoredTopics(): Topic[] {
@@ -215,6 +217,22 @@ describe('database topic pre-registration validation', () => {
       'sql-vs-the-relational-model',
     ])
     expect(dbFoundationTopics).toHaveLength(8)
+  })
+
+  test('authors the ten data modeling topics in plan order', () => {
+    expect(dbModelingTopics.map(({ id }) => id)).toEqual([
+      'conceptual-logical-physical-models',
+      'entity-relationship-modeling',
+      'functional-dependencies',
+      'normalization-through-bcnf',
+      'higher-normal-forms-and-decomposition',
+      'denormalization-tradeoffs',
+      'modeling-hierarchies-and-graphs',
+      'temporal-data-modeling',
+      'application-schema-patterns',
+      'schema-design-antipatterns',
+    ])
+    expect(dbModelingTopics).toHaveLength(10)
   })
 
   test('accepts a complete domain module', () => {
