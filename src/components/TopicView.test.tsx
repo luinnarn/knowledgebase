@@ -70,6 +70,31 @@ test('renders every block kind', () => {
   expect(screen.getByRole('table')).toBeInTheDocument()
 })
 
+test('renders and switches code variants from topic content', () => {
+  const topic: Topic = {
+    ...fixture,
+    blocks: [
+      {
+        kind: 'code',
+        title: 'Generated keys',
+        variants: [
+          { id: 'postgresql', label: 'PostgreSQL', language: 'sql', code: 'INSERT INTO users(name) VALUES ($1) RETURNING id;' },
+          { id: 'mysql', label: 'MySQL', language: 'sql', code: 'INSERT INTO users(name) VALUES (?);' },
+        ],
+      },
+    ],
+  }
+
+  renderWithCompendium(<TopicView topic={topic} />)
+  const panel = screen.getByRole('tabpanel')
+  expect(panel).toHaveTextContent(/RETURNING id/)
+
+  fireEvent.click(screen.getByRole('tab', { name: 'MySQL' }))
+
+  expect(panel).toHaveTextContent('VALUES (?)')
+  expect(panel).not.toHaveTextContent(/RETURNING id/)
+})
+
 test('[[topic-id]] links resolve to routed links, with optional label', () => {
   renderTopic()
   const summaryLink = screen.getByRole('link', { name: 'Arrays' })

@@ -22,10 +22,10 @@ function Block({ block }: { block: ContentBlock }) {
       )
     case 'subheading':
       return <h2 className="topic-subheading">{block.text}</h2>
-    case 'code': {
-      const code = block.code ?? block.variants?.[0]?.code
-      return code === undefined ? null : <CodeBlock code={code} title={block.title} caption={block.caption} />
-    }
+    case 'code':
+      return block.variants
+        ? <CodeBlock variants={block.variants} title={block.title} caption={block.caption} />
+        : <CodeBlock code={block.code} language={block.language} title={block.title} caption={block.caption} />
     case 'pitfall':
       return <Callout variant="pitfall" title={block.title} text={block.text} code={block.code} detail={block.detail} />
     case 'bestPractice':

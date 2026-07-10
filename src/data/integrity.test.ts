@@ -7,9 +7,102 @@
  */
 import { describe, it, expect, beforeAll } from 'vitest'
 import { compendiumRegistry, type CompendiumData } from './registry'
-import type { Topic, JavaClass } from '../types/content'
+import type { Topic, JavaClass, CodeContentBlock, CodeLanguage, CodeVariant } from '../types/content'
 
 const LINK_RE = /\[\[([a-z0-9-]+)\]\]/g
+
+const APPROVED_LANGUAGES = new Set<CodeLanguage>([
+  'java',
+  'javascript',
+  'typescript',
+  'sql',
+  'bash',
+  'json',
+  'markup',
+  'text',
+])
+const APPROVED_SQL_LABELS = new Set(['PostgreSQL', 'MySQL', 'SQLite', 'SQL Server', 'Oracle'])
+
+export function validateCodeBlock(block: CodeContentBlock): string[] {
+  const errors: string[] = []
+
+  if (!block.variants) {
+    if (!block.code.trim()) errors.push('nonempty code')
+    if (block.language && !APPROVED_LANGUAGES.has(block.language)) {
+      errors.push('approved language')
+    }
+    return errors
+  }
+
+  if (block.variants.length === 0) errors.push('at least one variant')
+
+  const ids = new Set<string>()
+  for (const variant of block.variants) {
+    if (!variant.id.trim()) errors.push('nonempty id')
+    if (!variant.label.trim()) errors.push('nonempty label')
+    if (!variant.code.trim()) errors.push('nonempty code')
+    if (!APPROVED_LANGUAGES.has(variant.language)) errors.push('approved language')
+    if (ids.has(variant.id)) errors.push('duplicate variant id')
+    ids.add(variant.id)
+  }
+
+  const sqlVariants = block.variants.filter((variant) => variant.language === 'sql')
+  if (sqlVariants.length >= 2) {
+    if (sqlVariants[0].label !== 'PostgreSQL') errors.push('PostgreSQL must be first')
+    for (const variant of sqlVariants) {
+      if (!APPROVED_SQL_LABELS.has(variant.label)) {
+        errors.push('approved SQL dialect label')
+      }
+    }
+  }
+
+  return errors
+}
+
+const pg: CodeVariant = {
+  id: 'postgresql',
+  label: 'PostgreSQL',
+  language: 'sql',
+  code: 'SELECT 1;',
+}
+
+const mysql: CodeVariant = {
+  id: 'mysql',
+  label: 'MySQL',
+  language: 'sql',
+  code: 'SELECT 1;',
+}
+
+describe('validateCodeBlock', () => {
+  it('rejects an empty variant list', () => {
+    expect(validateCodeBlock({ kind: 'code', variants: [] })).toContain('at least one variant')
+  })
+
+  it('rejects duplicate variant ids', () => {
+    expect(validateCodeBlock({ kind: 'code', variants: [pg, { ...pg }] })).toContain('duplicate variant id')
+  })
+
+  it('requires PostgreSQL to be the first SQL dialect', () => {
+    expect(validateCodeBlock({ kind: 'code', variants: [mysql, pg] })).toContain('PostgreSQL must be first')
+  })
+
+  it.each([
+    ['single-source code', { kind: 'code', code: '  ' }, 'nonempty code'],
+    ['variant id', { kind: 'code', variants: [{ ...pg, id: '' }] }, 'nonempty id'],
+    ['variant label', { kind: 'code', variants: [{ ...pg, label: '' }] }, 'nonempty label'],
+    ['variant code', { kind: 'code', variants: [{ ...pg, code: '' }] }, 'nonempty code'],
+    ['variant language', { kind: 'code', variants: [{ ...pg, language: '' }] }, 'approved language'],
+    ['unsupported language', { kind: 'code', variants: [{ ...pg, language: 'python' }] }, 'approved language'],
+    ['unsupported SQL label', { kind: 'code', variants: [pg, { ...mysql, label: 'MariaDB' }] }, 'approved SQL dialect label'],
+  ] as const)('rejects an invalid %s', (_name, block, message) => {
+    expect(validateCodeBlock(block as unknown as CodeContentBlock)).toContain(message)
+  })
+
+  it('accepts valid single-source and PostgreSQL-first variant blocks', () => {
+    expect(validateCodeBlock({ kind: 'code', code: 'SELECT 1;', language: 'sql' })).toEqual([])
+    expect(validateCodeBlock({ kind: 'code', variants: [pg, mysql] })).toEqual([])
+  })
+})
 
 function textLinks(topic: Topic): string[] {
   const out: string[] = []
@@ -97,6 +190,15 @@ describe.each(Object.entries(compendiumRegistry))('compendium: %s', (compendiumI
         expect(t.summary.length, `topic ${t.id} summary`).toBeGreaterThan(20)
         expect(t.keyPoints.length, `topic ${t.id} keyPoints`).toBeGreaterThanOrEqual(3)
         expect(t.blocks.length, `topic ${t.id} blocks`).toBeGreaterThan(0)
+      }
+    })
+
+    it('code blocks have valid single-source or variant content', () => {
+      for (const topic of loadedTopics) {
+        for (const block of topic.blocks) {
+          if (block.kind !== 'code') continue
+          expect(validateCodeBlock(block), `topic ${topic.id} code block`).toEqual([])
+        }
       }
     })
   })
