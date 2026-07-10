@@ -93,9 +93,14 @@ export interface ClassSummary {
   summary: string
 }
 
+export type SourceKind = 'book' | 'paper' | 'documentation' | 'course' | 'standard'
+
 /** Book metadata for reference footnotes. */
 export interface Book {
   key: string
   title: string
   authors: string
+  kind?: SourceKind
+  year?: number
+  url?: string
 }

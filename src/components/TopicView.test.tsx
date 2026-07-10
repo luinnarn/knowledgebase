@@ -3,7 +3,17 @@ import { MemoryRouter, Routes, Route } from 'react-router-dom'
 import TopicView from './TopicView'
 import CompendiumProvider from '../lib/CompendiumProvider'
 import { renderWithCompendium } from '../test-utils'
+import { compendiumRegistry } from '../data/registry'
 import type { Topic } from '../types/content'
+
+compendiumRegistry.java.bookByKey.set('codd', {
+  key: 'codd',
+  title: 'A Relational Model of Data for Large Shared Data Banks',
+  authors: 'E.F. Codd',
+  kind: 'paper',
+  year: 1970,
+  url: 'https://research.ibm.com/publications/a-relational-model-of-data-for-large-shared-data-banks',
+})
 
 const fixture: Topic = {
   id: 'program-anatomy',
@@ -32,7 +42,10 @@ const fixture: Topic = {
     { kind: 'note', text: 'JShell is great for exploration.' },
     { kind: 'table', caption: 'Kinds', headers: ['Kind', 'Use'], rows: [['class', 'state + behavior']] },
   ],
-  refs: [{ book: 'core-java-1', chapter: 'Ch. 3' }],
+  refs: [
+    { book: 'core-java-1', chapter: 'Ch. 3' },
+    { book: 'codd', chapter: 'Sections 1–2' },
+  ],
   related: ['primitive-types'],
 }
 
@@ -69,6 +82,15 @@ test('renders related chips and source references', () => {
   renderTopic()
   expect(screen.getByRole('link', { name: /primitive types/i })).toBeInTheDocument()
   expect(screen.getByText(/core java, volume i/i)).toBeInTheDocument()
+})
+
+test('renders linked source titles with metadata', () => {
+  renderTopic()
+  const source = screen.getByRole('link', { name: /A Relational Model of Data/i })
+  expect(source).toHaveAttribute('href', expect.stringContaining('research.ibm.com'))
+  expect(source).toHaveAttribute('target', '_blank')
+  expect(source).toHaveAttribute('rel', 'noopener noreferrer')
+  expect(screen.getByText(/paper · 1970/i)).toBeInTheDocument()
 })
 
 test('key points and callouts with a detail reveal it on toggle, and stay collapsed otherwise', () => {

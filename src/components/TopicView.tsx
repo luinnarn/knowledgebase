@@ -62,6 +62,15 @@ function KeyPointItem({ point }: { point: KeyPoint }) {
   )
 }
 
+function SourceTitle({ title, url }: { title: string; url?: string }) {
+  if (!url) return <cite>{title}</cite>
+  return (
+    <cite>
+      <a href={url} target="_blank" rel="noopener noreferrer">{title}</a>
+    </cite>
+  )
+}
+
 export default function TopicView({ topic }: { topic: Topic }) {
   const { id: compendiumId, domainById, domains, bookByKey } = useCompendium()
   const domain: Domain | undefined = domainById.get(topic.domainId)
@@ -117,7 +126,13 @@ export default function TopicView({ topic }: { topic: Topic }) {
             const book = bookByKey.get(r.book)
             return (
               <li key={i}>
-                <cite>{book?.title ?? r.book}</cite> — {r.chapter}
+                <SourceTitle title={book?.title ?? r.book} url={book?.url} />
+                {(book?.kind || book?.year) && (
+                  <span className="topic-ref-meta">
+                    {[book.kind, book.year].filter(Boolean).join(' · ')}
+                  </span>
+                )}
+                {' — '}{r.chapter}
               </li>
             )
           })}

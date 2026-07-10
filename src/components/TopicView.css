@@ -149,6 +149,22 @@
   color: var(--ink-2);
 }
 
+.topic-refs a {
+  color: inherit;
+  text-decoration-color: color-mix(in srgb, currentColor 35%, transparent);
+  text-underline-offset: 0.15em;
+}
+
+.topic-refs a:hover {
+  color: var(--domain);
+}
+
+.topic-ref-meta {
+  margin-left: 0.4em;
+  color: var(--ink-3);
+  font-size: var(--fs-xs);
+}
+
 .topic-link {
   font-weight: 500;
 }
