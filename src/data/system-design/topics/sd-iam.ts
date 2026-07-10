@@ -233,7 +233,7 @@ export const topics: Topic[] = [
     domainId: 'sd-iam',
     title: 'Authorization Models: RBAC, ABAC & ReBAC',
     summary:
-      "RBAC, ABAC, and ReBAC are three different answers to \"what can this identity do\" — increasing in expressiveness and decreasing in how easy they are to audit at a glance; most real systems eventually blend more than one.",
+      "RBAC, ABAC, and ReBAC are three different answers to \"what can this identity do\", trading a fixed role list for progressively more dynamic, context-aware rules — RBAC stays easiest to audit at a glance, ABAC is the hardest since its effective permissions are computed rather than enumerated, and ReBAC's explicit relationship graph lands in between; most real systems eventually blend more than one.",
     keyPoints: [
       'RBAC assigns permissions to roles and users to roles — simple and auditable at small scale, but tends toward **role explosion** as real access needs (this team, this region, this specific record) outgrow any fixed role hierarchy',
       "ABAC evaluates a policy against attributes of the subject, resource, action, and environment at request time (e.g. \"finance dept AND business hours AND owns the record\") — far more expressive than a role list, but harder to audit because the effective permission set is computed, not enumerated",

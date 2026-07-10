@@ -9,7 +9,7 @@ Java additionally has a curated JDK class reference.
 |---------------|--------:|-------:|-------------------------|
 | Java          |      12 |    102 | + 131 JDK class references |
 | CS            |      10 |     71 |                          |
-| System Design |      10 |     57 |                          |
+| System Design |      11 |     65 |                          |
 | JS/TS         |       7 |     55 |                          |
 | AI/ML         |       7 |     37 |                          |
 
