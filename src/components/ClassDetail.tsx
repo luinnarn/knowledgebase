@@ -139,3 +139,29 @@ function titleFromId(id: string): string {
     .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
     .join(' ')
 }
+
+/** Pre-warms the module cache for a compendium+area so the next ClassDetail render for a class
+ *  in that area starts with real data synchronously, instead of the loading placeholder (which
+ *  only resolves via a useEffect — useful for SSR, where effects never run during the single
+ *  render pass). */
+export async function preloadClassArea(
+  compendiumId: string,
+  area: string,
+  classLoaders: Record<string, () => Promise<{ classes: JavaClass[] }>>,
+): Promise<JavaClass[] | undefined> {
+  const key = `${compendiumId}:${area}`
+  const hit = cache.get(key)
+  if (hit) return hit
+  const loader = classLoaders[area]
+  if (!loader) return undefined
+  const { classes } = await loader()
+  cache.set(key, classes)
+  return classes
+}
+
+/** Synchronously seeds the cache from already-known data (e.g. a serialized SSR preload payload
+ *  read on the client), skipping the async loader entirely — used to make the client's first
+ *  render match prerendered HTML instead of starting from an empty cache. */
+export function seedClassAreaCache(compendiumId: string, area: string, classes: JavaClass[]): void {
+  cache.set(`${compendiumId}:${area}`, classes)
+}

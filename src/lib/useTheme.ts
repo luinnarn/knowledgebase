@@ -13,6 +13,13 @@ function currentTheme(): Theme {
   return stored === 'light' || stored === 'dark' ? stored : systemTheme()
 }
 
+// index.html's default (no data-theme attribute) renders the light palette, so that's the
+// only sane snapshot to hand back during server rendering — there's no request, browser, or
+// stored preference to read at build time.
+function serverTheme(): Theme {
+  return 'light'
+}
+
 let listeners: Array<() => void> = []
 
 function subscribe(cb: () => void) {
@@ -26,7 +33,7 @@ function subscribe(cb: () => void) {
 }
 
 export function useTheme(): [Theme, () => void] {
-  const theme = useSyncExternalStore(subscribe, currentTheme)
+  const theme = useSyncExternalStore(subscribe, currentTheme, serverTheme)
 
   const toggle = useCallback(() => {
     const next: Theme = currentTheme() === 'dark' ? 'light' : 'dark'
@@ -35,7 +42,10 @@ export function useTheme(): [Theme, () => void] {
     listeners.forEach((l) => l())
   }, [])
 
-  // Keep the attribute in sync on first render too.
-  document.documentElement.dataset.theme = theme
+  // Keep the attribute in sync on first render too (no-op during server rendering, where
+  // there's no `document` to set it on).
+  if (typeof document !== 'undefined') {
+    document.documentElement.dataset.theme = theme
+  }
   return [theme, toggle]
 }

@@ -5,7 +5,7 @@ import ThemeToggle from '../components/ThemeToggle'
 import './CompendiumPicker.css'
 
 export default function CompendiumPicker() {
-  const lastUsed = localStorage.getItem(STORAGE_KEY)
+  const lastUsed = typeof window !== 'undefined' ? localStorage.getItem(STORAGE_KEY) : null
 
   return (
     <div className="picker">
