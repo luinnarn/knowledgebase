@@ -229,7 +229,7 @@ export const dbModelingTopics: Topic[] = [
       },
       {
         kind: 'table',
-        caption: 'Minimality and an alternate candidate key',
+        caption: 'Closure and minimality checks for `(order_id, line_no)`',
         headers: ['Starting set', 'What its closure misses', 'Conclusion'],
         rows: [
           ['`{order_id}`', '`line_no, product_id, sku, quantity, unit_price`', '`line_no` is necessary'],
@@ -385,7 +385,7 @@ export const dbModelingTopics: Topic[] = [
         headers: ['product_id', 'category_id', 'category_label'],
         rows: [
           ['P1', 'C10', 'Shoes'],
-          ['P2', 'C20', 'Sale'],
+          ['P2', 'C11', 'Shoes'],
         ],
       },
       {
@@ -398,9 +398,19 @@ export const dbModelingTopics: Topic[] = [
         ],
       },
       {
-        kind: 'paragraph',
-        text:
-          'A concrete lossy case uses two category IDs `C10` and `C11`, both labeled “Shoes,” and products independently projected by label. Joining on the label pairs every “Shoes” product with both IDs, even when the original contained only one pairing. The projections discarded the association that distinguished legal tuples.',
+        kind: 'table',
+        caption: 'Lossy projections and their natural join on `category_label`',
+        headers: ['Stage', 'product_id', 'category_id', 'category_label', 'Status'],
+        rows: [
+          ['`PRODUCT_LABEL` projection', 'P1', '—', 'Shoes', 'Projected original tuple'],
+          ['`PRODUCT_LABEL` projection', 'P2', '—', 'Shoes', 'Projected original tuple'],
+          ['`CATEGORY_LABEL` projection', '—', 'C10', 'Shoes', 'Projected original tuple'],
+          ['`CATEGORY_LABEL` projection', '—', 'C11', 'Shoes', 'Projected original tuple'],
+          ['Natural join', 'P1', 'C10', 'Shoes', 'Original tuple'],
+          ['Natural join', 'P1', 'C11', 'Shoes', 'Spurious tuple'],
+          ['Natural join', 'P2', 'C10', 'Shoes', 'Spurious tuple'],
+          ['Natural join', 'P2', 'C11', 'Shoes', 'Original tuple'],
+        ],
       },
       {
         kind: 'diagram',
