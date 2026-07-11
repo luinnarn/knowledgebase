@@ -39,17 +39,25 @@ if (offlineHeading !== visitedHeading) {
   throw new Error('offline reload of a previously-visited page did not match its online content')
 }
 
-// 5. A never-visited page should NOT be servable offline.
+// 5. A never-visited page should NOT be in the runtime cache, and a visited one should be.
+// Inspected directly via the Cache Storage API (rather than by simulating a real offline
+// navigation) because Puppeteer's page.setOfflineMode() only emulates network conditions for
+// page/frame-level requests — fetches issued from inside the Service Worker's own execution
+// context (e.g. NetworkFirst's internal fetch()) are never subject to it, so a real offline
+// navigation to an unvisited page would misleadingly "succeed" regardless of caching behavior.
 const unvisitedPath = '/java/topics/jvm/gc-fundamentals'
-let unvisitedFailedOffline = false
-try {
-  const response = await page.goto(BASE + unvisitedPath, { waitUntil: 'networkidle0' })
-  unvisitedFailedOffline = !response || !response.ok()
-} catch {
-  unvisitedFailedOffline = true
-}
-console.log('unvisited page correctly unavailable offline:', unvisitedFailedOffline)
-if (!unvisitedFailedOffline) throw new Error('an unvisited page unexpectedly loaded while offline')
+const cachedPageUrls = await page.evaluate(async () => {
+  const cache = await caches.open('pages')
+  const requests = await cache.keys()
+  return requests.map((r) => r.url)
+})
+console.log('cached page URLs:', cachedPageUrls)
+const visitedCached = cachedPageUrls.some((url) => url.endsWith(visitedPath))
+const unvisitedCached = cachedPageUrls.some((url) => url.endsWith(unvisitedPath))
+console.log('visited page is in the "pages" cache:', visitedCached)
+console.log('unvisited page is NOT in the "pages" cache:', !unvisitedCached)
+if (!visitedCached) throw new Error('the visited page was not found in the "pages" runtime cache')
+if (unvisitedCached) throw new Error('an unvisited page was unexpectedly found in the "pages" runtime cache')
 
 await page.setOfflineMode(false)
 console.log('page errors:', errors.length ? errors : 'none')
