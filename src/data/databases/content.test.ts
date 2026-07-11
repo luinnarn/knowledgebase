@@ -10,6 +10,7 @@ import { dbTransactionsTopics } from './topics/db-transactions'
 import { dbPerformanceTopics } from './topics/db-performance'
 import { dbInternalsTopics } from './topics/db-internals'
 import { dbApplicationsTopics } from './topics/db-applications'
+import { dbOperationsTopics } from './topics/db-operations'
 import type { CodeContentBlock, CodeLanguage, Topic } from '../../types/content'
 
 const LINK_RE = /\[\[([a-z0-9-]+)\]\]/g
@@ -36,6 +37,7 @@ const authoredModules: Array<{ domainId: string; topics: Topic[] }> = [
   { domainId: 'db-performance', topics: dbPerformanceTopics },
   { domainId: 'db-internals', topics: dbInternalsTopics },
   { domainId: 'db-applications', topics: dbApplicationsTopics },
+  { domainId: 'db-operations', topics: dbOperationsTopics },
 ]
 
 function allAuthoredTopics(): Topic[] {
@@ -356,6 +358,22 @@ describe('database topic pre-registration validation', () => {
       'schema-migrations-and-database-testing',
     ])
     expect(dbApplicationsTopics).toHaveLength(9)
+  })
+
+  test('authors the ten operations, security, and reliability topics in plan order', () => {
+    expect(dbOperationsTopics.map(({ id }) => id)).toEqual([
+      'roles-privileges-and-least-authority',
+      'row-level-security-and-data-boundaries',
+      'encryption-secrets-and-auditing',
+      'backup-restore-and-recovery-objectives',
+      'point-in-time-recovery',
+      'database-observability',
+      'slow-query-and-incident-diagnosis',
+      'capacity-maintenance-and-data-lifecycle',
+      'replication-and-read-scaling',
+      'failover-disaster-recovery-and-reliability',
+    ])
+    expect(dbOperationsTopics).toHaveLength(10)
   })
 
   test('accepts a complete domain module', () => {
