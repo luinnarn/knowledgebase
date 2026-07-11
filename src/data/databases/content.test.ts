@@ -13,7 +13,9 @@ import { dbApplicationsTopics } from './topics/db-applications'
 import { dbOperationsTopics } from './topics/db-operations'
 import { dbDialectsTopics } from './topics/db-dialects'
 import { dbPostgresqlTopics } from './topics/db-postgresql'
-import type { CodeContentBlock, CodeLanguage, Topic } from '../../types/content'
+import { topicLoaders } from './topics'
+import { graphEdges, graphNodes } from './graph'
+import type { CodeContentBlock, CodeLanguage, EdgeType, Topic } from '../../types/content'
 
 const LINK_RE = /\[\[([a-z0-9-]+)\]\]/g
 const APPROVED_LANGUAGES = new Set<CodeLanguage>([
@@ -495,5 +497,59 @@ describe('database topic pre-registration validation', () => {
     expect(
       validateDomainTopics('db-foundations', withFirstTopic({ blocks: [{ kind: 'code', variants: [] }] })),
     ).toContain('topic relational-model code block: at least one variant')
+  })
+})
+
+describe('database lazy loaders and knowledge graph', () => {
+  test('lazily loads every planned domain in exact topic order', async () => {
+    expect(Object.keys(topicLoaders)).toEqual(domains.map(({ id }) => id))
+
+    const loadedModules = await Promise.all(domains.map(({ id }) => topicLoaders[id]()))
+    const loadedTopics = loadedModules.flatMap(({ topics }, index) => {
+      expect(topics.map(({ id }) => id)).toEqual(domains[index].topicIds)
+      return topics
+    })
+
+    expect(loadedTopics).toHaveLength(110)
+    expect(new Set(loadedTopics.map(({ id }) => id)).size).toBe(110)
+  })
+
+  test('contains exactly one domain hub and topic node for every planned id', () => {
+    const expectedNodeIds = [
+      ...domains.map(({ id }) => `d-${id}`),
+      ...domains.flatMap(({ topicIds }) => topicIds),
+    ]
+
+    expect(graphNodes).toHaveLength(122)
+    expect(new Set(graphNodes.map(({ id }) => id)).size).toBe(122)
+    expect(new Set(graphNodes.map(({ id }) => id))).toEqual(new Set(expectedNodeIds))
+    expect(graphNodes.every(({ importance }) => [1, 2, 3].includes(importance))).toBe(true)
+  })
+
+  test('gives every topic exactly one part-of edge to its own domain', () => {
+    const partOfEdges = graphEdges.filter(({ type }) => type === 'part-of')
+    expect(partOfEdges).toHaveLength(110)
+
+    for (const domain of domains) {
+      for (const topicId of domain.topicIds) {
+        expect(partOfEdges.filter(({ source, target }) => source === topicId && target === `d-${domain.id}`)).toHaveLength(1)
+      }
+    }
+  })
+
+  test('uses valid unique edges and connects every non-foundational domain to the learning graph', () => {
+    const nodeIds = new Set(graphNodes.map(({ id }) => id))
+    const edgeTypes = new Set<EdgeType>(['part-of', 'prerequisite-of', 'related-to'])
+    const edgeIds = graphEdges.map(({ source, target, type }) => `${type}:${source}:${target}`)
+
+    expect(new Set(edgeIds).size).toBe(edgeIds.length)
+    expect(graphEdges.every(({ source, target, type }) => nodeIds.has(source) && nodeIds.has(target) && edgeTypes.has(type))).toBe(true)
+
+    const learningEdges = graphEdges.filter(({ type }) => type !== 'part-of')
+    for (const domain of domains.filter(({ id }) => id !== 'db-foundations')) {
+      expect(
+        learningEdges.some(({ source, target }) => domain.topicIds.includes(source) || domain.topicIds.includes(target)),
+      ).toBe(true)
+    }
   })
 })
