@@ -1,8 +1,9 @@
 # Java::Compendium
 
-A personal Java knowledge base distilled from eight foundational books into a fast,
-searchable reference app — 12 domains, 102 topics, 121 curated JDK class references,
-and an interactive knowledge graph tying it all together.
+A fast, searchable reference app spanning six compendiums: Java, JavaScript and
+TypeScript, computer science, system design, AI/ML, and relational databases.
+Each compendium organizes its material into connected domains, topics, sources,
+and an interactive knowledge graph.
 
 Built with React 19 + TypeScript + Vite. Fully static — no backend.
 
@@ -16,18 +17,24 @@ Built with React 19 + TypeScript + Vite. Fully static — no backend.
   domain, with typed edges (part-of / prerequisite / related), pan/zoom, domain
   filters, and a preview panel that links into the content.
 - **Class Reference** — 121 essential JDK classes with declarations, key method
-  tables, examples, pitfalls, and links to the official Javadoc.
+  tables, examples, pitfalls, and links to the official Javadoc. This reference
+  remains specific to the Java compendium.
+- **Relational Databases** — 12 domains and 110 topics covering relational theory,
+  modeling, SQL, transactions, performance, internals, application integration,
+  operations, portability, and PostgreSQL in practice. Dialect-aware examples
+  compare PostgreSQL, MySQL, SQLite, SQL Server, and Oracle where the difference
+  affects correctness or design.
 - **Search** — instant client-side search (MiniSearch) over all topics and classes.
   Press `⌘K` / `Ctrl-K`.
 - Light/dark theme, responsive from 360 px to ultrawide, all content lazy-loaded
   per domain.
 
-## Source books
+## Sources
 
-Core Java I & II (Horstmann), Effective Java (Bloch), Java Concurrency in Practice
-(Goetz et al.), Learning Java (Loy/Niemeyer/Leuck), Optimizing Java (Evans/Gough/
-Newland), Optimizing Cloud Native Java (Evans/Gough), and Java Secrets (Harrison).
-The `books/` folder is git-ignored.
+Each compendium synthesizes its own curated books, papers, standards, courses, and
+official documentation. The relational-databases collection includes eight core
+books plus primary papers and current documentation for the five compared SQL
+dialects. Local source copies under `books/` are git-ignored.
 
 ## Development
 
@@ -46,11 +53,12 @@ content errors fail the build.
 ## Structure
 
 ```
-src/data/domains.ts        12 domains and their topic ids
-src/data/graph.ts          knowledge-graph nodes + typed edges
-src/data/topics/<domain>   authored topic content (lazy chunks)
-src/data/classes/<area>    curated JDK class docs (lazy chunks)
-src/components             renderers: TopicView, GraphView, CodeBlock, palette…
-src/pages                  Home, Topics, Graph, Classes
-scripts/verify-visual.mjs  headless-browser screenshot verification (uses Edge)
+src/data/registry.ts             compendium data bindings
+src/data/<compendium>/domains.ts domain and topic plans
+src/data/<compendium>/graph.ts   knowledge-graph nodes + typed edges
+src/data/<compendium>/topics/    authored topic content (lazy chunks)
+src/data/classes/                Java-specific JDK class docs (lazy chunks)
+src/components                   shared topic, graph, code, and search renderers
+src/pages                        shared compendium-aware pages
+scripts/prerender.mjs            static route and sitemap generation
 ```
