@@ -16,7 +16,7 @@ Built with React 19 + TypeScript + Vite. Fully static — no backend.
 - **Knowledge Graph** — force-directed map of every topic (d3-force), colored by
   domain, with typed edges (part-of / prerequisite / related), pan/zoom, domain
   filters, and a preview panel that links into the content.
-- **Class Reference** — 121 essential JDK classes with declarations, key method
+- **Class Reference** — 130 essential JDK classes with declarations, key method
   tables, examples, pitfalls, and links to the official Javadoc. This reference
   remains specific to the Java compendium.
 - **Relational Databases** — 12 domains and 110 topics covering relational theory,
