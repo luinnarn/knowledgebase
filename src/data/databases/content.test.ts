@@ -11,6 +11,7 @@ import { dbPerformanceTopics } from './topics/db-performance'
 import { dbInternalsTopics } from './topics/db-internals'
 import { dbApplicationsTopics } from './topics/db-applications'
 import { dbOperationsTopics } from './topics/db-operations'
+import { dbDialectsTopics } from './topics/db-dialects'
 import type { CodeContentBlock, CodeLanguage, Topic } from '../../types/content'
 
 const LINK_RE = /\[\[([a-z0-9-]+)\]\]/g
@@ -38,6 +39,7 @@ const authoredModules: Array<{ domainId: string; topics: Topic[] }> = [
   { domainId: 'db-internals', topics: dbInternalsTopics },
   { domainId: 'db-applications', topics: dbApplicationsTopics },
   { domainId: 'db-operations', topics: dbOperationsTopics },
+  { domainId: 'db-dialects', topics: dbDialectsTopics },
 ]
 
 function allAuthoredTopics(): Topic[] {
@@ -374,6 +376,19 @@ describe('database topic pre-registration validation', () => {
       'failover-disaster-recovery-and-reliability',
     ])
     expect(dbOperationsTopics).toHaveLength(10)
+  })
+
+  test('authors the seven SQL dialect and portability topics in plan order', () => {
+    expect(dbDialectsTopics.map(({ id }) => id)).toEqual([
+      'sql-portability-strategy',
+      'identifiers-quoting-and-name-resolution',
+      'type-and-generated-value-differences',
+      'pagination-upsert-and-returning-differences',
+      'null-boolean-collation-and-expression-differences',
+      'transaction-and-ddl-differences',
+      'choosing-a-relational-database',
+    ])
+    expect(dbDialectsTopics).toHaveLength(7)
   })
 
   test('accepts a complete domain module', () => {
