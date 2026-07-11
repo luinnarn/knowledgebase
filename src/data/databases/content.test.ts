@@ -9,6 +9,7 @@ import { dbSchemaObjectsTopics } from './topics/db-schema-objects'
 import { dbTransactionsTopics } from './topics/db-transactions'
 import { dbPerformanceTopics } from './topics/db-performance'
 import { dbInternalsTopics } from './topics/db-internals'
+import { dbApplicationsTopics } from './topics/db-applications'
 import type { CodeContentBlock, CodeLanguage, Topic } from '../../types/content'
 
 const LINK_RE = /\[\[([a-z0-9-]+)\]\]/g
@@ -34,6 +35,7 @@ const authoredModules: Array<{ domainId: string; topics: Topic[] }> = [
   { domainId: 'db-transactions', topics: dbTransactionsTopics },
   { domainId: 'db-performance', topics: dbPerformanceTopics },
   { domainId: 'db-internals', topics: dbInternalsTopics },
+  { domainId: 'db-applications', topics: dbApplicationsTopics },
 ]
 
 function allAuthoredTopics(): Topic[] {
@@ -339,6 +341,21 @@ describe('database topic pre-registration validation', () => {
       'space-reclamation-and-maintenance',
     ])
     expect(dbInternalsTopics).toHaveLength(9)
+  })
+
+  test('authors the nine application integration and schema evolution topics in plan order', () => {
+    expect(dbApplicationsTopics.map(({ id }) => id)).toEqual([
+      'connections-sessions-and-protocols',
+      'connection-pooling',
+      'prepared-statements-and-parameter-binding',
+      'sql-injection-and-query-safety',
+      'batching-bulk-loading-and-backpressure',
+      'application-transaction-design',
+      'n-plus-one-and-data-access-shape',
+      'orm-impedance-mismatch',
+      'schema-migrations-and-database-testing',
+    ])
+    expect(dbApplicationsTopics).toHaveLength(9)
   })
 
   test('accepts a complete domain module', () => {
