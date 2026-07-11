@@ -12,6 +12,7 @@ import { dbInternalsTopics } from './topics/db-internals'
 import { dbApplicationsTopics } from './topics/db-applications'
 import { dbOperationsTopics } from './topics/db-operations'
 import { dbDialectsTopics } from './topics/db-dialects'
+import { dbPostgresqlTopics } from './topics/db-postgresql'
 import type { CodeContentBlock, CodeLanguage, Topic } from '../../types/content'
 
 const LINK_RE = /\[\[([a-z0-9-]+)\]\]/g
@@ -40,6 +41,7 @@ const authoredModules: Array<{ domainId: string; topics: Topic[] }> = [
   { domainId: 'db-applications', topics: dbApplicationsTopics },
   { domainId: 'db-operations', topics: dbOperationsTopics },
   { domainId: 'db-dialects', topics: dbDialectsTopics },
+  { domainId: 'db-postgresql', topics: dbPostgresqlTopics },
 ]
 
 function allAuthoredTopics(): Topic[] {
@@ -389,6 +391,20 @@ describe('database topic pre-registration validation', () => {
       'choosing-a-relational-database',
     ])
     expect(dbDialectsTopics).toHaveLength(7)
+  })
+
+  test('authors the eight PostgreSQL in practice topics in plan order', () => {
+    expect(dbPostgresqlTopics.map(({ id }) => id)).toEqual([
+      'postgresql-architecture',
+      'postgresql-types-jsonb-and-extensions',
+      'postgresql-mvcc-and-snapshots',
+      'postgresql-vacuum-freezing-and-bloat',
+      'postgresql-index-families',
+      'postgresql-planner-and-explain',
+      'postgresql-wal-backup-and-replication',
+      'postgresql-locks-monitoring-and-production-diagnostics',
+    ])
+    expect(dbPostgresqlTopics).toHaveLength(8)
   })
 
   test('accepts a complete domain module', () => {
