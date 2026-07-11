@@ -1,8 +1,10 @@
 # PWA Installability & Offline Reading — Design
 
 **Date:** 2026-07-11
-**Status:** Approved (pending spec review)
+**Status:** Implemented (see Amendment below)
 **Scope:** Make Java::Compendium installable as a standalone app (manifest + icons) and let previously-visited pages keep working offline, without changing the deployed hosting model or existing SSR/prerender pipeline.
+
+**Amendment (post-implementation):** `vite-plugin-pwa` silently defaults `navigateFallback` to `"index.html"` when the key is absent, which auto-registers a Workbox `NavigationRoute` that pre-empts the `NetworkFirst` "pages" rule below for every navigation — the shipped config sets `navigateFallback: undefined` explicitly to suppress this (see `vite.config.ts`'s `workbox` block for the full explanation). Without this, no page was ever actually servable offline. The `pages`/`images` runtime-caching rules also ended up with `networkTimeoutSeconds: 3` (pages) and `expiration: { maxEntries: 60 }` (both) — small hardening added after the final review, not in the original design below.
 
 ## Problem
 

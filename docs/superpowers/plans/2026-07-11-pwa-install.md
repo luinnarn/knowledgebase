@@ -8,6 +8,8 @@
 
 **Tech Stack:** Vite 8, `vite-plugin-pwa` (Workbox `generateSW` strategy), `@resvg/resvg-js` (icon rasterization), Puppeteer-core + Microsoft Edge headless (E2E verification, matching the project's existing `scripts/verify-visual.mjs` pattern).
 
+**Amendment (post-implementation):** Task 3's E2E script surfaced a real bug in Task 2's config — `vite-plugin-pwa` defaults `navigateFallback` to `"index.html"` when unset, which pre-empted the `pages` NetworkFirst rule for every navigation and made offline reading completely non-functional. Fixed by adding `navigateFallback: undefined` to `vite.config.ts`'s `workbox` block. Separately, the E2E script's original "visit an unvisited page offline, expect failure" check (Task 3, Step 1) proved unreliable in this Puppeteer-core version (CDP offline emulation doesn't reach Service-Worker-issued fetches), so that check was rewritten to inspect `caches.open('pages')` contents directly instead. Both fixes are commits `07eefac` and `f23ec7e` respectively on branch `worktree-pwa-install`; see `.superpowers/sdd/task-2-fix-report.md` and `.superpowers/sdd/task-2-3-fix-report.md` for full investigation detail. A final follow-up commit (`8326530`) added `networkTimeoutSeconds: 3` and `expiration: { maxEntries: 60 }` to the runtime-caching rules per the final whole-branch review's minor suggestions.
+
 ## Global Constraints
 
 - No changes to Cloudflare Pages project configuration — `npm run build` must still output everything Wrangler needs into `./dist`.
