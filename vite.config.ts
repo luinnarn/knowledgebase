@@ -44,12 +44,19 @@ export default defineConfig({
           {
             urlPattern: ({ request }) => request.mode === 'navigate',
             handler: 'NetworkFirst',
-            options: { cacheName: 'pages' },
+            options: {
+              cacheName: 'pages',
+              networkTimeoutSeconds: 3,
+              expiration: { maxEntries: 60 },
+            },
           },
           {
             urlPattern: ({ request }) => request.destination === 'image',
             handler: 'StaleWhileRevalidate',
-            options: { cacheName: 'images' },
+            options: {
+              cacheName: 'images',
+              expiration: { maxEntries: 60 },
+            },
           },
         ],
       },
