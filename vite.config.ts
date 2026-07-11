@@ -28,10 +28,17 @@ export default defineConfig({
       },
       workbox: {
         // Only the hashed JS/CSS/font bundle is precached on install. Page HTML is deliberately
-        // excluded, and navigateFallback is left unset (its default), so nothing is downloaded
-        // offline-ready until a page has actually been visited (see runtimeCaching below) — every
-        // route already has its own real prerendered HTML file, so there's no single app-shell to
-        // fall back to and no reason to force-download the whole site upfront.
+        // excluded so nothing is downloaded offline-ready until a page has actually been visited
+        // (see runtimeCaching below) — every route already has its own real prerendered HTML
+        // file, so there's no single app-shell to fall back to and no reason to force-download
+        // the whole site upfront.
+        // vite-plugin-pwa merges its own workbox defaults over ours via Object.assign(defaults,
+        // options.workbox), and defaults navigateFallback to "index.html" when the key is absent.
+        // That silently makes workbox-build auto-register a NavigationRoute that intercepts every
+        // navigation ahead of our NetworkFirst 'pages' rule below (and always misses, since
+        // index.html isn't precached) — explicitly setting the key to undefined here is an own
+        // property that overrides the default and suppresses that auto-registration.
+        navigateFallback: undefined,
         globPatterns: ['assets/**/*.{js,css,woff,woff2}'],
         runtimeCaching: [
           {
