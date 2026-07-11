@@ -48,14 +48,16 @@ New `scripts/generate-pwa-icons.mjs` (same `resvg-js` rasterization approach as 
 
 ## Build integration
 
-`vite-plugin-pwa` runs as part of the existing client `vite build` step (first line of the `build` script), emitting `dist/sw.js`, `dist/manifest.webmanifest` (or reusing the `public/` copy), the workbox precache manifest, and its registration `<script>`/`<link>` tags into `dist/index.html` — all of which happen *before* `scripts/prerender.mjs` reads `dist/index.html` as its per-route template. No changes needed to the prerender script itself; every prerendered route inherits the same head tags automatically, exactly like the existing OG/canonical metadata does today.
+Icon PNGs are **generated once by a standalone script and committed** to `public/icons/`, exactly like the existing hand-authored `public/favicon.svg` — not regenerated on every build. This matters because `vite-plugin-pwa`'s Workbox `generateSW` step scans the build output for files to reference/precache as part of the ordinary client `vite build`, so the icon files need to already exist as ordinary static assets under `public/` (copied verbatim by Vite like `favicon.svg`/`robots.txt` today), not be produced by a later pipeline stage. Since the icon design is a fixed brand asset (not data-driven like the per-domain OG images), a one-off generation script is simpler and avoids coupling icon generation to build timing.
+
+`vite-plugin-pwa` itself runs as part of the existing client `vite build` step (first line of the `build` script), emitting `dist/sw.js`, `dist/manifest.webmanifest`, the workbox precache manifest, and its registration `<script>`/`<link>` tags into `dist/index.html` — all of which happen *before* `scripts/prerender.mjs` reads `dist/index.html` as its per-route template. No changes needed to the prerender script itself; every prerendered route inherits the same head tags automatically, exactly like the existing OG/canonical metadata does today.
 
 ```
+node scripts/generate-pwa-icons.mjs     # one-off / re-run only if the icon design changes; output is committed
 tsc -b
 vite build                              # client bundle + vite-plugin-pwa output (sw.js, manifest, head tags)
 vite build --ssr src/entry-server.tsx   # unchanged
 node scripts/prerender.mjs              # unchanged — still clones dist/index.html as template
-node scripts/generate-pwa-icons.mjs     # new — run before the above, writes public/icons/*
 ```
 
 ## Testing / verification
