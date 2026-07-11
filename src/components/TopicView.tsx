@@ -23,7 +23,9 @@ function Block({ block }: { block: ContentBlock }) {
     case 'subheading':
       return <h2 className="topic-subheading">{block.text}</h2>
     case 'code':
-      return <CodeBlock code={block.code} title={block.title} caption={block.caption} />
+      return block.variants
+        ? <CodeBlock variants={block.variants} title={block.title} caption={block.caption} />
+        : <CodeBlock code={block.code} language={block.language} title={block.title} caption={block.caption} />
     case 'pitfall':
       return <Callout variant="pitfall" title={block.title} text={block.text} code={block.code} detail={block.detail} />
     case 'bestPractice':
@@ -59,6 +61,15 @@ function KeyPointItem({ point }: { point: KeyPoint }) {
         </div>
       )}
     </li>
+  )
+}
+
+function SourceTitle({ title, url }: { title: string; url?: string }) {
+  if (!url) return <cite>{title}</cite>
+  return (
+    <cite>
+      <a href={url} target="_blank" rel="noopener noreferrer">{title}</a>
+    </cite>
   )
 }
 
@@ -117,7 +128,13 @@ export default function TopicView({ topic }: { topic: Topic }) {
             const book = bookByKey.get(r.book)
             return (
               <li key={i}>
-                <cite>{book?.title ?? r.book}</cite> — {r.chapter}
+                <SourceTitle title={book?.title ?? r.book} url={book?.url} />
+                {(book?.kind || book?.year) && (
+                  <span className="topic-ref-meta">
+                    {[book.kind, book.year].filter(Boolean).join(' · ')}
+                  </span>
+                )}
+                {' — '}{r.chapter}
               </li>
             )
           })}

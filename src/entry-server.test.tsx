@@ -1,9 +1,45 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest'
+import { renderToString } from 'react-dom/server'
+import { Route, Routes, StaticRouter } from 'react-router-dom'
 import { render } from './entry-server'
 import { getAllRoutes } from './seo/routes'
+import CompendiumProvider from './lib/CompendiumProvider'
+import TopicView from './components/TopicView'
+import type { Topic } from './types/content'
 
 describe('entry-server render()', () => {
+  it('selects the first PostgreSQL variant deterministically during SSR', () => {
+    const topic: Topic = {
+      id: 'dialect-fixture',
+      domainId: 'fundamentals',
+      title: 'Dialect fixture',
+      summary: 'A sufficiently detailed summary for deterministic server rendering.',
+      keyPoints: ['One', 'Two', 'Three'],
+      blocks: [{
+        kind: 'code',
+        variants: [
+          { id: 'postgresql', label: 'PostgreSQL', language: 'sql', code: 'SELECT pg_catalog.current_database();' },
+          { id: 'mysql', label: 'MySQL', language: 'sql', code: 'SELECT DATABASE();' },
+        ],
+      }],
+      refs: [{ book: 'core-java-1', chapter: 'Fixture' }],
+      related: [],
+    }
+
+    const html = renderToString(
+      <StaticRouter location="/java">
+        <Routes>
+          <Route path=":compendiumId" element={<CompendiumProvider><TopicView topic={topic} /></CompendiumProvider>} />
+        </Routes>
+      </StaticRouter>,
+    )
+
+    expect(html).toContain('pg_catalog.current_database')
+    expect(html).toMatch(/<button[^>]*aria-selected="true"[^>]*>PostgreSQL<\/button>/)
+    expect(html).not.toMatch(/<button[^>]*aria-selected="true"[^>]*>MySQL<\/button>/)
+  })
+
   it('renders real topic content, not the loading placeholder', async () => {
     const routes = await getAllRoutes()
     const topicRoute = routes.find((r) => r.kind === 'topic' && r.compendiumId === 'java')!

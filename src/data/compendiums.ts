@@ -50,6 +50,14 @@ export const compendiums: CompendiumMeta[] = [
       'Machine learning foundations, neural networks, transformers, LLMs, RAG, evaluation, production ML, and responsible AI — explained through practical mental models for developers.',
     hasClasses: false,
   },
+  {
+    id: 'databases',
+    label: 'Databases',
+    heroTitle: 'Relational databases, understood.',
+    heroLede:
+      'Relational theory, data modeling, SQL, transactions, indexes, query planning, storage internals, and production reliability — vendor-neutral at the core, grounded in PostgreSQL and compared across major SQL dialects.',
+    hasClasses: false,
+  },
 ]
 
 export const compendiumById = new Map(compendiums.map((c) => [c.id, c]))

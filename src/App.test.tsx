@@ -22,6 +22,13 @@ test('renders the shell with brand and primary nav', () => {
   expect(screen.getByRole('link', { name: 'Classes' })).toBeInTheDocument()
 })
 
+test('renders the relational databases home with topic navigation', () => {
+  renderApp('/databases')
+  expect(screen.getByRole('heading', { name: 'Relational databases, understood.' })).toBeInTheDocument()
+  expect(screen.getByRole('link', { name: 'Topics' })).toHaveAttribute('href', '/databases/topics')
+  expect(screen.queryByRole('link', { name: 'Classes' })).not.toBeInTheDocument()
+})
+
 test('navigates between sections', async () => {
   const user = userEvent.setup()
   renderApp('/java')
