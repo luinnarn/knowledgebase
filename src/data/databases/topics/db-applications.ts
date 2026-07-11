@@ -64,7 +64,7 @@ export const dbApplicationsTopics: Topic[] = [
       { kind: 'pitfall', title: 'Converting everything to text', text: 'Stringifying timestamps, decimals, arrays, or nulls reintroduces parsing ambiguity and can provoke implicit casts. Use the driver’s typed API and verify server parameter types for performance-sensitive statements.' },
       { kind: 'bestPractice', title: 'Observe statement shape and parameter class separately', text: 'Log a safe query identifier, duration, rows, and parameter-type/selectivity class without secrets. Investigate generic versus value-sensitive plans rather than disabling preparation globally.' },
     ],
-    refs: [{ book: 'database-system-concepts', chapter: 'Ch. 9 — Application Development; 9.3 JDBC' }, { book: 'postgresql-docs', chapter: '54.2.3 — Extended Query; PREPARE; EXECUTE' }, { book: 'sql-antipatterns', chapter: 'Ch. 21 — SQL Injection' }],
+    refs: [{ book: 'database-system-concepts', chapter: 'Ch. 9 — Application Development' }, { book: 'postgresql-docs', chapter: '54.2.3 — Extended Query; PREPARE; EXECUTE' }, { book: 'sql-antipatterns', chapter: 'Ch. 21 — SQL Injection' }],
     related: ['sql-injection-and-query-safety', 'cost-based-query-planning', 'connections-sessions-and-protocols'],
   },
   {
