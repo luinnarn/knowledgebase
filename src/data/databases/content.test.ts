@@ -546,9 +546,9 @@ describe('database lazy loaders and knowledge graph', () => {
     expect(graphEdges.every(({ source, target, type }) => nodeIds.has(source) && nodeIds.has(target) && edgeTypes.has(type))).toBe(true)
 
     const topicDomain = new Map(domains.flatMap((domain) => domain.topicIds.map((id) => [id, domain.id])))
-    const learningTransitions = new Set(
+    const prerequisiteTransitions = new Set(
       graphEdges
-        .filter(({ type }) => type !== 'part-of')
+        .filter(({ type }) => type === 'prerequisite-of')
         .map(({ source, target }) => `${topicDomain.get(source)}->${topicDomain.get(target)}`),
     )
     const requiredTransitions = [
@@ -566,8 +566,8 @@ describe('database lazy loaders and knowledge graph', () => {
       'db-applications->db-operations',
     ]
 
-    expect(requiredTransitions.filter((transition) => !learningTransitions.has(transition))).toEqual([])
-    expect([...learningTransitions].some((transition) => transition.endsWith('->db-dialects'))).toBe(true)
-    expect([...learningTransitions].some((transition) => transition.endsWith('->db-postgresql'))).toBe(true)
+    expect(requiredTransitions.filter((transition) => !prerequisiteTransitions.has(transition))).toEqual([])
+    expect([...prerequisiteTransitions].some((transition) => transition.endsWith('->db-dialects'))).toBe(true)
+    expect([...prerequisiteTransitions].some((transition) => transition.endsWith('->db-postgresql'))).toBe(true)
   })
 })
