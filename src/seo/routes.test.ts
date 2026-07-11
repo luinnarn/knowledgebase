@@ -39,6 +39,15 @@ test('enumerates exactly one route per topic, one per class, with unique paths',
   expect(routes.find((r) => r.path === '/java')?.kind).toBe('compendium-home')
   expect(routes.find((r) => r.path === '/cs')?.kind).toBe('compendium-home')
   expect(routes.find((r) => r.path === '/system-design')?.kind).toBe('compendium-home')
+  expect(routes.find((r) => r.path === '/databases')?.kind).toBe('compendium-home')
+
+  const databaseRoutes = routes.filter((r) => r.compendiumId === 'databases')
+  expect(databaseRoutes).toHaveLength(125)
+  expect(databaseRoutes.filter((r) => r.kind === 'domain-landing')).toHaveLength(12)
+  expect(databaseRoutes.filter((r) => r.kind === 'topic')).toHaveLength(110)
+  expect(databaseRoutes.filter((r) => r.kind === 'topics-index')).toHaveLength(1)
+  expect(databaseRoutes.filter((r) => r.kind === 'graph')).toHaveLength(1)
+  expect(databaseRoutes.some((r) => r.path === '/databases/classes')).toBe(false)
 
   // The compendium-home route carries its domain list for the ItemList JSON-LD.
   const javaHome = routes.find((r) => r.path === '/java')!

@@ -268,3 +268,48 @@ describe.each(Object.entries(compendiumRegistry))('compendium: %s', (compendiumI
     })
   })
 })
+
+describe('database compendium strict integrity', () => {
+  const data = compendiumRegistry.databases
+  const loadedTopics: Topic[] = []
+
+  beforeAll(async () => {
+    for (const load of Object.values(data.topicLoaders)) {
+      const { topics } = await load()
+      loadedTopics.push(...topics)
+    }
+  })
+
+  it('registers exactly 12 domains and 110 topics with one loader per domain', () => {
+    expect(data.domains).toHaveLength(12)
+    expect(loadedTopics).toHaveLength(110)
+    expect(Object.keys(data.topicLoaders).sort()).toEqual(data.domains.map((domain) => domain.id).sort())
+  })
+
+  it('keeps every topic at the database content-depth floor', () => {
+    for (const topic of loadedTopics) {
+      expect(topic.keyPoints.length, `topic ${topic.id} keyPoints`).toBeGreaterThanOrEqual(5)
+      expect(topic.keyPoints.length, `topic ${topic.id} keyPoints`).toBeLessThanOrEqual(7)
+      expect(topic.refs.length, `topic ${topic.id} refs`).toBeGreaterThanOrEqual(2)
+    }
+  })
+
+  it('uses unique source URLs', () => {
+    const urls = data.books.map((book) => book.url)
+    expect(new Set(urls).size).toBe(urls.length)
+  })
+
+  it('uses only unique approved dialect labels in PostgreSQL-first order', () => {
+    for (const topic of loadedTopics) {
+      for (const block of topic.blocks) {
+        if (block.kind !== 'code' || !block.variants) continue
+        const sqlVariants = block.variants.filter((variant) => variant.language === 'sql')
+        if (sqlVariants.length < 2) continue
+        const labels = sqlVariants.map((variant) => variant.label)
+        expect(labels[0], `topic ${topic.id} PostgreSQL-first variants`).toBe('PostgreSQL')
+        expect(new Set(labels).size, `topic ${topic.id} unique dialect labels`).toBe(labels.length)
+        expect(labels.every((label) => APPROVED_SQL_LABELS.has(label)), `topic ${topic.id} dialect labels`).toBe(true)
+      }
+    }
+  })
+})

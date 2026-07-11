@@ -26,6 +26,11 @@ import { topicLoaders as jsTsTopicLoaders } from './js-ts/topics/index'
 import { graphNodes as jsTsGraphNodes, graphEdges as jsTsGraphEdges } from './js-ts/graph'
 import { books as jsTsBooks, bookByKey as jsTsBookByKey } from './js-ts/books'
 
+import { domains as databaseDomains, domainById as databaseDomainById } from './databases/domains'
+import { topicLoaders as databaseTopicLoaders } from './databases/topics/index'
+import { graphNodes as databaseGraphNodes, graphEdges as databaseGraphEdges } from './databases/graph'
+import { books as databaseBooks, bookByKey as databaseBookByKey } from './databases/books'
+
 export interface CompendiumData {
   domains: Domain[]
   domainById: Map<string, Domain>
@@ -96,6 +101,18 @@ export const compendiumRegistry: Record<string, CompendiumData> = {
     graphEdges: aiMlGraphEdges,
     books: aiMlBooks,
     bookByKey: aiMlBookByKey,
+    classLoaders: {},
+    classSummaries: [],
+    areaTitles: {},
+  },
+  databases: {
+    domains: databaseDomains,
+    domainById: databaseDomainById,
+    topicLoaders: databaseTopicLoaders,
+    graphNodes: databaseGraphNodes,
+    graphEdges: databaseGraphEdges,
+    books: databaseBooks,
+    bookByKey: databaseBookByKey,
     classLoaders: {},
     classSummaries: [],
     areaTitles: {},

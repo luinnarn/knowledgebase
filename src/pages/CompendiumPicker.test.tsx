@@ -15,6 +15,7 @@ test('links to every compendium', () => {
   expect(screen.getByRole('link', { name: /^Java/ })).toHaveAttribute('href', '/java')
   expect(screen.getByRole('link', { name: /^CS/ })).toHaveAttribute('href', '/cs')
   expect(screen.getByRole('link', { name: /^SysDesign/ })).toHaveAttribute('href', '/system-design')
+  expect(screen.getByRole('link', { name: /^Databases/ })).toHaveAttribute('href', '/databases')
 })
 
 test('marks the last-used compendium from localStorage', () => {
