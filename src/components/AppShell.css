@@ -198,6 +198,20 @@
     padding: 0 var(--sp-4);
   }
 
+  .compendium-switcher {
+    min-width: 0;
+  }
+
+  .brand {
+    max-width: 100%;
+  }
+
+  .brand-java {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
   .brand-name {
     display: none;
   }
