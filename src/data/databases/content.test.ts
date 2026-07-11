@@ -537,7 +537,7 @@ describe('database lazy loaders and knowledge graph', () => {
     }
   })
 
-  test('uses valid unique edges and connects every non-foundational domain to the learning graph', () => {
+  test('uses valid unique edges and encodes the approved cross-domain learning spine', () => {
     const nodeIds = new Set(graphNodes.map(({ id }) => id))
     const edgeTypes = new Set<EdgeType>(['part-of', 'prerequisite-of', 'related-to'])
     const edgeIds = graphEdges.map(({ source, target, type }) => `${type}:${source}:${target}`)
@@ -545,11 +545,29 @@ describe('database lazy loaders and knowledge graph', () => {
     expect(new Set(edgeIds).size).toBe(edgeIds.length)
     expect(graphEdges.every(({ source, target, type }) => nodeIds.has(source) && nodeIds.has(target) && edgeTypes.has(type))).toBe(true)
 
-    const learningEdges = graphEdges.filter(({ type }) => type !== 'part-of')
-    for (const domain of domains.filter(({ id }) => id !== 'db-foundations')) {
-      expect(
-        learningEdges.some(({ source, target }) => domain.topicIds.includes(source) || domain.topicIds.includes(target)),
-      ).toBe(true)
-    }
+    const topicDomain = new Map(domains.flatMap((domain) => domain.topicIds.map((id) => [id, domain.id])))
+    const learningTransitions = new Set(
+      graphEdges
+        .filter(({ type }) => type !== 'part-of')
+        .map(({ source, target }) => `${topicDomain.get(source)}->${topicDomain.get(target)}`),
+    )
+    const requiredTransitions = [
+      'db-foundations->db-modeling',
+      'db-modeling->db-sql',
+      'db-modeling->db-schema-objects',
+      'db-sql->db-advanced-sql',
+      'db-sql->db-transactions',
+      'db-sql->db-performance',
+      'db-sql->db-applications',
+      'db-transactions->db-internals',
+      'db-transactions->db-applications',
+      'db-performance->db-internals',
+      'db-internals->db-operations',
+      'db-applications->db-operations',
+    ]
+
+    expect(requiredTransitions.filter((transition) => !learningTransitions.has(transition))).toEqual([])
+    expect([...learningTransitions].some((transition) => transition.endsWith('->db-dialects'))).toBe(true)
+    expect([...learningTransitions].some((transition) => transition.endsWith('->db-postgresql'))).toBe(true)
   })
 })
