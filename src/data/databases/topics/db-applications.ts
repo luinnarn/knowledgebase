@@ -42,7 +42,7 @@ export const dbApplicationsTopics: Topic[] = [
       { kind: 'pitfall', title: 'Increasing the pool to cure timeouts', text: 'If the database is saturated, a larger pool admits more simultaneous work, often worsening cache pressure, lock waits, and p99 latency. Pooling amortizes setup; it cannot repair overload.' },
       { kind: 'bestPractice', title: 'Fail within the caller’s deadline', text: 'Propagate one monotonic deadline. Reject when queue capacity is exhausted, stop waiting before the deadline, cancel obsolete database work where supported, and retry only classified transient failures with jitter and a bounded attempt budget.' },
     ],
-    refs: [{ book: 'database-reliability-engineering', chapter: 'Ch. 3 — Service-Level Management; Ch. 4 — Operational Visibility' }, { book: 'ddia-2', chapter: 'Ch. 2 — Defining Nonfunctional Requirements' }, { book: 'postgresql-docs', chapter: '18.3 — Connections and Authentication' }],
+    refs: [{ book: 'database-reliability-engineering', chapter: 'Ch. 3 — Service-Level Management; Ch. 4 — Operational Visibility' }, { book: 'ddia-2', chapter: 'Ch. 2 — Defining Nonfunctional Requirements' }, { book: 'postgresql-docs', chapter: '19.3 — Connections and Authentication' }],
     related: ['connections-sessions-and-protocols', 'database-observability', 'capacity-maintenance-and-data-lifecycle'],
   },
   {
@@ -108,7 +108,7 @@ export const dbApplicationsTopics: Topic[] = [
       { kind: 'pitfall', title: 'Collecting the entire file before writing', text: 'Memory grows with input and the database sees a burst after validation. Stream through a bounded buffer, stop reading when consumers lag, and persist a checkpoint only after the corresponding commit is known.' },
       { kind: 'bestPractice', title: 'Benchmark failure as well as throughput', text: 'Measure normal rows/s, commit latency, WAL/log and replica lag, then inject duplicates, constraint errors, cancellation, and lost commit acknowledgements. Verify restart does not duplicate or silently skip rows.' },
     ],
-    refs: [{ book: 'postgresql-docs', chapter: 'COPY; 28.4 — Populating a Database' }, { book: 'database-system-concepts', chapter: 'Ch. 9 — Application Development' }, { book: 'ddia-2', chapter: 'Ch. 5 — Encoding and Evolution; Dataflow Through Services' }],
+    refs: [{ book: 'postgresql-docs', chapter: 'COPY; 14.4 — Populating a Database' }, { book: 'database-system-concepts', chapter: 'Ch. 9 — Application Development' }, { book: 'ddia-2', chapter: 'Ch. 5 — Encoding and Evolution; Dataflow Through Services' }],
     related: ['application-transaction-design', 'merge-upsert-and-returning', 'write-ahead-logging-and-checkpoints'],
   },
   {
@@ -196,7 +196,7 @@ export const dbApplicationsTopics: Topic[] = [
       { kind: 'pitfall', title: 'Renaming or dropping in one release', text: 'Old application instances, queued jobs, replicas, reports, and rollback binaries may still depend on the old column. Treat contract removal as a separately approved deployment after consumer evidence reaches zero.' },
       { kind: 'bestPractice', title: 'Rehearse production-shaped failure', text: 'Restore a realistic snapshot into an isolated real engine, run the complete migration, interrupt the backfill, retry it, measure locks/log/lag, validate invariants, and exercise both old and new application versions across the compatibility window.' },
     ],
-    refs: [{ book: 'ddia-2', chapter: 'Ch. 5 — Encoding and Evolution' }, { book: 'database-reliability-engineering', chapter: 'Ch. 8 — Release Management; Ch. 10 — Data Storage, Indexing, and Replication' }, { book: 'sql-antipatterns', chapter: 'Ch. 19 — Implicit Columns' }, { book: 'postgresql-docs', chapter: 'ALTER TABLE; CREATE INDEX; 28.4 — Populating a Database' }],
+    refs: [{ book: 'ddia-2', chapter: 'Ch. 5 — Encoding and Evolution' }, { book: 'database-reliability-engineering', chapter: 'Ch. 8 — Release Management; Ch. 10 — Data Storage, Indexing, and Replication' }, { book: 'sql-antipatterns', chapter: 'Ch. 19 — Implicit Columns' }, { book: 'postgresql-docs', chapter: 'ALTER TABLE; CREATE INDEX; 14.4 — Populating a Database' }],
     related: ['orm-impedance-mismatch', 'primary-unique-and-check-constraints', 'replication-and-read-scaling'],
   },
 ]
