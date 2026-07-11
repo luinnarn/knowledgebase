@@ -37,7 +37,7 @@ export const dbDialectsTopics: Topic[] = [
     ],
     blocks: [
       { kind: 'code', title: 'Five identifier and qualification forms', variants: [
-        { id: dialectIds[0], label: 'PostgreSQL', language: 'sql', code: 'CREATE SCHEMA commerce;\nCREATE TABLE commerce.orders (order_id bigint PRIMARY KEY, "status" text);\nSET search_path = commerce, pg_catalog;\nSELECT o.order_id FROM commerce.orders AS o;\n-- Unquoted Order_ID resolves as order_id; quoted spelling is exact.' },
+        { id: dialectIds[0], label: 'PostgreSQL', language: 'sql', code: 'CREATE SCHEMA commerce;\nCREATE TABLE commerce.orders (order_id bigint PRIMARY KEY, "status" text);\n-- commerce must not grant CREATE to untrusted roles.\nSET search_path = commerce, pg_catalog;\nSELECT o.order_id FROM commerce.orders AS o;\n-- Unquoted Order_ID resolves as order_id; quoted spelling is exact.' },
         { id: dialectIds[1], label: 'MySQL', language: 'sql', code: 'CREATE DATABASE commerce;\nCREATE TABLE commerce.orders (order_id bigint PRIMARY KEY, `status` varchar(30));\nUSE commerce;\nSELECT o.order_id FROM commerce.orders AS o;\n-- Table-name case depends on platform/lower_case_table_names.' },
         { id: dialectIds[2], label: 'SQLite', language: 'sql', code: "ATTACH DATABASE 'commerce.db' AS commerce;\nCREATE TABLE commerce.orders (order_id INTEGER PRIMARY KEY, \"status\" TEXT);\nSELECT o.order_id FROM commerce.orders AS o;\n-- commerce is an attached-database name; SQLite has no schema layer." },
         { id: dialectIds[3], label: 'SQL Server', language: 'sql', code: 'CREATE SCHEMA commerce;\nGO\nCREATE TABLE commerce.orders (order_id bigint PRIMARY KEY, [status] varchar(30));\nSELECT o.order_id FROM commerce.orders AS o;\n-- Qualify database.schema.object when crossing databases; case follows collation.' },
@@ -74,7 +74,7 @@ export const dbDialectsTopics: Topic[] = [
       { kind: 'pitfall', title: 'Assuming a generated number cannot be skipped', text: 'Rollbacks, cache allocation, failed inserts, conflict paths, and restarts can consume values. Use it as an opaque key, not a gap-free invoice or event sequence.' },
       { kind: 'bestPractice', title: 'Publish a type compatibility matrix', text: 'For every field record the semantic domain, database declaration, bind/result API type, normalization, bounds, indexes, export representation, and destructive conversion policy. Execute boundary fixtures during every driver/server upgrade.' },
     ],
-    refs: [{ book: 'postgresql-docs', chapter: '5.3 — Identity Columns; Ch. 8 — Data Types' }, { book: 'mysql-docs', chapter: '13 — Data Types; 15.6.1.6 — AUTO_INCREMENT Handling in InnoDB' }, { book: 'sqlite-docs', chapter: 'Datatypes In SQLite; SQLite Autoincrement' }, { book: 'sqlserver-docs', chapter: 'Data types (Transact-SQL); CREATE TABLE IDENTITY' }, { book: 'oracle-docs', chapter: 'Data Types; identity_clause' }],
+    refs: [{ book: 'postgresql-docs', chapter: '5.3 — Identity Columns; Ch. 8 — Data Types' }, { book: 'mysql-docs', chapter: '13 — Data Types; 17.6.1.6 — AUTO_INCREMENT Handling in InnoDB' }, { book: 'sqlite-docs', chapter: 'Datatypes In SQLite; SQLite Autoincrement' }, { book: 'sqlserver-docs', chapter: 'Data types (Transact-SQL); CREATE TABLE IDENTITY' }, { book: 'oracle-docs', chapter: 'Data Types; identity_clause' }],
     related: ['numeric-types-and-precision', 'dates-times-and-time-zones', 'boolean-enum-domain-and-uuid-types'],
   },
   {
