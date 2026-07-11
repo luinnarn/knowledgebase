@@ -53,8 +53,36 @@ export const topics: Topic[] = [
       {
         kind: 'code',
         title: 'Counting the dominant operation',
-        code:
-          'static boolean hasDuplicateLinear(int[] a) {           // O(n) extra space, O(n) time\n    Set<Integer> seen = new HashSet<>();\n    for (int x : a) {\n        if (!seen.add(x)) return true;                     // O(1) amortized per check\n    }\n    return false;\n}\n\nstatic boolean hasDuplicateQuadratic(int[] a) {        // O(1) extra space, O(n^2) time\n    for (int i = 0; i < a.length; i++) {\n        for (int j = i + 1; j < a.length; j++) {\n            if (a[i] == a[j]) return true;                 // n*(n-1)/2 comparisons\n        }\n    }\n    return false;\n}',
+        variants: [
+          {
+            id: 'java',
+            label: 'Java',
+            language: 'java',
+            code:
+              'static boolean hasDuplicateLinear(int[] a) {           // O(n) extra space, O(n) time\n    Set<Integer> seen = new HashSet<>();\n    for (int x : a) {\n        if (!seen.add(x)) return true;                     // O(1) amortized per check\n    }\n    return false;\n}\n\nstatic boolean hasDuplicateQuadratic(int[] a) {        // O(1) extra space, O(n^2) time\n    for (int i = 0; i < a.length; i++) {\n        for (int j = i + 1; j < a.length; j++) {\n            if (a[i] == a[j]) return true;                 // n*(n-1)/2 comparisons\n        }\n    }\n    return false;\n}',
+          },
+          {
+            id: 'javascript',
+            label: 'JavaScript',
+            language: 'javascript',
+            code:
+              'function hasDuplicateLinear(a) {                        // O(n) extra space, O(n) time\n  const seen = new Set()\n  for (const x of a) {\n    if (seen.has(x)) return true\n    seen.add(x)                                          // O(1) amortized per check\n  }\n  return false\n}\n\nfunction hasDuplicateQuadratic(a) {                      // O(1) extra space, O(n^2) time\n  for (let i = 0; i < a.length; i++) {\n    for (let j = i + 1; j < a.length; j++) {\n      if (a[i] === a[j]) return true                     // n*(n-1)/2 comparisons\n    }\n  }\n  return false\n}',
+          },
+          {
+            id: 'typescript',
+            label: 'TypeScript',
+            language: 'typescript',
+            code:
+              'function hasDuplicateLinear(a: number[]): boolean {     // O(n) extra space, O(n) time\n  const seen = new Set<number>()\n  for (const x of a) {\n    if (seen.has(x)) return true\n    seen.add(x)                                          // O(1) amortized per check\n  }\n  return false\n}\n\nfunction hasDuplicateQuadratic(a: number[]): boolean {   // O(1) extra space, O(n^2) time\n  for (let i = 0; i < a.length; i++) {\n    for (let j = i + 1; j < a.length; j++) {\n      if (a[i] === a[j]) return true                     // n*(n-1)/2 comparisons\n    }\n  }\n  return false\n}',
+          },
+          {
+            id: 'python',
+            label: 'Python',
+            language: 'python',
+            code:
+              'def has_duplicate_linear(a):                # O(n) extra space, O(n) time\n    seen = set()\n    for x in a:\n        if x in seen:\n            return True\n        seen.add(x)                         # O(1) amortized per check\n    return False\n\n\ndef has_duplicate_quadratic(a):             # O(1) extra space, O(n^2) time\n    for i in range(len(a)):\n        for j in range(i + 1, len(a)):\n            if a[i] == a[j]:\n                return True                 # n*(n-1)/2 comparisons\n    return False',
+          },
+        ],
         caption: 'Same answer, different growth rate — the space/time trade-off in miniature.',
       },
       {
@@ -130,8 +158,36 @@ export const topics: Topic[] = [
       {
         kind: 'code',
         title: 'Naive vs memoized Fibonacci — the recurrence made visible',
-        code:
-          'static long fibNaive(int n) {                 // T(n) = T(n-1) + T(n-2) + O(1) -> Θ(φ^n)\n    if (n <= 1) return n;                      // base case\n    return fibNaive(n - 1) + fibNaive(n - 2);  // two smaller instances\n}\n\nstatic long fibMemo(int n, long[] cache) {    // Θ(n) — each subproblem solved once\n    if (n <= 1) return n;\n    if (cache[n] != 0) return cache[n];\n    return cache[n] = fibMemo(n - 1, cache) + fibMemo(n - 2, cache);\n}',
+        variants: [
+          {
+            id: 'java',
+            label: 'Java',
+            language: 'java',
+            code:
+              'static long fibNaive(int n) {                 // T(n) = T(n-1) + T(n-2) + O(1) -> Θ(φ^n)\n    if (n <= 1) return n;                      // base case\n    return fibNaive(n - 1) + fibNaive(n - 2);  // two smaller instances\n}\n\nstatic long fibMemo(int n, long[] cache) {    // Θ(n) — each subproblem solved once\n    if (n <= 1) return n;\n    if (cache[n] != 0) return cache[n];\n    return cache[n] = fibMemo(n - 1, cache) + fibMemo(n - 2, cache);\n}',
+          },
+          {
+            id: 'javascript',
+            label: 'JavaScript',
+            language: 'javascript',
+            code:
+              'function fibNaive(n) {                         // T(n) = T(n-1) + T(n-2) + O(1) -> Θ(φ^n)\n  if (n <= 1) return n                         // base case\n  return fibNaive(n - 1) + fibNaive(n - 2)     // two smaller instances\n}\n\nfunction fibMemo(n, cache = new Map()) {       // Θ(n) — each subproblem solved once\n  if (n <= 1) return n\n  if (cache.has(n)) return cache.get(n)\n  const result = fibMemo(n - 1, cache) + fibMemo(n - 2, cache)\n  cache.set(n, result)\n  return result\n}',
+          },
+          {
+            id: 'typescript',
+            label: 'TypeScript',
+            language: 'typescript',
+            code:
+              'function fibNaive(n: number): number {         // T(n) = T(n-1) + T(n-2) + O(1) -> Θ(φ^n)\n  if (n <= 1) return n                         // base case\n  return fibNaive(n - 1) + fibNaive(n - 2)     // two smaller instances\n}\n\nfunction fibMemo(n: number, cache: Map<number, number> = new Map()): number {  // Θ(n) — each subproblem solved once\n  if (n <= 1) return n\n  if (cache.has(n)) return cache.get(n)!\n  const result = fibMemo(n - 1, cache) + fibMemo(n - 2, cache)\n  cache.set(n, result)\n  return result\n}',
+          },
+          {
+            id: 'python',
+            label: 'Python',
+            language: 'python',
+            code:
+              'def fib_naive(n):                    # T(n) = T(n-1) + T(n-2) + O(1) -> Θ(φ^n)\n    if n <= 1:\n        return n                     # base case\n    return fib_naive(n - 1) + fib_naive(n - 2)   # two smaller instances\n\n\ndef fib_memo(n, cache=None):         # Θ(n) — each subproblem solved once\n    if cache is None:\n        cache = {}\n    if n <= 1:\n        return n\n    if n in cache:\n        return cache[n]\n    cache[n] = fib_memo(n - 1, cache) + fib_memo(n - 2, cache)\n    return cache[n]',
+          },
+        ],
       },
       {
         kind: 'pitfall',
@@ -196,8 +252,36 @@ export const topics: Topic[] = [
       {
         kind: 'code',
         title: 'The accounting-method argument, made concrete',
-        code:
-          '// Charge $3 per add(): $1 pays for the insert itself,\n// $2 is banked as credit on the newly-inserted element.\n// When the array of size k doubles to 2k, the resize must copy k elements;\n// those k elements each still hold their $2 credit -> exactly $2k available,\n// covering the O(k) copy with $0 left over. Credit never goes negative,\n// so the $3 flat rate is a valid amortized bound: add() is O(1) amortized.',
+        variants: [
+          {
+            id: 'java',
+            label: 'Java',
+            language: 'java',
+            code:
+              '// Charge $3 per add(): $1 pays for the insert itself,\n// $2 is banked as credit on the newly-inserted element.\n// When the array of size k doubles to 2k, the resize must copy k elements;\n// those k elements each still hold their $2 credit -> exactly $2k available,\n// covering the O(k) copy with $0 left over. Credit never goes negative,\n// so the $3 flat rate is a valid amortized bound: add() is O(1) amortized.',
+          },
+          {
+            id: 'javascript',
+            label: 'JavaScript',
+            language: 'javascript',
+            code:
+              '// Charge $3 per push(): $1 pays for the insert itself,\n// $2 is banked as credit on the newly-inserted element.\n// When the array of size k doubles to 2k, the resize must copy k elements;\n// those k elements each still hold their $2 credit -> exactly $2k available,\n// covering the O(k) copy with $0 left over. Credit never goes negative,\n// so the $3 flat rate is a valid amortized bound: push() is O(1) amortized.',
+          },
+          {
+            id: 'typescript',
+            label: 'TypeScript',
+            language: 'typescript',
+            code:
+              '// Charge $3 per push(): $1 pays for the insert itself,\n// $2 is banked as credit on the newly-inserted element.\n// When the array of size k doubles to 2k, the resize must copy k elements;\n// those k elements each still hold their $2 credit -> exactly $2k available,\n// covering the O(k) copy with $0 left over. Credit never goes negative,\n// so the $3 flat rate is a valid amortized bound: push() is O(1) amortized.',
+          },
+          {
+            id: 'python',
+            label: 'Python',
+            language: 'python',
+            code:
+              '# Charge $3 per append(): $1 pays for the insert itself,\n# $2 is banked as credit on the newly-inserted element.\n# When the list of size k doubles to 2k, the resize must copy k elements;\n# those k elements each still hold their $2 credit -> exactly $2k available,\n# covering the O(k) copy with $0 left over. Credit never goes negative,\n# so the $3 flat rate is a valid amortized bound: append() is O(1) amortized.',
+          },
+        ],
         caption: 'A proof sketch, not runnable — the comments carry the argument.',
       },
       {
@@ -278,8 +362,36 @@ export const topics: Topic[] = [
       {
         kind: 'code',
         title: 'One ADT, two implementations, identical contract',
-        code:
-          'interface IntStack {                 // the ADT: the contract, nothing about storage\n    void push(int x);\n    int pop();\n    boolean isEmpty();\n}\n\nclass ArrayIntStack implements IntStack {   // implementation A: contiguous array\n    private int[] data = new int[16];\n    private int size = 0;\n    public void push(int x) { data[size++] = x; }   // O(1) amortized\n    public int pop() { return data[--size]; }\n    public boolean isEmpty() { return size == 0; }\n}\n\nclass LinkedIntStack implements IntStack {  // implementation B: linked nodes\n    private Node top;\n    private record Node(int val, Node next) {}\n    public void push(int x) { top = new Node(x, top); }  // O(1) worst case, one allocation\n    public int pop() { int v = top.val(); top = top.next(); return v; }\n    public boolean isEmpty() { return top == null; }\n}',
+        variants: [
+          {
+            id: 'java',
+            label: 'Java',
+            language: 'java',
+            code:
+              'interface IntStack {                 // the ADT: the contract, nothing about storage\n    void push(int x);\n    int pop();\n    boolean isEmpty();\n}\n\nclass ArrayIntStack implements IntStack {   // implementation A: contiguous array\n    private int[] data = new int[16];\n    private int size = 0;\n    public void push(int x) { data[size++] = x; }   // O(1) amortized\n    public int pop() { return data[--size]; }\n    public boolean isEmpty() { return size == 0; }\n}\n\nclass LinkedIntStack implements IntStack {  // implementation B: linked nodes\n    private Node top;\n    private record Node(int val, Node next) {}\n    public void push(int x) { top = new Node(x, top); }  // O(1) worst case, one allocation\n    public int pop() { int v = top.val(); top = top.next(); return v; }\n    public boolean isEmpty() { return top == null; }\n}',
+          },
+          {
+            id: 'javascript',
+            label: 'JavaScript',
+            language: 'javascript',
+            code:
+              '// the ADT: push, pop, isEmpty — enforced only by convention, JS has no interfaces\n\nclass ArrayIntStack {                // implementation A: a dynamic array\n  #data = []\n  push(x) { this.#data.push(x) }             // O(1) amortized\n  pop() { return this.#data.pop() }\n  isEmpty() { return this.#data.length === 0 }\n}\n\nclass LinkedIntStack {               // implementation B: linked nodes\n  #top = null\n  push(x) { this.#top = { val: x, next: this.#top } }   // O(1) worst case, one allocation\n  pop() { const v = this.#top.val; this.#top = this.#top.next; return v }\n  isEmpty() { return this.#top === null }\n}',
+          },
+          {
+            id: 'typescript',
+            label: 'TypeScript',
+            language: 'typescript',
+            code:
+              'interface IntStack {                 // the ADT: the contract, nothing about storage\n  push(x: number): void\n  pop(): number\n  isEmpty(): boolean\n}\n\nclass ArrayIntStack implements IntStack {   // implementation A: contiguous array\n  private data: number[] = []\n  push(x: number): void { this.data.push(x) }        // O(1) amortized\n  pop(): number { return this.data.pop()! }\n  isEmpty(): boolean { return this.data.length === 0 }\n}\n\ninterface Node { val: number; next: Node | null }\n\nclass LinkedIntStack implements IntStack {  // implementation B: linked nodes\n  private top: Node | null = null\n  push(x: number): void { this.top = { val: x, next: this.top } }  // O(1) worst case, one allocation\n  pop(): number { const v = this.top!.val; this.top = this.top!.next; return v }\n  isEmpty(): boolean { return this.top === null }\n}',
+          },
+          {
+            id: 'python',
+            label: 'Python',
+            language: 'python',
+            code:
+              'from abc import ABC, abstractmethod\n\n\nclass IntStack(ABC):                 # the ADT: the contract, nothing about storage\n    @abstractmethod\n    def push(self, x): ...\n    @abstractmethod\n    def pop(self): ...\n    @abstractmethod\n    def is_empty(self): ...\n\n\nclass ArrayIntStack(IntStack):       # implementation A: a dynamic array\n    def __init__(self):\n        self._data = []\n\n    def push(self, x):\n        self._data.append(x)          # O(1) amortized\n\n    def pop(self):\n        return self._data.pop()\n\n    def is_empty(self):\n        return len(self._data) == 0\n\n\nclass _Node:\n    __slots__ = ("val", "next")\n\n    def __init__(self, val, next):\n        self.val = val\n        self.next = next\n\n\nclass LinkedIntStack(IntStack):      # implementation B: linked nodes\n    def __init__(self):\n        self._top = None\n\n    def push(self, x):\n        self._top = _Node(x, self._top)   # O(1) worst case, one allocation\n\n    def pop(self):\n        v = self._top.val\n        self._top = self._top.next\n        return v\n\n    def is_empty(self):\n        return self._top is None',
+          },
+        ],
       },
       {
         kind: 'pitfall',
@@ -337,8 +449,36 @@ export const topics: Topic[] = [
       {
         kind: 'code',
         title: 'The invariant made visible as a comment at the loop boundary',
-        code:
-          'static void insertionSort(int[] a) {\n    for (int i = 1; i < a.length; i++) {\n        // invariant: a[0..i-1] is sorted\n        int key = a[i];\n        int j = i - 1;\n        while (j >= 0 && a[j] > key) {\n            a[j + 1] = a[j];\n            j--;\n        }\n        a[j + 1] = key;\n        // invariant restored: a[0..i] is sorted\n    }\n    // loop exit: i == a.length, so a[0..n-1] is sorted\n}',
+        variants: [
+          {
+            id: 'java',
+            label: 'Java',
+            language: 'java',
+            code:
+              'static void insertionSort(int[] a) {\n    for (int i = 1; i < a.length; i++) {\n        // invariant: a[0..i-1] is sorted\n        int key = a[i];\n        int j = i - 1;\n        while (j >= 0 && a[j] > key) {\n            a[j + 1] = a[j];\n            j--;\n        }\n        a[j + 1] = key;\n        // invariant restored: a[0..i] is sorted\n    }\n    // loop exit: i == a.length, so a[0..n-1] is sorted\n}',
+          },
+          {
+            id: 'javascript',
+            label: 'JavaScript',
+            language: 'javascript',
+            code:
+              'function insertionSort(a) {\n  for (let i = 1; i < a.length; i++) {\n    // invariant: a[0..i-1] is sorted\n    const key = a[i]\n    let j = i - 1\n    while (j >= 0 && a[j] > key) {\n      a[j + 1] = a[j]\n      j--\n    }\n    a[j + 1] = key\n    // invariant restored: a[0..i] is sorted\n  }\n  // loop exit: i === a.length, so a[0..n-1] is sorted\n}',
+          },
+          {
+            id: 'typescript',
+            label: 'TypeScript',
+            language: 'typescript',
+            code:
+              'function insertionSort(a: number[]): void {\n  for (let i = 1; i < a.length; i++) {\n    // invariant: a[0..i-1] is sorted\n    const key = a[i]\n    let j = i - 1\n    while (j >= 0 && a[j] > key) {\n      a[j + 1] = a[j]\n      j--\n    }\n    a[j + 1] = key\n    // invariant restored: a[0..i] is sorted\n  }\n  // loop exit: i === a.length, so a[0..n-1] is sorted\n}',
+          },
+          {
+            id: 'python',
+            label: 'Python',
+            language: 'python',
+            code:
+              'def insertion_sort(a):\n    for i in range(1, len(a)):\n        # invariant: a[0..i-1] is sorted\n        key = a[i]\n        j = i - 1\n        while j >= 0 and a[j] > key:\n            a[j + 1] = a[j]\n            j -= 1\n        a[j + 1] = key\n        # invariant restored: a[0..i] is sorted\n    # loop exit: i == len(a), so a[0..n-1] is sorted',
+          },
+        ],
       },
       {
         kind: 'table',
@@ -407,8 +547,36 @@ export const topics: Topic[] = [
       {
         kind: 'code',
         title: 'Reservoir sampling — a uniform random sample from an unknown-length stream',
-        code:
-          'static int reservoirSample(Iterator<Integer> stream, Random rnd) {\n    int reservoir = stream.next();       // first element is the initial sample\n    int i = 1;\n    while (stream.hasNext()) {\n        int x = stream.next();\n        i++;\n        if (rnd.nextInt(i) == 0) {       // replace with probability 1/i\n            reservoir = x;\n        }\n    }\n    return reservoir;                    // every element seen so far had equal probability 1/i\n}',
+        variants: [
+          {
+            id: 'java',
+            label: 'Java',
+            language: 'java',
+            code:
+              'static int reservoirSample(Iterator<Integer> stream, Random rnd) {\n    int reservoir = stream.next();       // first element is the initial sample\n    int i = 1;\n    while (stream.hasNext()) {\n        int x = stream.next();\n        i++;\n        if (rnd.nextInt(i) == 0) {       // replace with probability 1/i\n            reservoir = x;\n        }\n    }\n    return reservoir;                    // every element seen so far had equal probability 1/i\n}',
+          },
+          {
+            id: 'javascript',
+            label: 'JavaScript',
+            language: 'javascript',
+            code:
+              'function reservoirSample(stream, randInt) {   // randInt(bound) returns an int in [0, bound)\n  const iterator = stream[Symbol.iterator]()\n  let reservoir = iterator.next().value        // first element is the initial sample\n  let i = 1\n  let next = iterator.next()\n  while (!next.done) {\n    i++\n    if (randInt(i) === 0) {                     // replace with probability 1/i\n      reservoir = next.value\n    }\n    next = iterator.next()\n  }\n  return reservoir                              // every element seen so far had equal probability 1/i\n}',
+          },
+          {
+            id: 'typescript',
+            label: 'TypeScript',
+            language: 'typescript',
+            code:
+              'function reservoirSample(stream: Iterable<number>, randInt: (bound: number) => number): number {\n  const iterator = stream[Symbol.iterator]()\n  let reservoir = iterator.next().value!       // first element is the initial sample\n  let i = 1\n  let next = iterator.next()\n  while (!next.done) {\n    i++\n    if (randInt(i) === 0) {                     // replace with probability 1/i\n      reservoir = next.value\n    }\n    next = iterator.next()\n  }\n  return reservoir                              // every element seen so far had equal probability 1/i\n}',
+          },
+          {
+            id: 'python',
+            label: 'Python',
+            language: 'python',
+            code:
+              'import random\n\n\ndef reservoir_sample(stream):\n    iterator = iter(stream)\n    reservoir = next(iterator)          # first element is the initial sample\n    i = 1\n    for x in iterator:\n        i += 1\n        if random.randrange(i) == 0:    # replace with probability 1/i\n            reservoir = x\n    return reservoir                    # every element seen so far had equal probability 1/i',
+          },
+        ],
         caption: 'One pass, O(1) extra memory for a sample of size 1 — extends to size k by keeping k slots.',
       },
       {
@@ -487,8 +655,36 @@ export const topics: Topic[] = [
       {
         kind: 'code',
         title: 'Easy to verify, believed hard to solve — subset sum',
-        code:
-          '// Given a candidate subset, VERIFYING it sums to the target is O(n): trivially in NP.\nstatic boolean verifySubset(int[] chosen, int target) {\n    int sum = 0;\n    for (int x : chosen) sum += x;\n    return sum == target;\n}\n\n// SOLVING (finding such a subset) has no known polynomial algorithm in general —\n// the brute-force search below is O(2^n), one bit per element for "in / out".\nstatic boolean subsetSumExists(int[] a, int target) {\n    int n = a.length;\n    for (int mask = 0; mask < (1 << n); mask++) {\n        int sum = 0;\n        for (int i = 0; i < n; i++) if ((mask & (1 << i)) != 0) sum += a[i];\n        if (sum == target) return true;\n    }\n    return false;\n}',
+        variants: [
+          {
+            id: 'java',
+            label: 'Java',
+            language: 'java',
+            code:
+              '// Given a candidate subset, VERIFYING it sums to the target is O(n): trivially in NP.\nstatic boolean verifySubset(int[] chosen, int target) {\n    int sum = 0;\n    for (int x : chosen) sum += x;\n    return sum == target;\n}\n\n// SOLVING (finding such a subset) has no known polynomial algorithm in general —\n// the brute-force search below is O(2^n), one bit per element for "in / out".\nstatic boolean subsetSumExists(int[] a, int target) {\n    int n = a.length;\n    for (int mask = 0; mask < (1 << n); mask++) {\n        int sum = 0;\n        for (int i = 0; i < n; i++) if ((mask & (1 << i)) != 0) sum += a[i];\n        if (sum == target) return true;\n    }\n    return false;\n}',
+          },
+          {
+            id: 'javascript',
+            label: 'JavaScript',
+            language: 'javascript',
+            code:
+              '// Given a candidate subset, VERIFYING it sums to the target is O(n): trivially in NP.\nfunction verifySubset(chosen, target) {\n  let sum = 0\n  for (const x of chosen) sum += x\n  return sum === target\n}\n\n// SOLVING (finding such a subset) has no known polynomial algorithm in general —\n// the brute-force search below is O(2^n), one bit per element for "in / out".\nfunction subsetSumExists(a, target) {\n  const n = a.length\n  for (let mask = 0; mask < (1 << n); mask++) {\n    let sum = 0\n    for (let i = 0; i < n; i++) if (mask & (1 << i)) sum += a[i]\n    if (sum === target) return true\n  }\n  return false\n}',
+          },
+          {
+            id: 'typescript',
+            label: 'TypeScript',
+            language: 'typescript',
+            code:
+              '// Given a candidate subset, VERIFYING it sums to the target is O(n): trivially in NP.\nfunction verifySubset(chosen: number[], target: number): boolean {\n  let sum = 0\n  for (const x of chosen) sum += x\n  return sum === target\n}\n\n// SOLVING (finding such a subset) has no known polynomial algorithm in general —\n// the brute-force search below is O(2^n), one bit per element for "in / out".\nfunction subsetSumExists(a: number[], target: number): boolean {\n  const n = a.length\n  for (let mask = 0; mask < (1 << n); mask++) {\n    let sum = 0\n    for (let i = 0; i < n; i++) if (mask & (1 << i)) sum += a[i]\n    if (sum === target) return true\n  }\n  return false\n}',
+          },
+          {
+            id: 'python',
+            label: 'Python',
+            language: 'python',
+            code:
+              '# Given a candidate subset, VERIFYING it sums to the target is O(n): trivially in NP.\ndef verify_subset(chosen, target):\n    return sum(chosen) == target\n\n\n# SOLVING (finding such a subset) has no known polynomial algorithm in general —\n# the brute-force search below is O(2^n), one bit per element for "in / out".\ndef subset_sum_exists(a, target):\n    n = len(a)\n    for mask in range(1 << n):\n        total = sum(a[i] for i in range(n) if mask & (1 << i))\n        if total == target:\n            return True\n    return False',
+          },
+        ],
       },
       {
         kind: 'pitfall',

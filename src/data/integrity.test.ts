@@ -15,6 +15,7 @@ const APPROVED_LANGUAGES = new Set<CodeLanguage>([
   'java',
   'javascript',
   'typescript',
+  'python',
   'sql',
   'bash',
   'json',
@@ -105,7 +106,7 @@ describe('validateCodeBlock', () => {
     ['variant label', { kind: 'code', variants: [{ ...pg, label: '' }] }, 'nonempty label'],
     ['variant code', { kind: 'code', variants: [{ ...pg, code: '' }] }, 'nonempty code'],
     ['variant language', { kind: 'code', variants: [{ ...pg, language: '' }] }, 'approved language'],
-    ['unsupported language', { kind: 'code', variants: [{ ...pg, language: 'python' }] }, 'approved language'],
+    ['unsupported language', { kind: 'code', variants: [{ ...pg, language: 'rust' }] }, 'approved language'],
     ['unsupported SQL label', { kind: 'code', variants: [pg, { ...mysql, label: 'MariaDB' }] }, 'approved SQL dialect label'],
   ] as const)('rejects an invalid %s', (_name, block, message) => {
     expect(validateCodeBlock(block as unknown as CodeContentBlock)).toContain(message)

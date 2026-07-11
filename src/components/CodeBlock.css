@@ -18,42 +18,51 @@
 }
 
 .codeblock-title {
-  flex: 0 0 auto;
-  font-family: var(--font-mono);
-  font-size: var(--fs-xs);
-  color: #8494ab;
-}
-
-.codeblock-tabs {
-  display: flex;
   flex: 1 1 auto;
-  gap: var(--sp-1);
   min-width: 0;
-  overflow-x: auto;
-  scrollbar-width: thin;
-}
-
-.codeblock-tab {
-  flex: 0 0 auto;
-  padding: 0.2rem 0.55rem;
-  border-radius: 5px;
-  color: #8494ab;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-family: var(--font-mono);
   font-size: var(--fs-xs);
-  transition: color var(--dur) var(--ease), background-color var(--dur) var(--ease);
+  color: #8494ab;
 }
 
-.codeblock-tab:hover {
+.codeblock-select {
+  flex: 1 1 auto;
+  min-width: 4.5rem;
+  max-width: 60%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: rgb(255 255 255 / 0.06);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%238494ab' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+  background-size: 0.6rem;
   color: #d6deea;
-  background: rgb(255 255 255 / 0.06);
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  padding: 0.2rem 1.5rem 0.2rem 0.55rem;
+  border: 1px solid rgb(255 255 255 / 0.12);
+  border-radius: 5px;
+  cursor: pointer;
+  transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease);
 }
 
-.codeblock-tab[aria-selected='true'] {
+.codeblock-select:hover {
   color: #fff;
-  background: rgb(255 255 255 / 0.12);
+  border-color: rgb(255 255 255 / 0.3);
 }
 
-.codeblock-tab:focus-visible,
+.codeblock-select option {
+  background: var(--bg-code);
+  color: #d6deea;
+}
+
+.codeblock-select:focus-visible,
 .codeblock-copy:focus-visible {
   outline: 2px solid #7fd6c2;
   outline-offset: 2px;

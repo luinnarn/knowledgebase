@@ -7,6 +7,7 @@ import 'prismjs/components/prism-typescript'
 import 'prismjs/components/prism-sql'
 import 'prismjs/components/prism-bash'
 import 'prismjs/components/prism-json'
+import 'prismjs/components/prism-python'
 import type { CodeLanguage } from '../types/content'
 
 export interface Token {
@@ -18,6 +19,7 @@ const GRAMMARS: Record<CodeLanguage, string | null> = {
   java: 'java',
   javascript: 'javascript',
   typescript: 'typescript',
+  python: 'python',
   sql: 'sql',
   bash: 'bash',
   json: 'json',

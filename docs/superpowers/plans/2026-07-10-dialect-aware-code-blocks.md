@@ -11,7 +11,7 @@
 ## Global Constraints
 
 - Existing code blocks with `{ kind: 'code', code: string }` remain valid and default to Java.
-- Supported languages are exactly `java`, `javascript`, `typescript`, `sql`, `bash`, `json`, `markup`, and `text`.
+- Supported languages are exactly `java`, `javascript`, `typescript`, `python`, `sql`, `bash`, `json`, `markup`, and `text`.
 - Runtime highlighting never uses `dangerouslySetInnerHTML`.
 - Unsupported runtime language values degrade to escaped plain text.
 - Variant selection is local to each block and is not stored globally.
@@ -301,6 +301,8 @@ git commit -m "feat: add multi-language code highlighting"
 ---
 
 ### Task 3: Add accessible code variants to `CodeBlock`
+
+> **Superseded 2026-07-11:** the `role="tablist"`/`role="tab"` UI described below (steps 1, 4, 6) was replaced with a native `<select class="codeblock-select">` dropdown, so the language list stays compact as more languages are added instead of growing wider per variant. Variant switching now fires a `change` event (`fireEvent.change(screen.getByRole('combobox'), { target: { value } })` in tests) rather than tab clicks/arrow keys; the `<pre>` no longer carries `tabpanel`/`aria-labelledby`. SSR determinism now asserts a `selected` `<option>` rather than `aria-selected="true"` on a `<button>`. Steps 2, 3, 5, 7, 8 (state/init, single-source label, copy behavior, tests, commit) still apply conceptually.
 
 **Files:**
 - Modify: `src/components/CodeBlock.tsx`

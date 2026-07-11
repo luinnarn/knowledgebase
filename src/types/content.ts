@@ -1,6 +1,6 @@
 /** Shared content types — the single source of truth for all data files. */
 
-export type CodeLanguage = 'java' | 'javascript' | 'typescript' | 'sql' | 'bash' | 'json' | 'markup' | 'text'
+export type CodeLanguage = 'java' | 'javascript' | 'typescript' | 'python' | 'sql' | 'bash' | 'json' | 'markup' | 'text'
 
 export interface CodeVariant {
   id: string

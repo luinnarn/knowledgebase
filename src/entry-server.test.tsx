@@ -36,8 +36,8 @@ describe('entry-server render()', () => {
     )
 
     expect(html).toContain('pg_catalog.current_database')
-    expect(html).toMatch(/<button[^>]*aria-selected="true"[^>]*>PostgreSQL<\/button>/)
-    expect(html).not.toMatch(/<button[^>]*aria-selected="true"[^>]*>MySQL<\/button>/)
+    expect(html).toMatch(/<option[^>]*value="postgresql"[^>]*selected[^>]*>PostgreSQL<\/option>/)
+    expect(html).not.toMatch(/<option[^>]*value="mysql"[^>]*selected[^>]*>MySQL<\/option>/)
   })
 
   it('renders real topic content, not the loading placeholder', async () => {

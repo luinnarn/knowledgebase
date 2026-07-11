@@ -1,4 +1,4 @@
-import { useEffect, useId, useMemo, useRef, useState } from 'react'
+import { useEffect, useId, useMemo, useState } from 'react'
 import { highlightCode } from '../lib/highlightCode'
 import type { CodeLanguage, CodeVariant } from '../types/content'
 import './CodeBlock.css'
@@ -11,6 +11,7 @@ const LANGUAGE_LABELS: Record<CodeLanguage, string> = {
   java: 'Java',
   javascript: 'JavaScript',
   typescript: 'TypeScript',
+  python: 'Python',
   sql: 'SQL',
   bash: 'Bash',
   json: 'JSON',
@@ -31,7 +32,6 @@ export default function CodeBlock(props: Props) {
   const variantIdentity = sources.map(({ id }) => id).join('\0')
   const [activeIndex, setActiveIndex] = useState(0)
   const [copied, setCopied] = useState(false)
-  const tabRefs = useRef<Array<HTMLButtonElement | null>>([])
   const id = useId()
 
   useEffect(() => {
@@ -49,24 +49,11 @@ export default function CodeBlock(props: Props) {
     [activeSource.code, activeSource.language],
   )
   const hasVariants = sources.length >= 2
-  const panelId = `${id}-panel`
+  const selectId = `${id}-select`
 
-  const selectTab = (index: number) => {
-    setActiveIndex(index)
-    tabRefs.current[index]?.focus()
-  }
-
-  const onTabKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>, index: number) => {
-    let nextIndex: number | undefined
-
-    if (event.key === 'ArrowLeft') nextIndex = (index - 1 + sources.length) % sources.length
-    if (event.key === 'ArrowRight') nextIndex = (index + 1) % sources.length
-    if (event.key === 'Home') nextIndex = 0
-    if (event.key === 'End') nextIndex = sources.length - 1
-    if (nextIndex === undefined) return
-
-    event.preventDefault()
-    selectTab(nextIndex)
+  const onSelectVariant = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const index = sources.findIndex((source) => source.id === event.target.value)
+    if (index !== -1) setActiveIndex(index)
   }
 
   const copy = async () => {
@@ -86,25 +73,17 @@ export default function CodeBlock(props: Props) {
         {hasVariants ? (
           <>
             {title && <span className="codeblock-title">{title}</span>}
-            <div className="codeblock-tabs" role="tablist" aria-label={title ?? 'Code variants'}>
-              {sources.map((source, index) => (
-                <button
-                  className="codeblock-tab"
-                  id={`${id}-tab-${source.id}`}
-                  key={source.id}
-                  type="button"
-                  role="tab"
-                  aria-controls={panelId}
-                  aria-selected={index === activeIndex}
-                  tabIndex={index === activeIndex ? 0 : -1}
-                  ref={(element) => { tabRefs.current[index] = element }}
-                  onClick={() => setActiveIndex(index)}
-                  onKeyDown={(event) => onTabKeyDown(event, index)}
-                >
-                  {source.label}
-                </button>
+            <select
+              className="codeblock-select"
+              id={selectId}
+              aria-label={title ? `${title} — code variant` : 'Code variant'}
+              value={activeSource.id}
+              onChange={onSelectVariant}
+            >
+              {sources.map((source) => (
+                <option key={source.id} value={source.id}>{source.label}</option>
               ))}
-            </div>
+            </select>
           </>
         ) : (
           <span className="codeblock-title">{title ?? languageLabel(activeSource.language)}</span>
@@ -113,11 +92,7 @@ export default function CodeBlock(props: Props) {
           {copied ? 'Copied' : 'Copy'}
         </button>
       </div>
-      <pre
-        id={hasVariants ? panelId : undefined}
-        role={hasVariants ? 'tabpanel' : undefined}
-        aria-labelledby={hasVariants ? `${id}-tab-${activeSource.id}` : undefined}
-      >
+      <pre>
         <code>
           {tokens.map((token, index) =>
             token.type === 'plain'

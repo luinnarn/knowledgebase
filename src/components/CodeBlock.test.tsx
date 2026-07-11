@@ -23,39 +23,23 @@ test('copy button writes code to clipboard', async () => {
 
 test('renders PostgreSQL as the initial selected variant', () => {
   render(<CodeBlock variants={sqlVariants} title="Generated keys" />)
-  expect(screen.getByRole('tab', { name: 'PostgreSQL' })).toHaveAttribute('aria-selected', 'true')
-  expect(screen.getByRole('tabpanel')).toHaveTextContent(/RETURNING id/)
+  expect(screen.getByRole('combobox', { name: /Generated keys/ })).toHaveValue('postgresql')
+  expect(document.querySelector('pre')).toHaveTextContent(/RETURNING id/)
 })
 
-test('switches variants with click and copies active code', () => {
+test('switches variants via the dropdown and copies active code', () => {
   const writeText = vi.fn().mockResolvedValue(undefined)
   Object.assign(navigator, { clipboard: { writeText } })
   render(<CodeBlock variants={sqlVariants} />)
-  fireEvent.click(screen.getByRole('tab', { name: 'MySQL' }))
+  fireEvent.change(screen.getByRole('combobox'), { target: { value: 'mysql' } })
   fireEvent.click(screen.getByRole('button', { name: /copy/i }))
   expect(writeText).toHaveBeenCalledWith(sqlVariants[1].code)
 })
 
-test('moves selection and focus with arrow keys', () => {
+test('dropdown lists every variant label as an option', () => {
   render(<CodeBlock variants={sqlVariants} />)
-  fireEvent.keyDown(screen.getByRole('tab', { name: 'PostgreSQL' }), { key: 'ArrowRight' })
-  expect(screen.getByRole('tab', { name: 'MySQL' })).toHaveAttribute('aria-selected', 'true')
-  expect(screen.getByRole('tab', { name: 'MySQL' })).toHaveFocus()
-})
-
-test('moves selection with Home and End keys and wraps at boundaries', () => {
-  render(<CodeBlock variants={sqlVariants} />)
-  const postgresql = screen.getByRole('tab', { name: 'PostgreSQL' })
-  const mysql = screen.getByRole('tab', { name: 'MySQL' })
-
-  fireEvent.keyDown(postgresql, { key: 'ArrowLeft' })
-  expect(mysql).toHaveFocus()
-  fireEvent.keyDown(mysql, { key: 'Home' })
-  expect(postgresql).toHaveFocus()
-  fireEvent.keyDown(postgresql, { key: 'End' })
-  expect(mysql).toHaveFocus()
-  fireEvent.keyDown(mysql, { key: 'ArrowRight' })
-  expect(postgresql).toHaveFocus()
+  const options = screen.getAllByRole('option').map((option) => option.textContent)
+  expect(options).toEqual(['PostgreSQL', 'MySQL'])
 })
 
 test('clipboard rejection does not show copied feedback', async () => {
@@ -68,5 +52,5 @@ test('clipboard rejection does not show copied feedback', async () => {
 test('preserves the default Java label for single-source code', () => {
   render(<CodeBlock code="int x = 1;" />)
   expect(screen.getByText('Java')).toBeInTheDocument()
-  expect(screen.queryByRole('tablist')).not.toBeInTheDocument()
+  expect(screen.queryByRole('combobox')).not.toBeInTheDocument()
 })

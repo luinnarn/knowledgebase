@@ -86,10 +86,10 @@ test('renders and switches code variants from topic content', () => {
   }
 
   renderWithCompendium(<TopicView topic={topic} />)
-  const panel = screen.getByRole('tabpanel')
+  const panel = document.querySelector('pre')!
   expect(panel).toHaveTextContent(/RETURNING id/)
 
-  fireEvent.click(screen.getByRole('tab', { name: 'MySQL' }))
+  fireEvent.change(screen.getByRole('combobox'), { target: { value: 'mysql' } })
 
   expect(panel).toHaveTextContent('VALUES (?)')
   expect(panel).not.toHaveTextContent(/RETURNING id/)
